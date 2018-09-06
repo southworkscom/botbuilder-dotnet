@@ -1,0 +1,58 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 4.0.{build}-daily
+
+# Do not build on tags (GitHub and BitBucket)
+skip_tags: true
+
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Build worker image (VM template)
+image: Visual Studio 2017
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - cmd: setx PackageVersion %APPVEYOR_BUILD_VERSION%
+
+# set clone depth
+clone_depth: 1                      # clone entire repository history if not defined
+
+# scripts that run after cloning repository
+install:
+  - cmd: cd .\build && .\SetClassicVersion.cmd %PackageVersion%
+
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: x64
+
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
+# scripts to run before build
+before_build:
+  - cmd: nuget restore Microsoft.Bot.Builder.sln
+
+# Build settings, not to be confused with "before_build" and "after_build".
+# "project" is relative to the original build directory and not influenced by directory changes in "before_build".
+build:
+  parallel: true                       # enable MSBuild parallel builds
+  project: Microsoft.Bot.Builder.sln   # path to Visual Studio solution or project
+
+  # MSBuild verbosity level
+  verbosity: normal
+
+test:
+  # only assemblies to test
+  assemblies:
+    only:
+      - '.\tests\**\Microsoft.Bot.Builder*Tests.dll'
