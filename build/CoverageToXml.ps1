@@ -3,7 +3,7 @@ Write-Host Add Microsoft.VisualStudio.Coverage.Analysis.dll
 [System.Reflection.Assembly]::LoadFrom("C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\PrivateAssemblies\Microsoft.VisualStudio.Coverage.Analysis.dll")
 
 New-Item $env:Build_SourcesDirectory\TestResults\Reports -ItemType Directory
-$coverage = Get-ChildItem -Include "*.coverage" -Recurse | Select -Exp FullName -First 1
+$coverage = Get-ChildItem -Include "*.coverage" -Recurse | Sort LastWriteTime | Select -Exp FullName -Last 1
 Write-Host $coverage
 
 $info = [Microsoft.VisualStudio.Coverage.Analysis.CoverageInfo]::CreateFromFile($coverage)
