@@ -1,6 +1,6 @@
 ﻿<Project>
   <!-- -->
   <Target Name="BotConfigurationValidation" AfterTargets="CoreBuild">
-    <BotConfigCheckerTask ProjectPath="$(MSBuildProjectDirectory)" />
+    <Exec Command="dotnet $(NuGetPackageRoot)Microsoft.Bot.PublishValidation\1.0.0\lib\netcoreapp2.1\Microsoft.Bot.PublishValidation.dll $(MSBuildProjectDirectory)" />
   </Target>
 </Project>

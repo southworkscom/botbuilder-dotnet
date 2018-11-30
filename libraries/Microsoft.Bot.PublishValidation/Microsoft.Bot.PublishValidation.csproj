@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>microsoft,BotFramework,nugetbotbuilder</Authors>
     <Company>Microsoft</Company>
     <Product>Microsoft Bot Builder SDK</Product>
@@ -11,6 +10,8 @@
     <PackageProjectUrl>https://github.com/Microsoft/botbuilder-dotnet</PackageProjectUrl>
     <PackageIconUrl>http://docs.botframework.com/images/bot_icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Microsoft/botbuilder-dotnet</RepositoryUrl>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,14 +21,14 @@
   
   <ItemGroup>
     <!-- pack the props and targets files -->
-    <Content Include="build\Microsoft.Bot.PublishValidation.props" PackagePath="build\" />
     <Content Include="build\Microsoft.Bot.PublishValidation.targets" PackagePath="build\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bot.Configuration" />
     <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
-    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    <PackageReference Update="Microsoft.Bot.Configuration" Version="4.1.5" />
   </ItemGroup>
 
   <ItemGroup>
