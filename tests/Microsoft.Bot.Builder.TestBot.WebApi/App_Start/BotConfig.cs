@@ -1,6 +1,6 @@
-﻿// <copyright file="BotConfig.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System.Web.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.WebApi;
 

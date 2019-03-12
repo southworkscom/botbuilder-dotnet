@@ -1,6 +1,6 @@
-﻿// <copyright file="UnityConfig.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System;
 using Microsoft.Bot.Builder.Integration;
 using Unity;
