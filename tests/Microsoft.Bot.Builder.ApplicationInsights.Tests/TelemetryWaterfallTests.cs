@@ -26,12 +26,7 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Tests
             var telemetryClient = new Mock<IBotTelemetryClient>();
             var dialogState = convoState.CreateProperty<DialogState>("dialogState");
             var dialogs = new DialogSet(dialogState);
-            dialogs.Add(new WaterfallDialog("test", new WaterfallStep[]
-            {
-                async (step, cancellationToken) => { await step.Context.SendActivityAsync("step1"); return Dialog.EndOfTurn; },
-                async (step, cancellationToken) => { await step.Context.SendActivityAsync("step2"); return Dialog.EndOfTurn; },
-                async (step, cancellationToken) => { await step.Context.SendActivityAsync("step3"); return Dialog.EndOfTurn; },
-            }));
+            dialogs.Add(new WaterfallDialog("test", NewWaterfall()));
 
             dialogs.TelemetryClient = telemetryClient.Object;
             
@@ -67,12 +62,7 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Tests
             var dialogState = convoState.CreateProperty<DialogState>("dialogState");
             var dialogs = new DialogSet(dialogState);
             var telemetryClient = new Mock<IBotTelemetryClient>(); ;
-            var waterfallDialog = new WaterfallDialog("test", new WaterfallStep[]
-            {
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step1"); return Dialog.EndOfTurn; },
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step2"); return Dialog.EndOfTurn; },
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step3"); return Dialog.EndOfTurn; },
-            });
+            var waterfallDialog = new WaterfallDialog("test", NewWaterfall());
 
 
             dialogs.Add(waterfallDialog);
@@ -124,12 +114,7 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Tests
             telemetryClient.Setup(c => c.TrackEvent(It.IsAny<string>(), It.IsAny<IDictionary<string, string>>(), It.IsAny<IDictionary<string, double>>()))
                             .Callback<string, IDictionary<string, string>, IDictionary<string, double>>((name, properties, metrics) => saved_properties.Add($"{name}_{counter++}", properties))
                             .Verifiable();
-            var waterfallDialog = new MyWaterfallDialog("test", new WaterfallStep[]
-            {
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step1"); return Dialog.EndOfTurn; },
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step2"); return Dialog.EndOfTurn; },
-                    async (step, cancellationToken) => { await step.Context.SendActivityAsync("step3"); return Dialog.EndOfTurn; },
-            });
+            var waterfallDialog = new MyWaterfallDialog("test", NewWaterfall());
 
             dialogs.Add(waterfallDialog);
             dialogs.TelemetryClient = telemetryClient.Object;
@@ -230,6 +215,28 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Tests
             Assert.IsTrue(saved_properties["WaterfallCancel_4"]["StepName"] == "Step3of3");
             Assert.IsTrue(waterfallDialog.CancelDialogCalled);
             Assert.IsFalse(waterfallDialog.EndDialogCalled);
+        }
+
+        private static WaterfallStep[] NewWaterfall()
+        {
+            return new WaterfallStep[]
+            {
+                async (step, cancellationToken) =>
+                {
+                    await step.Context.SendActivityAsync("step1");
+                    return Dialog.EndOfTurn;
+                },
+                async (step, cancellationToken) =>
+                {
+                    await step.Context.SendActivityAsync("step2");
+                    return Dialog.EndOfTurn;
+                },
+                async (step, cancellationToken) =>
+                {
+                    await step.Context.SendActivityAsync("step3");
+                    return Dialog.EndOfTurn;
+                },
+            };
         }
 
 
