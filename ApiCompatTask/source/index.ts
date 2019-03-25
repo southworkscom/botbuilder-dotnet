@@ -2,21 +2,22 @@ import { join, parse } from 'path'
 import { getInput, setResult, TaskResult } from 'azure-pipelines-task-lib';
 import { execSync } from "child_process";
 import { existsSync } from 'fs';
+import CommandLineResult from './commandLineResult';
+import ApiCompatCommand from './apiCompatCommand';
 
 const run = (): void => {
     // Create ApiCompat path
     const ApiCompatPath = join(__dirname, 'ApiCompat', 'Microsoft.DotNet.ApiCompat.exe');
     
-    // Show the ApiCompat version
-    console.log(execSync(`"${ ApiCompatPath }" --version`).toString());
-    
     // Get the binaries to compare and create the command to run
     const inputFiles: string = getInputFiles();
-    const command = `"${ApiCompatPath}" "${inputFiles}" --impl-dirs "${getInput('implFolder')}" ${getOptions()}`;
+    const apiCompatCommands: ApiCompatCommand = new ApiCompatCommand(ApiCompatPath, inputFiles);
+
+    // Show the ApiCompat version
+    console.log(execSync(apiCompatCommands.version).toString());
 
     // Run the ApiCompat command
-    console.log(command);
-    runCommand(command);
+    runCommand(apiCompatCommands.command);
 }
 
 const getInputFiles = (): string => {
@@ -33,49 +34,18 @@ const getInputFiles = (): string => {
 }
 
 const runCommand = (command: string): void => {
+    console.log(command);
+
     const result = execSync(command).toString();
-    const issuesCount: number = getTotalIssues(result, result.indexOf("Total Issues"));
-    const body: string = getBody(result, result.indexOf("Total Issues"));
-    const compatResult: TaskResult = getCompattibilityResult(issuesCount);
-    const colorCode: string = getColorCode(issuesCount);
-    const resultText = issuesCount != 0 ?
-        `There were ${ issuesCount } differences between the assemblies` :
-        `No differences were found between the assemblies` ;
+    const commandLineResult = new CommandLineResult(result);
+    const totalIssues =  commandLineResult.totalIssues;
+    const resultText = commandLineResult.resultText();
     
-    console.log(body + colorCode + 'Total Issues : ' + issuesCount);
-    setResult(compatResult, resultText);
+    console.log(commandLineResult.body +
+        commandLineResult.colorCode() +
+        'Total Issues : ' + totalIssues);
+    setResult(commandLineResult.compattibilityResult(), resultText);
 }
 
-const getOptions = (): string => {
-    var command = getInput('resolveFx') === 'true' ? ' --resolve-fx' : '';
-    command += getInput('warnOnIncorrectVersion') === 'true' ? ' --warn-on-incorrect-version' : '';
-    command += getInput('warnOnMissingAssemblies') === 'true' ? ' --warn-on-missing-assemblies' : '';
-
-    return command;
-}
-
-const getCompattibilityResult = (totalIssues: number): TaskResult => {
-    return totalIssues === 0
-        ? TaskResult.Succeeded
-        : getInput('failOnIssue') === 'true'
-            ? TaskResult.Failed
-            : TaskResult.SucceededWithIssues;
-}
-
-const getColorCode = (totalIssues: number): string => {
-    return totalIssues === 0
-        ? "\x1b[32m"
-        : getInput('failOnIssue') === 'true'
-            ? "\x1b[31m"
-            : "\x1b[33m";
-}
-
-const getTotalIssues = (message: string, indexOfResult: number): number => {
-    return parseInt(message.substring(indexOfResult).split(':')[1].trim(), 10);
-}
-
-const getBody = (message: string, indexOfResult: number): string => {
-    return message.substring(0, indexOfResult - 1);
-}
 
 run();
