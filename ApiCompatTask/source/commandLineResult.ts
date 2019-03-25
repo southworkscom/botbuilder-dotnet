@@ -3,6 +3,10 @@ import { TaskResult, getInput } from "azure-pipelines-task-lib";
 export default class CommandLineResult {
     private _totalIssues: number;
     private _body: string;
+    private green: string =  "\x1b[32m";
+    private yellow: string =  "\x1b[31m";
+    private red: string =  "\x1b[33m";
+    private failOnIssue: string =  getInput('failOnIssue');
 
     get totalIssues() {
         return  this._totalIssues;
@@ -27,22 +31,20 @@ export default class CommandLineResult {
     }
 
     public resultText() {
-        return this.totalIssues?
+        return this.totalIssues ?
         `There were differences between the assemblies` :
-        `No differences were found between the assemblies` ;
+        `No differences were found between the assemblies`;
     }
 
     public compattibilityResult = (): TaskResult => {
-        return this._totalIssues ?
-            TaskResult.Succeeded : getInput('failOnIssue') ?
-            TaskResult.Failed : TaskResult.SucceededWithIssues;
+        if (this._totalIssues) {
+            return TaskResult.Succeeded;
+        } else {
+            return this.failOnIssue ? TaskResult.Failed : TaskResult.SucceededWithIssues;
+        }      
     }
 
     public colorCode = (): string => {
-        return this._totalIssues === 0
-            ? "\x1b[32m"
-            : getInput('failOnIssue') === 'true'
-                ? "\x1b[31m"
-                : "\x1b[33m";
+        return this._totalIssues ? this.green : this.failOnIssue ? this.yellow : this.red;
     }
 }
