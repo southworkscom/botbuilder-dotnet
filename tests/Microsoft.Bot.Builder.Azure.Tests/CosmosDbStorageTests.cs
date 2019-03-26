@@ -195,14 +195,16 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             var mock = new Mock<IDocumentClient>();
 
             mock.Setup(client => client.CreateDatabaseIfNotExistsAsync(It.IsAny<Database>(), It.IsAny<RequestOptions>()))
-                .ReturnsAsync(() => {
+                .ReturnsAsync(() =>
+                {
                     var database = new Database();
                     database.SetPropertyValue("SelfLink", "dummyDB_SelfLink");
                     return new ResourceResponse<Database>(database);
                 });
 
             mock.Setup(client => client.CreateDocumentCollectionIfNotExistsAsync(It.IsAny<Uri>(), It.IsAny<DocumentCollection>(), It.IsAny<RequestOptions>()))
-                .ReturnsAsync(() => {
+                .ReturnsAsync(() =>
+                {
                     var documentCollection = new DocumentCollection();
                     documentCollection.SetPropertyValue("SelfLink", "dummyDC_SelfLink");
                     return new ResourceResponse<DocumentCollection>(documentCollection);
@@ -412,20 +414,14 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         [TestMethod]
         public async Task DeleteAsyncFromSingleCollection()
         {
-            string DocumentId = "UtteranceLog-001";
-            string[] keys = { DocumentId };
-            var storage = new CosmosDbStorage(new CosmosDbStorageOptions()
-            {
-                AuthKey = CosmosAuthKey,
-                CollectionId = CosmosCollectionName,
-                CosmosDBEndpoint = new Uri(CosmosServiceEndpoint),
-                DatabaseId = CosmosDatabaseName,
-            });
+            string documentId = "UtteranceLog-001";
+            string[] keys = { documentId };
+            var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions());
             var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
             {
-                changes.Add(DocumentId, item);
-            };
+                changes.Add(documentId, item);
+            }
 
             await storage.WriteAsync(changes, CancellationToken.None);
 
@@ -440,73 +436,49 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             /// The partitionKeyPath must have the "document" value to properly route the values as partitionKey
             /// <seealso cref="WriteAsync(IDictionary{string, object}, CancellationToken)"/>
             string partitionKeyPath = "document/city";
-            string DocumentId = "UtteranceLog-001";
-            string[] keys = { DocumentId };
+            string documentId = "UtteranceLog-001";
+            string[] keys = { documentId };
 
-            await CreateCosmosDbWithPartitionedCollection(partitionKeyPath); 
+            await CreateCosmosDbWithPartitionedCollection(partitionKeyPath);
 
             // Connect to the comosDb created before
-            var storage = new CosmosDbStorage(new CosmosDbStorageOptions()
-            {
-                PartitionKey = "Contoso",
-                AuthKey = CosmosAuthKey,
-                CollectionId = CosmosCollectionName,
-                CosmosDBEndpoint = new Uri(CosmosServiceEndpoint),
-                DatabaseId = CosmosDatabaseName,
-            });
-            var item = new StoreItem { MessageList = new string[]{ "hi", "how are u" } , City = "Contoso" };
+            var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions("Contoso"));
+            var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
             {
-                changes.Add(DocumentId, item);
-            };
+                changes.Add(documentId, item);
+            }
+
             await storage.WriteAsync(changes, CancellationToken.None);
 
             var result = await Task.WhenAny(storage.DeleteAsync(keys, CancellationToken.None)).ConfigureAwait(false);
             Assert.IsTrue(result.IsCompletedSuccessfully);
         }
-      
-        [TestMethod] 
+
+        [TestMethod]
         public async Task DeleteAsyncFromPartitionedCollectionWithoutPartitionKey()
         {
             /// The WriteAsync method receive a object as a parameter then encapsulate it in a object named "document"
             /// The partitionKeyPath must have the "document" value to properly route the values as partitionKey
             /// <seealso cref="WriteAsync(IDictionary{string, object}, CancellationToken)"/>
             string partitionKeyPath = "document/city";
-            string DocumentId = "UtteranceLog-001";
-            string[] keys = { DocumentId };
+            string documentId = "UtteranceLog-001";
+            string[] keys = { documentId };
 
             await CreateCosmosDbWithPartitionedCollection(partitionKeyPath);
 
             // Connect to the comosDb created before
-            var storage = new CosmosDbStorage(new CosmosDbStorageOptions()
-            {
-                PartitionKey = string.Empty,
-                AuthKey = CosmosAuthKey,
-                CollectionId = CosmosCollectionName,
-                CosmosDBEndpoint = new Uri(CosmosServiceEndpoint),
-                DatabaseId = CosmosDatabaseName,
-            });
+            var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions());
             var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
             {
-                changes.Add(DocumentId, item);
-            };
+                changes.Add(documentId, item);
+            }
+
             await storage.WriteAsync(changes, CancellationToken.None);
 
             // Should throw InvalidOperationException: PartitionKey value must be supplied for this operation.
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await storage.DeleteAsync(keys, CancellationToken.None));
-        }
-
-        private static async Task CreateCosmosDbWithPartitionedCollection(string partitionKey)
-        {
-            using (var client = new DocumentClient(new Uri(CosmosServiceEndpoint), CosmosAuthKey))
-            {
-                Database _database = await client.CreateDatabaseIfNotExistsAsync(new Database { Id = CosmosDatabaseName });
-                var partitionKeyDefinition = new PartitionKeyDefinition { Paths = new Collection<string> { $"/{partitionKey}" } };
-                var collectionDefinition = new DocumentCollection { Id = CosmosCollectionName, PartitionKey = partitionKeyDefinition };
-
-                await client.CreateDocumentCollectionIfNotExistsAsync(_database.SelfLink, collectionDefinition);
-            }
         }
 
         public bool CheckEmulator()
@@ -518,16 +490,40 @@ namespace Microsoft.Bot.Builder.Azure.Tests
 
             return _hasEmulator.Value;
         }
-    }
 
-    internal class StoreItem : IStoreItem
-    {
-        [JsonProperty(PropertyName = "messageList")]
-        public string[] MessageList { get; set; }
+        private static async Task CreateCosmosDbWithPartitionedCollection(string partitionKey)
+        {
+            using (var client = new DocumentClient(new Uri(CosmosServiceEndpoint), CosmosAuthKey))
+            {
+                Database database = await client.CreateDatabaseIfNotExistsAsync(new Database { Id = CosmosDatabaseName });
+                var partitionKeyDefinition = new PartitionKeyDefinition { Paths = new Collection<string> { $"/{partitionKey}" } };
+                var collectionDefinition = new DocumentCollection { Id = CosmosCollectionName, PartitionKey = partitionKeyDefinition };
 
-        [JsonProperty(PropertyName = "city")]
-        public string City { get; set; }
+                await client.CreateDocumentCollectionIfNotExistsAsync(database.SelfLink, collectionDefinition);
+            }
+        }
 
-        public string ETag { get; set; }
+        private static CosmosDbStorageOptions CreateCosmosDbStorageOptions(string partitionKey = "")
+        {
+            return new CosmosDbStorageOptions()
+            {
+                PartitionKey = partitionKey,
+                AuthKey = CosmosAuthKey,
+                CollectionId = CosmosCollectionName,
+                CosmosDBEndpoint = new Uri(CosmosServiceEndpoint),
+                DatabaseId = CosmosDatabaseName,
+            };
+        }
+
+        internal class StoreItem : IStoreItem
+        {
+            [JsonProperty(PropertyName = "messageList")]
+            public string[] MessageList { get; set; }
+
+            [JsonProperty(PropertyName = "city")]
+            public string City { get; set; }
+
+            public string ETag { get; set; }
+        }
     }
 }
