@@ -3,20 +3,20 @@ import { TaskResult, getInput } from "azure-pipelines-task-lib";
 export default class CommandLineResult {
     private _totalIssues: number;
     private _body: string;
-    private green: string =  "\x1b[32m";
-    private yellow: string =  "\x1b[31m";
-    private red: string =  "\x1b[33m";
-    private failOnIssue: string =  getInput('failOnIssue');
+    private green: string = "\x1b[32m";
+    private yellow: string = "\x1b[31m";
+    private red: string = "\x1b[33m";
+    private failOnIssue: string = getInput('failOnIssue');
 
     get totalIssues() {
-        return  this._totalIssues;
+        return this._totalIssues;
     }
 
     get body() {
         return this._body;
     }
 
-    constructor( result: string ) {
+    constructor(result: string) {
         const indexOfTotalIssues = result.indexOf("Total Issues");
         this._totalIssues = this.getTotalIssues(result, indexOfTotalIssues);
         this._body = this.getBody(result, indexOfTotalIssues);
