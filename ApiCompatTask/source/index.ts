@@ -38,7 +38,7 @@ const runCommand = (command: string): void => {
 
     const result = execSync(command).toString();
     const commandLineResult = new CommandLineResult(result);
-    const totalIssues =  commandLineResult.totalIssues;
+    const totalIssues = commandLineResult.totalIssues;
     const resultText = commandLineResult.resultText();
     
     console.log(commandLineResult.body +
