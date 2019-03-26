@@ -30,6 +30,10 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         private const string CosmosDatabaseName = "test-db";
         private const string CosmosCollectionName = "bot-storage";
 
+        // Variables used to test delete cases
+        private const string DocumentId = "UtteranceLog-001";
+        private readonly StoreItem ItemToTest = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
+
         private static string _emulatorPath = Environment.ExpandEnvironmentVariables(@"%ProgramFiles%\Azure Cosmos DB Emulator\CosmosDB.Emulator.exe");
         private const string _noEmulatorMessage = "This test requires CosmosDB Emulator! go to https://aka.ms/documentdb-emulator-docs to download and install.";
         private static Lazy<bool> _hasEmulator = new Lazy<bool>(() =>
@@ -414,18 +418,13 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         [TestMethod]
         public async Task DeleteAsyncFromSingleCollection()
         {
-            string documentId = "UtteranceLog-001";
-            string[] keys = { documentId };
             var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions());
-            var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
-            {
-                changes.Add(documentId, item);
-            }
+            changes.Add(DocumentId, ItemToTest);
 
             await storage.WriteAsync(changes, CancellationToken.None);
 
-            var result = await Task.WhenAny(storage.DeleteAsync(keys, CancellationToken.None)).ConfigureAwait(false);
+            var result = await Task.WhenAny(storage.DeleteAsync(new string[] { DocumentId }, CancellationToken.None)).ConfigureAwait(false);
             Assert.IsTrue(result.IsCompletedSuccessfully);
         }
 
@@ -436,8 +435,6 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             /// The partitionKeyPath must have the "document" value to properly route the values as partitionKey
             /// <seealso cref="WriteAsync(IDictionary{string, object}, CancellationToken)"/>
             string partitionKeyPath = "document/city";
-            string documentId = "UtteranceLog-001";
-            string[] keys = { documentId };
 
             await CreateCosmosDbWithPartitionedCollection(partitionKeyPath);
 
@@ -445,13 +442,11 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions("Contoso"));
             var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
-            {
-                changes.Add(documentId, item);
-            }
+            changes.Add(DocumentId, ItemToTest);
 
             await storage.WriteAsync(changes, CancellationToken.None);
 
-            var result = await Task.WhenAny(storage.DeleteAsync(keys, CancellationToken.None)).ConfigureAwait(false);
+            var result = await Task.WhenAny(storage.DeleteAsync(new string[] { DocumentId }, CancellationToken.None)).ConfigureAwait(false);
             Assert.IsTrue(result.IsCompletedSuccessfully);
         }
 
@@ -462,23 +457,18 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             /// The partitionKeyPath must have the "document" value to properly route the values as partitionKey
             /// <seealso cref="WriteAsync(IDictionary{string, object}, CancellationToken)"/>
             string partitionKeyPath = "document/city";
-            string documentId = "UtteranceLog-001";
-            string[] keys = { documentId };
 
             await CreateCosmosDbWithPartitionedCollection(partitionKeyPath);
 
             // Connect to the comosDb created before
             var storage = new CosmosDbStorage(CreateCosmosDbStorageOptions());
-            var item = new StoreItem { MessageList = new string[] { "hi", "how are u" }, City = "Contoso" };
             var changes = new Dictionary<string, object>();
-            {
-                changes.Add(documentId, item);
-            }
+            changes.Add(DocumentId, ItemToTest);
 
             await storage.WriteAsync(changes, CancellationToken.None);
 
             // Should throw InvalidOperationException: PartitionKey value must be supplied for this operation.
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await storage.DeleteAsync(keys, CancellationToken.None));
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await storage.DeleteAsync(new string[] { DocumentId }, CancellationToken.None));
         }
 
         public bool CheckEmulator()
