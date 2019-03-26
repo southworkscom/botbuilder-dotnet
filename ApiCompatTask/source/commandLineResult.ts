@@ -16,8 +16,9 @@ export default class CommandLineResult {
         return this._body;
     }
 
-    constructor( result: string ) {
+    constructor(result: string) {
         const indexOfTotalIssues = result.indexOf("Total Issues");
+        
         this._totalIssues = this.getTotalIssues(result, indexOfTotalIssues);
         this._body = this.getBody(result, indexOfTotalIssues);
     }
