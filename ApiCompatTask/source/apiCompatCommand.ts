@@ -27,6 +27,7 @@ export default class ApiCompatCommand {
         command = getInput('resolveFx') === 'true' ? ' --resolve-fx' : '';
         command += getInput('warnOnIncorrectVersion') === 'true' ? ' --warn-on-incorrect-version' : '';
         command += getInput('warnOnMissingAssemblies') === 'true' ? ' --warn-on-missing-assemblies' : '';
+        command += getInput('baselineFile') !== '' ? ' -b ' + getInput('baselineFile') : '';
         
         return command;
     }
