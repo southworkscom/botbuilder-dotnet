@@ -1,5 +1,5 @@
 {
-  "name": "commenttask",
+  "name": "pr-comment-task",
   "version": "1.0.0",
   "description": "A task to post comments on github from azure devops",
   "main": "index.js",
@@ -14,7 +14,7 @@
     "api",
     "compat"
   ],
-  "author": "Aliandi",
+  "author": "ParadoxArg",
   "license": "ISC",
   "dependencies": {
     "@octokit/rest": "^16.21.0",

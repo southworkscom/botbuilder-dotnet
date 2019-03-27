@@ -1,11 +1,11 @@
 {
-    "id": "{{taskguid}}",
-    "name": "github-publisher",
+    "id": "b2995fe7-978e-47d3-bc25-1eb58ddaee6e",
+    "name": "github-pr-comment",
     "friendlyName": "GitHub Comment Publisher",
     "description": "Publish a comment on a GitHub pull request.",
     "helpMarkDown": "",
     "category": "Utility",
-    "author": "Aliandi",
+    "author": "Southworks-Pipelines-Test",
     "version": {
         "Major": 0,
         "Minor": 1,

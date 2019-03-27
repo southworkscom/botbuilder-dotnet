@@ -35,22 +35,32 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var taskLibrary = require("azure-pipelines-task-lib/task");
 var gitClient = require("@octokit/rest");
 var clientWithAuth = new gitClient({
-    auth: "token f06a7b7f04082e7840d602a479325f9464ce7411",
+    auth: "token" + taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var owner, repo, commentText, prNum, comment, result;
+        var repoConfig, commentInfo, comment;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    owner = "southworkscom";
-                    repo = "botbuilder-dotnet";
-                    commentText = "A Comment created from the API";
-                    prNum = 41;
-                    comment = { owner: owner, repo: repo, number: 41, body: commentText };
+                    repoConfig = {
+                        owner: "southworkscom",
+                        repo: "botbuilder-dotnet"
+                    };
+                    commentInfo = {
+                        commentText: "A Comment created from the API",
+                        pullRequestNumber: 41
+                    };
+                    comment = {
+                        owner: repoConfig.owner,
+                        repo: repoConfig.repo,
+                        number: commentInfo.pullRequestNumber,
+                        body: commentInfo.commentText
+                    };
                     return [4 /*yield*/, clientWithAuth.issues.createComment(comment).then(function (res) {
                             console.log(res);
                         })
@@ -58,7 +68,7 @@ function run() {
                             console.log(err);
                         })];
                 case 1:
-                    result = _a.sent();
+                    _a.sent();
                     return [2 /*return*/];
             }
         });

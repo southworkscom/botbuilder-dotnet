@@ -1,9 +1,9 @@
 {
     "manifestVersion": 1,
      "id": "github-pr-comment",
-     "name": "",
-     "version": "0.0.1",
-     "publisher": "mandini-testing",
+     "name": "github-pr-comment",
+     "version": "0.0.10",
+     "publisher": "Southworks-Pipelines-Test",
      "targets": [
          {
              "id": "Microsoft.VisualStudio.Services"
@@ -18,7 +18,7 @@
      },
     "files": [
          {
-             "path": "source"
+             "path": "commentTask"
          }
      ],
     "contributions": [
@@ -29,7 +29,7 @@
                  "ms.vss-distributed-task.tasks"
              ],
              "properties": {
-                 "name": "source"
+                 "name": "commentTask"
              }
      }
      ]
