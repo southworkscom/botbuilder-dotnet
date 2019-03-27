@@ -1,0 +1,27 @@
+{
+  "name": "commenttask",
+  "version": "1.0.0",
+  "description": "A task to post comments on github from azure devops",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/southworkscom/botbuilder-dotnet/tree/feature/azure-pipelines-task/api-compat"
+  },
+  "keywords": [
+    "api",
+    "compat"
+  ],
+  "author": "Aliandi",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^16.21.0",
+    "azure-pipelines-task-lib": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^11.12.0",
+    "@types/q": "^1.5.2"
+  }
+}
