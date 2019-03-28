@@ -56,7 +56,7 @@ function run() {
                         repo: "botbuilder-dotnet"
                     };
                     commentInfo = {
-                        commentText: fileObject["body"].toString(),
+                        commentText: "\`\`\`\r\n" + fileObject["body"].toString() + "\`\`\`",
                         pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
                     };
                     comment = {
