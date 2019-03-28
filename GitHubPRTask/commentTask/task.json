@@ -34,13 +34,13 @@
             "type": "string",
             "label": "Comment Body",
             "defaultValue": "",
-            "required": true,
+            "required": false,
             "helpMarkDown": "Content of the message to be published"
         }
         ,
         {
-            "name": "Path to the body file",
-            "type": "bodyFilePath",
+            "name": "bodyFilePath",
+            "type": "filePath",
             "label": "Path to the body file",
             "defaultValue": "",
             "required": true,

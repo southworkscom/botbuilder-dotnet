@@ -2,7 +2,7 @@
     "manifestVersion": 1,
      "id": "github-pr-comment",
      "name": "github-pr-comment",
-     "version": "0.0.22",
+     "version": "0.0.25",
      "publisher": "Southworks-Pipelines-Test",
      "targets": [
          {

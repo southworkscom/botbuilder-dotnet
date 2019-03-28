@@ -37,22 +37,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var taskLibrary = require("azure-pipelines-task-lib/task");
 var gitClient = require("@octokit/rest");
+var fs_1 = require("fs");
 var clientWithAuth = new gitClient({
     auth: "token " + taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var repoConfig, commentInfo, comment;
+        var bodyFilePath, fileObject, repoConfig, commentInfo, comment;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    console.log(taskLibrary.getInput('bodyFilePath'));
+                    bodyFilePath = fs_1.readFileSync(taskLibrary.getInput('bodyFilePath'));
+                    fileObject = JSON.parse(bodyFilePath.toString());
                     repoConfig = {
                         owner: "southworkscom",
                         repo: "botbuilder-dotnet"
                     };
                     commentInfo = {
-                        commentText: "A Comment created from the API",
+                        commentText: fileObject["body"].toString(),
                         pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
                     };
                     comment = {

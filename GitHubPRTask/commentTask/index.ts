@@ -3,12 +3,12 @@ import gitClient = require('@octokit/rest');
 import { readFileSync } from 'fs';
 
 const clientWithAuth = new gitClient({
-    auth: "token "+ taskLibrary.getInput('userToken'), 
+    auth: "token "+ taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 
 async function run() {
-
+    console.log(taskLibrary.getInput('bodyFilePath'))
     var bodyFilePath = readFileSync(taskLibrary.getInput('bodyFilePath'));
     var fileObject = JSON.parse(bodyFilePath.toString());
 
@@ -18,7 +18,7 @@ async function run() {
     }
 
     const commentInfo = {
-        commentText:  fileObject["body"],
+        commentText:  fileObject["body"].toString(),
         pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
     }
 
