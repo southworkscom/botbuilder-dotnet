@@ -1,7 +1,7 @@
 {
-    "id": "41f908c8-2199-49b3-b988-788c35c7964a",
-    "name": "binaries-comparer",
-    "friendlyName": "Binaries Comparer",
+    "id": "5ed448d8-bef5-47fd-9956-e078a355d79a",
+    "name": "binaries-comparer-demo",
+    "friendlyName": "Binaries Comparer DEMO",
     "description": "Binaries Comparer",
     "helpMarkDown": "",
     "category": "Utility",
@@ -63,6 +63,20 @@
             "required": true,
             "defaultValue": false,
             "helpMarkDown": "Warn if the contract assembly cannot be found in the implementation directories. Default is to error and not do anlysis"
+        },
+        {
+            "name": "outputFilename",
+            "type": "text",
+            "label": "Output file name",
+            "required": true,
+            "helpMarkDown": "Path to the folder that will contain the output files"
+        },
+        {
+            "name": "outputFolder",
+            "type": "filepath",
+            "label": "Output file path",
+            "required": true,
+            "helpMarkDown": "Path to the folder that will contain the output files"
         }
     ],
     "execution": {

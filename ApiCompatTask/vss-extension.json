@@ -1,8 +1,8 @@
 {
      "manifestVersion": 1,
-    "id": "binaries-comparer",
-    "name": "Binaries Comparer",
-    "version": "0.0.41",
+    "id": "binaries-comparer-demo",
+    "name": "Binaries Comparer DEMO",
+    "version": "0.0.12",
     "publisher": "vgrycuk-testing",
     "targets": [
         {

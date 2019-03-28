@@ -1,7 +1,7 @@
-import { join, parse } from 'path'
-import { getInput, setResult, TaskResult } from 'azure-pipelines-task-lib';
+import { join } from 'path'
+import { getInput, setResult, TaskResult, getVariable } from 'azure-pipelines-task-lib/task';
 import { execSync } from "child_process";
-import { existsSync } from 'fs';
+import { existsSync, writeFileSync, mkdirSync } from 'fs';
 
 const run = (): void => {
     // Create ApiCompat path
@@ -43,6 +43,7 @@ const runCommand = (command: string): void => {
         `No differences were found between the assemblies` ;
     
     console.log(body + colorCode + 'Total Issues : ' + issuesCount);
+    writeResult(body, issuesCount);
     setResult(compatResult, resultText);
 }
 
@@ -76,6 +77,32 @@ const getTotalIssues = (message: string, indexOfResult: number): number => {
 
 const getBody = (message: string, indexOfResult: number): string => {
     return message.substring(0, indexOfResult - 1);
+}
+
+const writeResult = (body: string, issues: number): void => {
+    var test: any;
+    
+    if (issues === 0) {
+        test = {
+            issues: 0,
+            body: `No issues found in ${ getInput('contractsFileName') }`
+        }
+    } else {
+        test = {
+            issues: issues,
+            body: body
+        }
+    }
+
+    const fileName: string = getInput('outputFilename');
+    const directory: string = getInput("outputFolder");
+    console.log('Filename: ' + fileName);
+    console.log('Directory: ' + directory);
+    if (!existsSync(directory)) {
+        mkdirSync(directory, { recursive: true });
+    }
+    
+    writeFileSync(`${join(directory, fileName)}.result.json`, JSON.stringify(test, null, 2) );
 }
 
 run();
