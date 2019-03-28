@@ -1,5 +1,5 @@
 {
-    "id": "b2995fe7-978e-47d3-bc25-1eb58ddaee6e",
+    "id": "b4a0f1c1-5efb-431f-ab8b-90448a4b42d4",
     "name": "github-pr-comment",
     "friendlyName": "GitHub Comment Publisher",
     "description": "Publish a comment on a GitHub pull request.",
@@ -28,6 +28,23 @@
             "defaultValue": "",
             "required": true,
             "helpMarkDown": "The pull request to make a comment on"
+        },
+        {
+            "name": "comment",
+            "type": "string",
+            "label": "Comment Body",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Content of the message to be published"
+        }
+        ,
+        {
+            "name": "Path to the body file",
+            "type": "bodyFilePath",
+            "label": "Path to the body file",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Path to a .json file that contains a body object"
         }
     ],
     "execution": {

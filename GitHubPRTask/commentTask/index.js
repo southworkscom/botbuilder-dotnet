@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var taskLibrary = require("azure-pipelines-task-lib/task");
 var gitClient = require("@octokit/rest");
 var clientWithAuth = new gitClient({
-    auth: "token" + taskLibrary.getInput('userToken'),
+    auth: "token " + taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 function run() {
@@ -53,7 +53,7 @@ function run() {
                     };
                     commentInfo = {
                         commentText: "A Comment created from the API",
-                        pullRequestNumber: 41
+                        pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
                     };
                     comment = {
                         owner: repoConfig.owner,
