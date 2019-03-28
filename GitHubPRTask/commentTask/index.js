@@ -48,7 +48,6 @@ function run() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log(taskLibrary.getInput('bodyFilePath'));
                     bodyFilePath = fs_1.readFileSync(taskLibrary.getInput('bodyFilePath'));
                     fileObject = JSON.parse(bodyFilePath.toString());
                     repoConfig = {

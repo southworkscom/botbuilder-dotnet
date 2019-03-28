@@ -8,7 +8,6 @@ const clientWithAuth = new gitClient({
 });
 
 async function run() {
-    console.log(taskLibrary.getInput('bodyFilePath'))
     var bodyFilePath = readFileSync(taskLibrary.getInput('bodyFilePath'));
     var fileObject = JSON.parse(bodyFilePath.toString());
 

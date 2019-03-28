@@ -30,15 +30,6 @@
             "helpMarkDown": "The pull request to make a comment on"
         },
         {
-            "name": "comment",
-            "type": "string",
-            "label": "Comment Body",
-            "defaultValue": "",
-            "required": false,
-            "helpMarkDown": "Content of the message to be published"
-        }
-        ,
-        {
             "name": "bodyFilePath",
             "type": "filePath",
             "label": "Path to the body file",
