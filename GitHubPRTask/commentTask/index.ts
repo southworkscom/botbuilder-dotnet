@@ -17,7 +17,7 @@ async function run() {
     }
 
     const commentInfo = {
-        commentText:  "\`\`\`\r\n" + fileObject["body"].toString() + "\`\`\`",
+        commentText:  "\`\`\`\r\n" + fileObject["body"].toString() + "\r\n\`\`\`",
         pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
     }
 
