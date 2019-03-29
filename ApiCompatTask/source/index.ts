@@ -84,29 +84,19 @@ const getBody = (message: string, indexOfResult: number): string => {
 }
 
 const writeResult = (body: string, issues: number): void => {
-    var test: any;
-    
-    if (issues === 0) {
-        test = {
-            issues: 0,
-            body: `No issues found in ${ getInput('contractsFileName') }`
-        }
-    } else {
-        test = {
-            issues: issues,
-            body: body
-        }
-    }
-
     const fileName: string = getInput('outputFilename');
     const directory: string = getInput("outputFolder");
-    console.log('Filename: ' + fileName);
-    console.log('Directory: ' + directory);
+    const result: any = {
+        issues: issues,
+        body: issues === 0 ? `No issues found in ${ getInput('contractsFileName') }` : body
+    }
+    
+    
     if (!existsSync(directory)) {
         mkdirSync(directory, { recursive: true });
     }
     
-    writeFileSync(`${join(directory, fileName)}`, JSON.stringify(test, null, 2) );
+    writeFileSync(`${join(directory, fileName)}`, JSON.stringify(result, null, 2) );
 }
 
 run();
