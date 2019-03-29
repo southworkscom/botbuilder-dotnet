@@ -106,7 +106,7 @@ const writeResult = (body: string, issues: number): void => {
         mkdirSync(directory, { recursive: true });
     }
     
-    writeFileSync(`${join(directory, fileName)}.result.json`, JSON.stringify(test, null, 2) );
+    writeFileSync(`${join(directory, fileName)}`, JSON.stringify(test, null, 2) );
 }
 
 run();
