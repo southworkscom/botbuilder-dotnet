@@ -65,18 +65,27 @@
             "helpMarkDown": "Warn if the contract assembly cannot be found in the implementation directories. Default is to error and not do anlysis"
         },
         {
+            "name": "generateLog",
+            "type": "boolean",
+            "label": "Create Comparison result log",
+            "required": true,
+            "helpMarkDown": "If selected, a log will be created with the result of the comparisson",
+        },
+        {
             "name": "outputFilename",
             "type": "text",
             "label": "Output file name",
             "required": true,
-            "helpMarkDown": "Path to the folder that will contain the output files"
+            "helpMarkDown": "Path to the folder that will contain the output files",
+            "visibleRule": "generateLog = TRUE"
         },
         {
             "name": "outputFolder",
             "type": "filepath",
             "label": "Output file path",
             "required": true,
-            "helpMarkDown": "Path to the folder that will contain the output files"
+            "helpMarkDown": "Path to the folder that will contain the output files",
+            "visibleRule": "generateLog = TRUE"
         }
     ],
     "execution": {

@@ -43,7 +43,11 @@ const runCommand = (command: string): void => {
         `No differences were found between the assemblies` ;
     
     console.log(body + colorCode + 'Total Issues : ' + issuesCount);
-    writeResult(body, issuesCount);
+
+    if (getInput('generateLog') === 'TRUE') {
+        writeResult(body, issuesCount);
+    }
+
     setResult(compatResult, resultText);
 }
 
