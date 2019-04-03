@@ -89,7 +89,6 @@ namespace Microsoft.Bot.Builder.AI.Luis
         {
         }
 
-
         /// <summary>
         /// Gets or sets a value indicating whether to log personal information that came from the user to telemetry.
         /// </summary>
@@ -168,6 +167,7 @@ namespace Microsoft.Bot.Builder.AI.Luis
         /// <param name="telemetryMetrics">Additional metrics to be logged to telemetry with the LuisResult event.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>The LUIS results of the analysis of the current message text in the current turn's context activity.</returns>
+        /// <typeparam name="T">Generic type parameter.</typeparam>
         public async Task<T> RecognizeAsync<T>(ITurnContext turnContext, Dictionary<string, string> telemetryProperties, Dictionary<string, double> telemetryMetrics = null, CancellationToken cancellationToken = default(CancellationToken))
             where T : IRecognizerConvert, new()
         {
@@ -220,7 +220,6 @@ namespace Microsoft.Bot.Builder.AI.Luis
                 { LuisTelemetryConstants.Intent2Property, (topTwoIntents?.Count() > 1) ? topTwoIntents?[1].Key ?? string.Empty : string.Empty },
                 { LuisTelemetryConstants.IntentScore2Property, (topTwoIntents?.Count() > 1) ? topTwoIntents?[1].Value.Score?.ToString("N2") ?? "0.00" : "0.00" },
                 { LuisTelemetryConstants.FromIdProperty, turnContext.Activity.From.Id },
-
             };
 
             if (recognizerResult.Properties.TryGetValue("sentiment", out var sentiment) && sentiment is JObject)
