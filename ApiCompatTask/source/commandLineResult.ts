@@ -37,15 +37,19 @@ export default class CommandLineResult {
         `No differences were found between the assemblies`;
     }
 
-    public compattibilityResult = (): TaskResult => {
-        if (this._totalIssues) {
-            return TaskResult.Succeeded;
-        } else {
-            return this.failOnIssue ? TaskResult.Failed : TaskResult.SucceededWithIssues;
-        }      
+    public compatibilityResult = (): TaskResult => {
+        return this._totalIssues  === 0
+            ? TaskResult.Succeeded
+            : this.failOnIssue
+                ? TaskResult.SucceededWithIssues
+                : TaskResult.Failed
     }
 
     public colorCode = (): string => {
-        return this._totalIssues ? this.green : this.failOnIssue ? this.yellow : this.red;
+        return this._totalIssues === 0
+            ? this.green
+            : this.failOnIssue
+                ? this.red
+                : this.yellow;
     }
 }
