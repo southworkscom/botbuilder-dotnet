@@ -1,4 +1,4 @@
-import { TaskResult, getInput } from "azure-pipelines-task-lib";
+import { TaskResult, getInput, getBoolInput } from "azure-pipelines-task-lib";
 
 export default class CommandLineResult {
     private _totalIssues: number;
@@ -6,7 +6,7 @@ export default class CommandLineResult {
     private red: string = "\x1b[31m";
     private green: string = "\x1b[32m";
     private yellow: string = "\x1b[33m";
-    private failOnIssue: string = getInput('failOnIssue');
+    private failOnIssue: boolean = getBoolInput('failOnIssue');
 
     get totalIssues() {
         return this._totalIssues;
@@ -38,18 +38,22 @@ export default class CommandLineResult {
     }
 
     public compatibilityResult = (): TaskResult => {
-        return this._totalIssues  === 0
-            ? TaskResult.Succeeded
-            : this.failOnIssue
-                ? TaskResult.Failed
-                : TaskResult.SucceededWithIssues
+        if (this._totalIssues  === 0) {
+            return TaskResult.Succeeded;
+        } else if (this.failOnIssue) {
+            return TaskResult.Failed;
+        } else {
+            return TaskResult.SucceededWithIssues;
+        }
     }
 
     public colorCode = (): string => {
-        return this._totalIssues === 0
-            ? this.green
-            : this.failOnIssue
-                ? this.red
-                : this.yellow;
+        if (this._totalIssues === 0) {
+            return this.green;
+        } else if (this.failOnIssue) {
+            return this.red;
+        } else {
+            return this.yellow;
+        }
     }
 }
