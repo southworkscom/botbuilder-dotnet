@@ -1,8 +1,8 @@
 {
     "manifestVersion": 1,
-     "id": "github-pr-comment",
-     "name": "github-pr-comment",
-     "version": "0.0.33",
+     "id": "github-pr-comment-multiple-files",
+     "name": "github-pr-comment-multiple-files",
+     "version": "0.0.45",
      "publisher": "Southworks-Pipelines-Test",
      "targets": [
          {
@@ -18,7 +18,7 @@
      },
     "files": [
          {
-             "path": "commentTask"
+             "path": "githubComment"
          }
      ],
     "contributions": [
@@ -29,7 +29,7 @@
                  "ms.vss-distributed-task.tasks"
              ],
              "properties": {
-                 "name": "commentTask"
+                 "name": "githubComment"
              }
      }
      ]

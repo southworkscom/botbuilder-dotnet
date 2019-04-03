@@ -37,32 +37,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var taskLibrary = require("azure-pipelines-task-lib/task");
 var gitClient = require("@octokit/rest");
-var fs_1 = require("fs");
+var path = require("path");
+var fs = require("fs");
 var clientWithAuth = new gitClient({
     auth: "token " + taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var bodyFilePath, fileObject, repoConfig, commentInfo, comment;
+        var files, message, repo, comment;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    bodyFilePath = fs_1.readFileSync(taskLibrary.getInput('bodyFilePath'));
-                    fileObject = JSON.parse(bodyFilePath.toString());
-                    repoConfig = {
-                        owner: "southworkscom",
-                        repo: "botbuilder-dotnet"
-                    };
-                    commentInfo = {
-                        commentText: "\`\`\`\r\n" + fileObject["body"].toString() + "\r\n\`\`\`",
-                        pullRequestNumber: parseInt(taskLibrary.getInput('prNumber'))
-                    };
+                    files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), ".json", taskLibrary.getBoolInput('getSubFolders'));
+                    message = combineMessageBody(files);
+                    repo = taskLibrary.getInput('repository').split('/');
                     comment = {
-                        owner: repoConfig.owner,
-                        repo: repoConfig.repo,
-                        number: commentInfo.pullRequestNumber,
-                        body: commentInfo.commentText
+                        owner: repo[0],
+                        repo: repo[1],
+                        number: parseInt(taskLibrary.getInput('prNumber')),
+                        body: "\`\`\`\r\n" + message + "\r\n\`\`\`"
                     };
                     return [4 /*yield*/, clientWithAuth.issues.createComment(comment).then(function (res) {
                             console.log(res);
@@ -77,4 +71,36 @@ function run() {
         });
     });
 }
+var getFilesFromDir = function (filePath, extName, recursive) {
+    if (!fs.existsSync(filePath)) {
+        console.log("File path does not exist: ", filePath);
+        return [];
+    }
+    var result = [];
+    iterateFilesFromDir(filePath, extName, recursive, result);
+    return result;
+};
+var iterateFilesFromDir = function (filePath, extName, recursive, result) {
+    var files = fs.readdirSync(filePath);
+    files.forEach(function (file) {
+        var fileName = path.join(filePath, file);
+        var isFolder = fs.lstatSync(fileName);
+        if (recursive && isFolder.isDirectory()) {
+            result = iterateFilesFromDir(fileName, extName, recursive, result);
+        }
+        if (path.extname(fileName) == extName) {
+            result.push(fileName);
+        }
+    });
+    return result;
+};
+var combineMessageBody = function (files) {
+    var body = "";
+    files.forEach(function (file) {
+        var bodyFile = fs.readFileSync(file);
+        var fileObject = JSON.parse(bodyFile.toString());
+        body += fileObject["body"].toString() + "\r\n";
+    });
+    return body;
+};
 run();

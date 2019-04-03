@@ -1,7 +1,7 @@
 {
-    "id": "b4a0f1c1-5efb-431f-ab8b-90448a4b42d4",
-    "name": "github-pr-comment",
-    "friendlyName": "GitHub Comment Publisher",
+    "id": "9853898b-79b8-45a1-b50f-c89f8e9a2814",
+    "name": "github-pr-comment-multiple-files",
+    "friendlyName": "GitHub Comment Publisher Multiple Files",
     "description": "Publish a comment on a GitHub pull request.",
     "helpMarkDown": "",
     "category": "Utility",
@@ -22,20 +22,36 @@
             "helpMarkDown": "The user token to initiate the connection"
         },
         {
+            "name": "repository",
+            "type": "string",
+            "label": "Repository",
+            "defaultValue": "$(Build.Repository.Name)",
+            "required": true,
+            "helpMarkDown": "The full name of the repository where you want to make the comment(owner/repository)"
+        },
+        {
             "name": "prNumber",
             "type": "string",
             "label": "Pull Request Number",
-            "defaultValue": "",
+            "defaultValue": "$(System.PullRequest.PullRequestNumber)",
             "required": true,
             "helpMarkDown": "The pull request to make a comment on"
         },
         {
             "name": "bodyFilePath",
             "type": "filePath",
-            "label": "Path to the body file",
+            "label": "Path to the body file/s",
             "defaultValue": "",
             "required": true,
-            "helpMarkDown": "Path to a .json file that contains a body object"
+            "helpMarkDown": "Path to the .json files"
+        },
+        {
+            "name": "getSubFolders",
+            "type": "boolean",
+            "label": "Use sub-folders",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Get all the .json files including the ones in subfolders"
         }
     ],
     "execution": {
