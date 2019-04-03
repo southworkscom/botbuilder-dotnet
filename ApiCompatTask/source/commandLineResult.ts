@@ -41,8 +41,8 @@ export default class CommandLineResult {
         return this._totalIssues  === 0
             ? TaskResult.Succeeded
             : this.failOnIssue
-                ? TaskResult.SucceededWithIssues
-                : TaskResult.Failed
+                ? TaskResult.Failed
+                : TaskResult.SucceededWithIssues
     }
 
     public colorCode = (): string => {
