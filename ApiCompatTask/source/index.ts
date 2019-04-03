@@ -44,7 +44,7 @@ const runCommand = (command: string): void => {
     console.log(commandLineResult.body +
         commandLineResult.colorCode() +
         'Total Issues : ' + totalIssues);
-    setResult(commandLineResult.compattibilityResult(), resultText);
+    setResult(commandLineResult.compatibilityResult(), resultText);
 }
 
 
