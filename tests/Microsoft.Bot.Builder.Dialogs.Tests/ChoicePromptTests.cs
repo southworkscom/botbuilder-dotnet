@@ -68,15 +68,16 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
                         {
                             Type = "imBack",
                             Value = "value",
-                            Title = "title"
-                        }
+                            Title = "title",
+                        },
                     };
 
                     var options = new PromptOptions()
                     {
-                        Choices = new List<Choice> { choice }
+                        Choices = new List<Choice> { choice },
                     };
-                    await dc.PromptAsync("ChoicePrompt",
+                    await dc.PromptAsync(
+                        "ChoicePrompt",
                         options,
                         cancellationToken);
                 }
