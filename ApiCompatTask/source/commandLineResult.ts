@@ -3,9 +3,9 @@ import { TaskResult, getInput } from "azure-pipelines-task-lib";
 export default class CommandLineResult {
     private _totalIssues: number;
     private _body: string;
+    private red: string = "\x1b[31m";
     private green: string = "\x1b[32m";
-    private yellow: string = "\x1b[31m";
-    private red: string = "\x1b[33m";
+    private yellow: string = "\x1b[33m";
     private failOnIssue: string = getInput('failOnIssue');
 
     get totalIssues() {
