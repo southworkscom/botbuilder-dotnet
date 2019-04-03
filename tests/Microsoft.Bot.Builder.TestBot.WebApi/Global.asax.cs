@@ -5,7 +5,7 @@ using System.Web.Http;
 
 namespace Microsoft.Bot.Builder.TestBot.WebApi
 {
-    public class WebApiApplication : System.Web.HttpApplication
+    public class Global : System.Web.HttpApplication
     {
         protected void Application_Start()
         {
