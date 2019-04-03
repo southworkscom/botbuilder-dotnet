@@ -13,7 +13,7 @@ export default class ApiCompatCommand {
     }
 
     constructor(apiCompatPath: string, inputFiles: string) {
-        this._command = this.mandatoryParameters(apiCompatPath, inputFiles) + this.optionalParameters;
+        this._command = this.mandatoryParameters(apiCompatPath, inputFiles) + this.optionalParameters();
         this._version = `"${apiCompatPath}" --version`;
     }
 
