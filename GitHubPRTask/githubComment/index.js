@@ -118,7 +118,7 @@ var validateInput = function (files) {
         console.log("The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
         return false;
     }
-    if (parseInt(taskLibrary.getInput('prNumber')) == null || parseInt(taskLibrary.getInput('prNumber')) == NaN || taskLibrary.getInput('prNumber')) {
+    if (parseInt(taskLibrary.getInput('prNumber')) == null || parseInt(taskLibrary.getInput('prNumber')) == NaN || !taskLibrary.getInput('prNumber')) {
         console.log("the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
         return false;
     }
