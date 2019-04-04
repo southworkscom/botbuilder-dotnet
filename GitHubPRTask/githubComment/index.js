@@ -39,6 +39,7 @@ var taskLibrary = require("azure-pipelines-task-lib/task");
 var gitClient = require("@octokit/rest");
 var path = require("path");
 var fs = require("fs");
+var extension = ".json";
 var clientWithAuth = new gitClient({
     auth: "token " + taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
@@ -49,7 +50,8 @@ function run() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), ".json", taskLibrary.getBoolInput('getSubFolders'));
+                    files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), extension, taskLibrary.getBoolInput('getSubFolders'));
+                    if (!validateInput(files)) return [3 /*break*/, 2];
                     message = combineMessageBody(files);
                     repo = taskLibrary.getInput('repository').split('/');
                     comment = {
@@ -66,7 +68,8 @@ function run() {
                         })];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/];
+                    _a.label = 2;
+                case 2: return [2 /*return*/];
             }
         });
     });
@@ -74,9 +77,9 @@ function run() {
 var getFilesFromDir = function (filePath, extName, recursive) {
     if (!fs.existsSync(filePath)) {
         console.log("File path does not exist: ", filePath);
-        return [];
+        return new Array();
     }
-    var result = [];
+    var result = new Array();
     iterateFilesFromDir(filePath, extName, recursive, result);
     return result;
 };
@@ -102,5 +105,23 @@ var combineMessageBody = function (files) {
         body += fileObject["body"].toString() + "\r\n";
     });
     return body;
+};
+var logError = function (message) {
+    taskLibrary.setResult(taskLibrary.TaskResult.Failed, message);
+};
+var validateInput = function (files) {
+    if (!(files && files.length)) {
+        console.log("no files where found on " + taskLibrary.getInput('bodyFilePath') + " with the " + extension + " extension");
+        return false;
+    }
+    if (taskLibrary.getInput('repository') == "" || taskLibrary.getInput('repository').indexOf("/") == -1) {
+        console.log("The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
+        return false;
+    }
+    if (parseInt(taskLibrary.getInput('prNumber')) == null || parseInt(taskLibrary.getInput('prNumber')) == NaN || taskLibrary.getInput('prNumber')) {
+        console.log("the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
+        return false;
+    }
+    return true;
 };
 run();

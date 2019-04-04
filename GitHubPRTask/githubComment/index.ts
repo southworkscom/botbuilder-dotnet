@@ -3,40 +3,43 @@ import gitClient = require('@octokit/rest');
 import path = require('path');
 import fs = require('fs');
 
+const extension = ".json";
+
 const clientWithAuth = new gitClient({
     auth: "token "+ taskLibrary.getInput('userToken'),
     userAgent: 'octokit/rest.js v1.2.3',
 });
 
-
-
 async function run() {
-    var files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), ".json", taskLibrary.getBoolInput('getSubFolders'))
-    var message = combineMessageBody(files);
-    var repo = taskLibrary.getInput('repository').split('/');
+    var files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), extension, taskLibrary.getBoolInput('getSubFolders'))
+    if(validateInput(files)){ 
+        var message = combineMessageBody(files);
+        var repo = taskLibrary.getInput('repository').split('/');
 
-    const comment: gitClient.IssuesCreateCommentParams = {
-        owner: repo[0],
-        repo: repo[1],
-        number: parseInt(taskLibrary.getInput('prNumber')),
-        body: "\`\`\`\r\n" + message + "\r\n\`\`\`"
-    };
-    
-    await clientWithAuth.issues.createComment(comment).then(res => {
-        console.log(res);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+        const comment: gitClient.IssuesCreateCommentParams = {
+            owner: repo[0],
+            repo: repo[1],
+            number: parseInt(taskLibrary.getInput('prNumber')),
+            body: "\`\`\`\r\n" + message + "\r\n\`\`\`"
+        };
+        
+        await clientWithAuth.issues.createComment(comment).then(res => {
+            console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+    }
 }
 
 const getFilesFromDir = (filePath: string, extName: string, recursive: boolean): string[] => {
     
     if (!fs.existsSync(filePath)){
         console.log("File path does not exist: ",filePath);
-        return [];
+        return new Array();
     }
-    var result: string[] = [];
+    var result: string[] = new Array();
     iterateFilesFromDir(filePath, extName, recursive, result);
 
     return result;
@@ -67,6 +70,27 @@ const combineMessageBody = (files: string[]): string => {
         body += fileObject["body"].toString() + "\r\n";
     });
     return body;
+}
+
+const logError = (message: string): void => {
+    taskLibrary.setResult(taskLibrary.TaskResult.Failed, message);
+}
+
+const validateInput = (files: string[]): boolean => {
+    if(!(files && files.length)) {
+        console.log("no files where found on " + taskLibrary.getInput('bodyFilePath') + " with the " + extension + " extension");
+        return false;
+    }
+    if(taskLibrary.getInput('repository') == "" || taskLibrary.getInput('repository').indexOf("/") == -1){
+        console.log("The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
+        return false;
+    }
+    if(parseInt(taskLibrary.getInput('prNumber')) == null || parseInt(taskLibrary.getInput('prNumber')) == NaN || taskLibrary.getInput('prNumber')){
+        console.log("the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
+        return false;
+    }
+
+    return true;
 }
 
 run();
