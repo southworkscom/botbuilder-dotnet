@@ -1,8 +1,8 @@
 {
-    "id": "41f908c8-2199-49b3-b988-788c35c7964a",
+    "id": "f3eb9e7d-6505-4d32-968b-5d30098275d3",
     "name": "binaries-comparer",
-    "friendlyName": "Binaries Comparer",
-    "description": "Binaries Comparer",
+    "friendlyName": "Binaries Comparer - Output Files Test",
+    "description": "Binaries Comparer - Output Files Test",
     "helpMarkDown": "",
     "category": "Utility",
     "author": "Southworks-pipelines-test",
@@ -63,6 +63,29 @@
             "required": true,
             "defaultValue": false,
             "helpMarkDown": "Warn if the contract assembly cannot be found in the implementation directories. Default is to error and not do anlysis"
+        },
+        {
+            "name": "generateLog",
+            "type": "boolean",
+            "label": "Create Comparison result log",
+            "required": true,
+            "helpMarkDown": "If selected, a log will be created with the result of the comparisson",
+        },
+        {
+            "name": "outputFilename",
+            "type": "text",
+            "label": "Output file name",
+            "required": true,
+            "helpMarkDown": "Path to the folder that will contain the output files",
+            "visibleRule": "generateLog = TRUE"
+        },
+        {
+            "name": "outputFolder",
+            "type": "filepath",
+            "label": "Output file path",
+            "required": true,
+            "helpMarkDown": "Path to the folder that will contain the output files",
+            "visibleRule": "generateLog = TRUE"
         }
     ],
     "execution": {

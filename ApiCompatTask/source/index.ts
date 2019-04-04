@@ -1,7 +1,7 @@
-import { join, parse } from 'path'
+import { join } from 'path'
 import { getInput, setResult, TaskResult } from 'azure-pipelines-task-lib';
 import { execSync } from "child_process";
-import { existsSync } from 'fs';
+import { existsSync, writeFileSync, mkdirSync } from 'fs';
 import CommandLineResult from './commandLineResult';
 import ApiCompatCommand from './apiCompatCommand';
 
@@ -41,11 +41,27 @@ const runCommand = (command: string): void => {
     const totalIssues = commandLineResult.totalIssues;
     const resultText = commandLineResult.resultText();
     
+    writeResult(commandLineResult.body, commandLineResult.totalIssues);
     console.log(commandLineResult.body +
         commandLineResult.colorCode() +
         'Total Issues : ' + totalIssues);
     setResult(commandLineResult.compatibilityResult(), resultText);
 }
 
+const writeResult = (body: string, issues: number): void => {
+    const fileName: string = getInput('outputFilename');
+    const directory: string = getInput("outputFolder");
+    const result: any = {
+        issues: issues,
+        body: issues === 0 ? `No issues found in ${ getInput('contractsFileName') }` : body
+    }
+    
+    
+    if (!existsSync(directory)) {
+        mkdirSync(directory, { recursive: true });
+    }
+    
+    writeFileSync(`${join(directory, fileName)}`, JSON.stringify(result, null, 2) );
+}
 
 run();
