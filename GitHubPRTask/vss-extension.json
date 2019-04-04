@@ -2,7 +2,7 @@
     "manifestVersion": 1,
      "id": "github-pr-comment-fix-empty-message",
      "name": "github-pr-comment-fix-empty-message",
-     "version": "0.0.67",
+     "version": "0.0.71",
      "publisher": "Southworks-Pipelines-Test",
      "targets": [
          {

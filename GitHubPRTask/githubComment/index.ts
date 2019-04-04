@@ -85,11 +85,10 @@ const validateInput = (files: string[]): boolean => {
         console.log("The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
         return false;
     }
-    if(parseInt(taskLibrary.getInput('prNumber')) == null || parseInt(taskLibrary.getInput('prNumber')) == NaN || !taskLibrary.getInput('prNumber')){
+    if(parseInt(taskLibrary.getInput('prNumber')) === null || !parseInt(taskLibrary.getInput('prNumber')) || parseInt(taskLibrary.getInput('prNumber')) < 0){
         console.log("the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
         return false;
     }
-
     return true;
 }
 
