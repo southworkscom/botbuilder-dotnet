@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { getInput, setResult, TaskResult } from 'azure-pipelines-task-lib';
+import { getInput, setResult, TaskResult, getBoolInput } from 'azure-pipelines-task-lib';
 import { execSync } from "child_process";
 import { existsSync, writeFileSync, mkdirSync } from 'fs';
 import CommandLineResult from './commandLineResult';
@@ -40,8 +40,11 @@ const runCommand = (command: string): void => {
     const commandLineResult = new CommandLineResult(result);
     const totalIssues = commandLineResult.totalIssues;
     const resultText = commandLineResult.resultText();
-    
-    writeResult(commandLineResult.body, commandLineResult.totalIssues);
+
+    if (getBoolInput('generateLog')) {
+        writeResult(commandLineResult.body, commandLineResult.totalIssues);
+    }
+
     console.log(commandLineResult.body +
         commandLineResult.colorCode() +
         'Total Issues : ' + totalIssues);
