@@ -1,8 +1,8 @@
 {
     "manifestVersion": 1,
-     "id": "github-pr-comment-fix-empty-message",
-     "name": "github-pr-comment-fix-empty-message",
-     "version": "0.0.71",
+     "id": "github-pr-comment",
+     "name": "github-pr-comment",
+     "version": "0.1.0",
      "publisher": "Southworks-Pipelines-Test",
      "targets": [
          {

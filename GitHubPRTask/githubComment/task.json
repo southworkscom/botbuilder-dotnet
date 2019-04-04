@@ -1,7 +1,7 @@
 {
-    "id": "36fc4853-0685-4a1f-902a-d915256299ba",
-    "name": "github-pr-comment-fix-empty-message",
-    "friendlyName": "GitHub Comment Publisher fix empty message",
+    "id": "b4a0f1c1-5efb-431f-ab8b-90448a4b42d4",
+    "name": "github-pr-comment",
+    "friendlyName": "GitHub Comment Publisher",
     "description": "Publish a comment on a GitHub pull request.",
     "helpMarkDown": "",
     "category": "Utility",
