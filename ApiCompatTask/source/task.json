@@ -1,8 +1,8 @@
 {
     "id": "7be38f05-2788-459b-8990-3718d923f09c",
     "name": "binaries-comparer",
-    "friendlyName": "Binaries Comparer - Baseline Test",
-    "description": "Binaries Comparer - Baseline Test",
+    "friendlyName": "Binaries Comparer",
+    "description": "Binaries Comparer",
     "helpMarkDown": "",
     "category": "Utility",
     "author": "Southworks-pipelines-test",
