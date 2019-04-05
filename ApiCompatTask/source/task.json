@@ -1,8 +1,8 @@
 {
-    "id": "f3eb9e7d-6505-4d32-968b-5d30098275d3",
+    "id": "7be38f05-2788-459b-8990-3718d923f09c",
     "name": "binaries-comparer",
-    "friendlyName": "Binaries Comparer - Output Files Test",
-    "description": "Binaries Comparer - Output Files Test",
+    "friendlyName": "Binaries Comparer - Baseline Test",
+    "description": "Binaries Comparer - Baseline Test",
     "helpMarkDown": "",
     "category": "Utility",
     "author": "Southworks-pipelines-test",
@@ -86,6 +86,21 @@
             "required": true,
             "helpMarkDown": "Path to the folder that will contain the output files",
             "visibleRule": "generateLog = TRUE"
+        },
+        {
+            "name": "useBaseline",
+            "type": "boolean",
+            "label": "Use baseline file",
+            "required": true,
+            "helpMarkDown": "Allows the use of a file with known differences to ignore when comparing"
+        },
+        {
+            "name": "baselineFile",
+            "type": "filepath",
+            "label": "Baseline file path",
+            "required": true,
+            "helpMarkDown": "Path to the baseline file",
+            "visibleRule": "useBaseline = TRUE"
         }
     ],
     "execution": {
