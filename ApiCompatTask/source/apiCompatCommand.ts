@@ -1,4 +1,4 @@
-import { getInput } from "azure-pipelines-task-lib";
+import { getInput, getBoolInput } from "azure-pipelines-task-lib";
 
 export default class ApiCompatCommand {
     private _command: string;
@@ -27,6 +27,7 @@ export default class ApiCompatCommand {
         command = getInput('resolveFx') === 'true' ? ' --resolve-fx' : '';
         command += getInput('warnOnIncorrectVersion') === 'true' ? ' --warn-on-incorrect-version' : '';
         command += getInput('warnOnMissingAssemblies') === 'true' ? ' --warn-on-missing-assemblies' : '';
+        command += getBoolInput('useBaseline') ? ` --baseline "${ getInput('baselineFile') }"` : '';
         
         return command;
     }
