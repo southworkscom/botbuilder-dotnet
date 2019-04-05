@@ -10,6 +10,10 @@ const clientWithAuth = new gitClient({
     userAgent: 'octokit/rest.js v1.2.3',
 });
 
+const red: string = "\x1b[31m";
+const green: string = "\x1b[32m";
+const yellow: string = "\x1b[33m";
+
 async function run() {
     var files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), extension, taskLibrary.getBoolInput('getSubFolders'))
     if(validateInput(files)){ 
@@ -27,6 +31,15 @@ async function run() {
             console.log(res);
         })
         .catch(err => {
+            var color = yellow;
+            switch (err.status){
+                case 400:
+                    console.log(color + "The credentials are invalid");
+                case 401:
+                    console.log(color + "The PR " + taskLibrary.getInput('prNumber') + " was not found");
+                case 404:
+                    console.log(color + "The repository " + taskLibrary.getInput('repository') + "was not found");
+            }
             console.log(err);
         });
 
@@ -77,16 +90,17 @@ const logError = (message: string): void => {
 }
 
 const validateInput = (files: string[]): boolean => {
+    var color = yellow;
     if(!(files && files.length)) {
-        console.log("no files where found on " + taskLibrary.getInput('bodyFilePath') + " with the " + extension + " extension");
+        console.log(color + "no files where found on " + taskLibrary.getInput('bodyFilePath') + " with the " + extension + " extension");
         return false;
     }
     if(taskLibrary.getInput('repository') == "" || taskLibrary.getInput('repository').indexOf("/") == -1){
-        console.log("The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
+        console.log(color + "The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
         return false;
     }
     if(parseInt(taskLibrary.getInput('prNumber')) === null || !parseInt(taskLibrary.getInput('prNumber')) || parseInt(taskLibrary.getInput('prNumber')) < 0){
-        console.log("the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
+        console.log(color + "the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
         return false;
     }
     return true;
