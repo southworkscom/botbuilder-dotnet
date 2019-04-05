@@ -67,4 +67,14 @@ const writeResult = (body: string, issues: number): void => {
     writeFileSync(`${join(directory, fileName)}`, JSON.stringify(result, null, 2) );
 }
 
+const validatePath = (inputName: string): string => {
+    const path = getInput(inputName);
+    
+    if (!existsSync(path)) {
+        throw new Error(`The file or directory "${ path }" specified in "${ inputName }" does not exist.`);
+    }
+
+    return path;
+}
+
 run();

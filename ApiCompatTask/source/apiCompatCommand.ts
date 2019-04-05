@@ -31,4 +31,14 @@ export default class ApiCompatCommand {
         
         return command;
     }
+
+    private validatePath = (inputName: string): string => {
+        const path = getInput(inputName);
+        
+        if (!existsSync(path)) {
+            throw new Error(`The file or directory "${ path }" specified in "${ inputName }" does not exist.`);
+        }
+
+        return path;
+    }
 }
