@@ -1,7 +1,7 @@
 {
-    "id": "b4a0f1c1-5efb-431f-ab8b-90448a4b42d4",
-    "name": "github-pr-comment",
-    "friendlyName": "GitHub Comment Publisher",
+    "id": "9853898b-79b8-45a1-b50f-c89f8e9a2814",
+    "name": "github-pr-comment-multiple-files",
+    "friendlyName": "GitHub Comment Publisher Multiple Files",
     "description": "Publish a comment on a GitHub pull request.",
     "helpMarkDown": "",
     "category": "Utility",
