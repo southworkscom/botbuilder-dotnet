@@ -6,29 +6,37 @@ import CommandLineResult from './commandLineResult';
 import ApiCompatCommand from './apiCompatCommand';
 
 const run = (): void => {
-    // Create ApiCompat path
-    const ApiCompatPath = join(__dirname, 'ApiCompat', 'Microsoft.DotNet.ApiCompat.exe');
-    
-    // Get the binaries to compare and create the command to run
-    const inputFiles: string = getInputFiles();
-    const apiCompatCommands: ApiCompatCommand = new ApiCompatCommand(ApiCompatPath, inputFiles);
+    try {
+        // Create ApiCompat path
+        const ApiCompatPath = join(__dirname, 'ApiCompat', 'Microsoft.DotNet.ApiCompat.exe');
+        
+        // Get the binaries to compare and create the command to run
+        const inputFiles: string = getInputFiles();
+        const apiCompatCommands: ApiCompatCommand = new ApiCompatCommand(ApiCompatPath, inputFiles);
 
-    // Show the ApiCompat version
-    console.log(execSync(apiCompatCommands.version).toString());
+        // Show the ApiCompat version
+        console.log(execSync(apiCompatCommands.version).toString());
 
-    // Run the ApiCompat command
-    runCommand(apiCompatCommands.command);
+        // Run the ApiCompat command
+        runCommand(apiCompatCommands.command);
+    } catch (error) {
+        setResult(TaskResult.Failed, error);
+    }
 }
 
 const getInputFiles = (): string => {
     const filesName: string[] = [];
 
     getInput('contractsFileName').split(' ').forEach(file => {
-        const fullFilePath: string = join(getInput('contractsRootFolder'), file);
+        const fullFilePath: string = join(validatePath('contractsRootFolder'), file);
         if (existsSync(fullFilePath)) {
             filesName.push(fullFilePath);
         }
     });
+
+    if (filesName.length == 0) {
+        throw new Error('The specified contracts were not found.');
+    }
 
     return filesName.join(',');
 }
@@ -52,13 +60,12 @@ const runCommand = (command: string): void => {
 }
 
 const writeResult = (body: string, issues: number): void => {
-    const fileName: string = getInput('outputFilename');
-    const directory: string = getInput("outputFolder");
+    const fileName: string = validatePath('outputFilename');
+    const directory: string = validatePath('outputFolder');
     const result: any = {
         issues: issues,
         body: issues === 0 ? `No issues found in ${ getInput('contractsFileName') }` : body
     }
-    
     
     if (!existsSync(directory)) {
         mkdirSync(directory, { recursive: true });
