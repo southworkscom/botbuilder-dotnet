@@ -1,18 +1,15 @@
 import taskLibrary = require('azure-pipelines-task-lib/task');
 import gitClient = require('@octokit/rest');
-import path = require('path');
+import {join, extname} from 'path';
 import fs = require('fs');
+import {EOL} from 'os';
 
 const extension = ".json";
 
 const clientWithAuth = new gitClient({
-    auth: "token "+ taskLibrary.getInput('userToken'),
+    auth: `token ${taskLibrary.getInput('userToken')}`,
     userAgent: 'octokit/rest.js v1.2.3',
 });
-
-const red: string = "\x1b[31m";
-const green: string = "\x1b[32m";
-const yellow: string = "\x1b[33m";
 
 async function run() {
     var files = getFilesFromDir(taskLibrary.getInput('bodyFilePath'), extension, taskLibrary.getBoolInput('getSubFolders'))
@@ -24,21 +21,26 @@ async function run() {
             owner: repo[0],
             repo: repo[1],
             number: parseInt(taskLibrary.getInput('prNumber')),
-            body: "\`\`\`\r\n" + message + "\r\n\`\`\`"
+            body: "\`\`\`" + EOL + message + EOL + "\`\`\`"
         };
         
         await clientWithAuth.issues.createComment(comment).then(res => {
             console.log(res);
         })
         .catch(err => {
-            var color = yellow;
             switch (err.status){
                 case 400:
-                    console.log(color + "The credentials are invalid");
+                    taskLibrary.error(`The PR ${taskLibrary.getInput('prNumber')} was not found`);
+                    break;
                 case 401:
-                    console.log(color + "The PR " + taskLibrary.getInput('prNumber') + " was not found");
+                    taskLibrary.error(`The credentials are invalid`);
+                    break;
                 case 404:
-                    console.log(color + "The repository " + taskLibrary.getInput('repository') + "was not found");
+                    taskLibrary.error(`The PR ${taskLibrary.getInput('prNumber')} on repository ${taskLibrary.getInput('repository')} was not found`);
+                    break;
+                default:
+                    taskLibrary.error(`Unhandled error`);
+                    break;
             }
             console.log(err);
         });
@@ -49,7 +51,7 @@ async function run() {
 const getFilesFromDir = (filePath: string, extName: string, recursive: boolean): string[] => {
     
     if (!fs.existsSync(filePath)){
-        console.log("File path does not exist: ",filePath);
+        console.log(`File path does not exist: ${filePath}`);
         return new Array();
     }
     var result: string[] = new Array();
@@ -61,13 +63,13 @@ const getFilesFromDir = (filePath: string, extName: string, recursive: boolean):
 const iterateFilesFromDir = (filePath: string, extName: string, recursive: boolean, result: string[]): string[] => {
     var files = fs.readdirSync(filePath);
     files.forEach(file => {
-        var fileName = path.join(filePath,file);
+        var fileName = join(filePath,file);
         var isFolder = fs.lstatSync(fileName);
         if (recursive && isFolder.isDirectory()){
             result = iterateFilesFromDir(fileName, extName, recursive, result);
         }
 
-        if (path.extname(fileName) == extName){
+        if (extname(fileName) == extName){
             result.push(fileName);
         } 
     });
@@ -80,7 +82,7 @@ const combineMessageBody = (files: string[]): string => {
     files.forEach(file => {
         var bodyFile = fs.readFileSync(file);
         var fileObject = JSON.parse(bodyFile.toString());
-        body += fileObject["body"].toString() + "\r\n";
+        body += fileObject["body"].toString() + EOL;
     });
     return body;
 }
@@ -90,17 +92,16 @@ const logError = (message: string): void => {
 }
 
 const validateInput = (files: string[]): boolean => {
-    var color = yellow;
     if(!(files && files.length)) {
-        console.log(color + "no files where found on " + taskLibrary.getInput('bodyFilePath') + " with the " + extension + " extension");
+        taskLibrary.error(`No files where found on ${taskLibrary.getInput('bodyFilePath')} with the extension ${extension}`);
         return false;
     }
     if(taskLibrary.getInput('repository') == "" || taskLibrary.getInput('repository').indexOf("/") == -1){
-        console.log(color + "The repository \"" + taskLibrary.getInput('repository') + "\" is invalid");
+        taskLibrary.error(`The repository \"${taskLibrary.getInput('repository')}\" is invalid`);
         return false;
     }
     if(parseInt(taskLibrary.getInput('prNumber')) === null || !parseInt(taskLibrary.getInput('prNumber')) || parseInt(taskLibrary.getInput('prNumber')) < 0){
-        console.log(color + "the PR number \"" + taskLibrary.getInput('prNumber') + "\" is invalid");
+        taskLibrary.error(`The PR number \"${taskLibrary.getInput('prNumber')}\" is invalid`);
         return false;
     }
     return true;
