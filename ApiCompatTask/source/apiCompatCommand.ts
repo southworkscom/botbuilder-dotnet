@@ -1,4 +1,5 @@
-import { getInput, getBoolInput } from "azure-pipelines-task-lib";
+import { getInput, getBoolInput, TaskResult, setResult } from "azure-pipelines-task-lib";
+import { existsSync } from 'fs';
 
 export default class ApiCompatCommand {
     private _command: string;
@@ -18,7 +19,7 @@ export default class ApiCompatCommand {
     }
 
     private mandatoryParameters = (apiCompatPath: string, inputFiles: string): string => {
-        return `"${apiCompatPath}" "${inputFiles}" --impl-dirs "${getInput('implFolder')}"`
+        return `"${apiCompatPath}" "${inputFiles}" --impl-dirs "${ this.validatePath('implFolder')}"`
     }
 
     private optionalParameters = (): string => {
@@ -27,8 +28,18 @@ export default class ApiCompatCommand {
         command = getInput('resolveFx') === 'true' ? ' --resolve-fx' : '';
         command += getInput('warnOnIncorrectVersion') === 'true' ? ' --warn-on-incorrect-version' : '';
         command += getInput('warnOnMissingAssemblies') === 'true' ? ' --warn-on-missing-assemblies' : '';
-        command += getBoolInput('useBaseline') ? ` --baseline "${ getInput('baselineFile') }"` : '';
+        command += getBoolInput('useBaseline') ? ` --baseline "${ this.validatePath('baselineFile') }"` : '';
         
         return command;
+    }
+
+    private validatePath = (inputName: string): string => {
+        const path = getInput(inputName);
+        
+        if (!existsSync(path)) {
+            throw new Error(`The file or directory "${ path }" specified in "${ inputName }" does not exist.`);
+        }
+
+        return path;
     }
 }
