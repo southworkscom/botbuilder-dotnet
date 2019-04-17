@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "botEnv": {
+            "value": "prod"
+        },
+        "botId": {
+            "value": "TguzmanBotTest"
+        },
+        "description": {
+            "value": ""
+        },
+        "location": {
+            "value": "westus"
+        },
+        "sku": {
+            "value": "F0"
+        },
+        "kind": {
+            "value": "sdk"
+        },
+        "siteName": {
+            "value": "guzmanotest5bwa"
+        },
+        "createNewStorage": {
+            "value": true
+        },
+        "storageAccountName": {
+            "value": "guzmanotiesq"
+        },
+        "storageAccountResourceId": {
+            "value": ""
+        },
+        "appId": {
+            "value": "da420481-fa4f-4550-a509-a23bf7b55f93"
+        },
+        "appSecret": {
+            "value": "kkfeiLB133{gtWAZZZ60((;"
+        },
+        "azureWebJobsBotFrameworkDirectLineSecret": {
+            "value": ""
+        },
+        "zipUrl": {
+            "value": "https://connectorprod.blob.core.windows.net/bot-packages/csharp-abs-webapp-v4_echobot_precompiled.zip"
+        },
+        "proactiveZipUrl": {
+            "value": ""
+        },
+        "useAppInsights": {
+            "value": true
+        },
+        "appInsightsLocation": {
+            "value": "westus2"
+        },
+        "serverFarmId": {
+            "value": "/subscriptions/28b01fda-097c-4246-a0c8-1e1cfc302723/resourceGroups/manx-stable/providers/Microsoft.Web/serverfarms/TguzmanBotTest"
+        },
+        "createServerFarm": {
+            "value": true
+        },
+        "serverFarmLocation": {
+            "value": "westus"
+        },
+        "serverFarmSku": {
+            "value": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            }
+        },
+        "endpoint": {
+            "value": ""
+        },
+        "luisApiLocation": {
+            "value": "Global"
+        },
+        "botFileEncryptionKey": {
+            "value": "JURfYYE88D3Xu7VavFHlW1zWv5pngw9m/DgzoKet/Mg="
+        }
+    }
+}
