@@ -100,7 +100,7 @@
         "serverFarmName": "[last(split(parameters('serverFarmId'), '/'))]",
         "myWorkerSize": 0,
         "proactiveFunctionName": "[concat(parameters('siteName'), '-function')]",
-        "insightsName": "[concat(parameters('botId'), substring(uniqueString(resourceGroup().id), 0, 6))]",
+        "insightsName": "[parameters('botId')]",
         "config": {
             "scratch": {
                 "stateEndpoint": "https://intercom-api-scratch.azurewebsites.net",
@@ -214,7 +214,11 @@
                         },
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "8.9.4"
+                            "value": "10.14.1"
+                        },
+                        {
+                            "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                            "value": "true"
                         },
                         {
                             "name": "BotEnv",
@@ -231,6 +235,14 @@
                         {
                             "name": "botFileSecret",
                             "value": "[parameters('botFileEncryptionKey')]"
+                        },
+                        {
+                            "name": "MicrosoftAppId",
+                            "value": "[parameters('appId')]"
+                        },
+                        {
+                            "name": "MicrosoftAppPassword",
+                            "value": "[parameters('appSecret')]"
                         }
                     ],
                     "cors": {
@@ -351,7 +363,8 @@
                 "allSettings": {
                     "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]",
                     "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]",
-                    "WEBSITE_NODE_DEFAULT_VERSION": "8.9.4",
+                    "WEBSITE_NODE_DEFAULT_VERSION": "10.14.1",
+                    "SCM_DO_BUILD_DURING_DEPLOYMENT": "true",
                     "BotEnv": "[parameters('botEnv')]",
                     "BotId": "[parameters('botId')]",
                     "MicrosoftAppId": "[parameters('appId')]",

@@ -6,7 +6,7 @@
             "value": "prod"
         },
         "botId": {
-            "value": "TguzmanBotTest"
+            "value": "nightly-test-bot"
         },
         "description": {
             "value": ""
@@ -21,22 +21,22 @@
             "value": "sdk"
         },
         "siteName": {
-            "value": "guzmanotest5bwa"
+            "value": "nightly-test-bot"
         },
         "createNewStorage": {
             "value": true
         },
         "storageAccountName": {
-            "value": "guzmanotiesq"
+            "value": "nightlytestbot"
         },
         "storageAccountResourceId": {
             "value": ""
         },
         "appId": {
-            "value": "da420481-fa4f-4550-a509-a23bf7b55f93"
+            "value": "dcc6c567-95df-43fa-80cb-17781d1ef20b"
         },
         "appSecret": {
-            "value": "kkfeiLB133{gtWAZZZ60((;"
+            "value": "glNKNQX736-pwgqwTS54]_)"
         },
         "azureWebJobsBotFrameworkDirectLineSecret": {
             "value": ""
@@ -51,10 +51,10 @@
             "value": true
         },
         "appInsightsLocation": {
-            "value": "westus2"
+            "value": "southcentralus"
         },
         "serverFarmId": {
-            "value": "/subscriptions/28b01fda-097c-4246-a0c8-1e1cfc302723/resourceGroups/manx-stable/providers/Microsoft.Web/serverfarms/TguzmanBotTest"
+            "value": "/subscriptions/28b01fda-097c-4246-a0c8-1e1cfc302723/resourceGroups/nightly-test-group/providers/Microsoft.Web/serverfarms/nightly-test-bot"
         },
         "createServerFarm": {
             "value": true
@@ -78,7 +78,7 @@
             "value": "Global"
         },
         "botFileEncryptionKey": {
-            "value": "JURfYYE88D3Xu7VavFHlW1zWv5pngw9m/DgzoKet/Mg="
+            "value": "U3sodiyB12KJoUPg6/IeGMn5vH1f2fjp1tsn+yHgbC4="
         }
     }
 }
