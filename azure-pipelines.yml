@@ -1,0 +1,143 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+pool:
+  name: Hosted VS2017
+  demands:
+  - msbuild
+  - visualstudio
+
+#Your build pipeline references a secret variable named ‘AppId’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AppSecret’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AppId’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AppSecret’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AzureDeploymentUser’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AzureDeploymentPassword’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘TESTAPPIDSECRET’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘TESTPASSWORDSECRET’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘LUISAPPIDSECRET’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘LUISSUBSCRIPTIONKEYSECRET’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+variables:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreInstaller@0
+  displayName: 'Use .NET Core sdk 2.2.100'
+  inputs:
+    version: 2.2.100
+  continueOnError: true
+
+- task: NuGetToolInstaller@0
+  displayName: 'Use NuGet 4.9.1'
+  inputs:
+    versionSpec: 4.9.1
+
+- task: NuGetCommand@2
+  displayName: 'NuGet restore'
+  inputs:
+    restoreSolution: '$(System.DefaultWorkingDirectory)\Microsoft.Bot.Builder.sln'
+
+- task: VSBuild@1
+  displayName: 'Build solution Microsoft.Bot.Builder.sln'
+  inputs:
+    solution: Microsoft.Bot.Builder.sln
+    vsVersion: 15.0
+    msbuildArgs: '/p:DefineConstants="FUNCTIONALTESTS"'
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Dotnet Publish TestBot'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: '$(System.DefaultWorkingDirectory)\tests\Microsoft.Bot.Builder.TestBot\Microsoft.Bot.Builder.TestBot.csproj'
+    arguments: '--output $(System.DefaultWorkingDirectory)\tests\Microsoft.Bot.Builder.TestBot\publishedbot'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+- task: AzureCLI@1
+  displayName: 'Create Resources'
+  inputs:
+    azureSubscription: 'dev-test (28b01fda-097c-4246-a0c8-1e1cfc302723)'
+    scriptLocation: inlineScript
+    inlineScript: |
+     call az group create --name "$(BotGroup)" --location "westus"
+     
+     call az appservice plan create --name "$(BotName)" --resource-group "$(BotGroup)" --sku B1 --is-linux
+     
+     call az webapp create --resource-group "$(BotGroup)" --plan "$(BotName)" --name "$(BotName)" --runtime "DOTNETCORE|2.2" --deployment-local-git
+     
+     call az webapp config appsettings set --resource-group $(BotGroup) --name $(BotName) --settings MicrosoftAppId="$(AppId)"
+     
+     call az webapp config appsettings set --resource-group $(BotGroup) --name $(BotName) --settings MicrosoftAppPassword="$(AppSecret)"
+     
+     call az webapp config appsettings set --resource-group $(BotGroup) --name $(BotName) --settings CHOSENBOT=$(CHOSENBOT)
+     
+     call az bot create -n $(BotName) -g $(BotGroup) -k registration -e https://$(BotName).azurewebsites.net/api/messages --appid "$(AppId)" --password "$(AppSecret)"
+     
+     call az bot directline create -n "$(BotName)" -g "$(BotGroup)" > "$(System.DefaultWorkingDirectory)\DirectLineCreate.json"
+
+- script: |
+   Move $(System.DefaultWorkingDirectory)\tests\Microsoft.Bot.Builder.TestBot\DeploymentScripts\Linux\* $(System.DefaultWorkingDirectory)\tests\Microsoft.Bot.Builder.TestBot
+   
+   git config --global user.name "BotBuilderDotNetPipeline"
+   
+   git config --global user.email BotBuilderDotNet@Pipeline.com
+   
+   git init
+   
+   git add .
+   
+   git commit -m "asd"
+   
+   git remote add azure https://$(AzureDeploymentUser):$(AzureDeploymentPassword)@$(BotName).scm.azurewebsites.net:443/$(BotName).git
+   
+   git push azure master
+  workingDirectory: '$(System.DefaultWorkingDirectory)\tests\Microsoft.Bot.Builder.TestBot'
+  displayName: 'Git Bot Deployment'
+
+- powershell: |
+   $json = Get-Content '$(System.DefaultWorkingDirectory)\DirectLineCreate.json' | Out-String | ConvertFrom-Json
+   
+   $key = $json.properties.properties.sites.key
+   $botName = "$env:BotName"
+   
+   echo "##vso[task.setvariable variable=DIRECTLINE;]$key"
+   echo "##vso[task.setvariable variable=BOTID;]$botName"
+  displayName: 'PowerShell Script'
+
+- powershell: |
+   # Write your powershell commands here.
+   
+   echo '##vso[task.setvariable variable=TESTAPPID]$(TESTAPPIDSECRET)'
+   echo '##vso[task.setvariable variable=TESTPASSWORD]$(TESTPASSWORDSECRET)'
+   echo '##vso[task.setvariable variable=LUISAPPID]$(LUISAPPIDSECRET)'
+   echo '##vso[task.setvariable variable=LUISSUBSCRIPTIONKEY]$(LUISSUBSCRIPTIONKEYSECRET)'
+   
+   # Use the environment variables input below to pass secret variables to this script.
+  displayName: 'Set Environment Variables'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: test
+    projects: |
+     **/**Tests.csproj
+     !**/Microsoft.Bot.Builder.Classic.Tests.csproj
+     !**/Microsoft.Bot.ApplicationInsights.WebApi.Tests.csproj
+     !**/Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests.csproj
+    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter TestCategory!=IgnoreInAutomatedBuild'
+    workingDirectory: tests
+
+- task: AzureCLI@1
+  displayName: 'Delete Resources'
+  inputs:
+    azureSubscription: 'dev-test (28b01fda-097c-4246-a0c8-1e1cfc302723)'
+    scriptLocation: inlineScript
+    inlineScript: 'call az group delete -n "$(BotGroup)" --yes'
+  condition: always()
+
