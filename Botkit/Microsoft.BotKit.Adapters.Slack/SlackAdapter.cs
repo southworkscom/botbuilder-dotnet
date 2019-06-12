@@ -1,4 +1,4 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
 using Microsoft.Rest.Serialization;
@@ -251,7 +251,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                         {
                             ResourceResponse response = new ResourceResponse() //{ id = result.Id, activityId = result.Ts, conversation = new { Id = result.Channel } };
                             {
-                                Id = (result as dynamic).Id
+                                Id = (result as dynamic).ts
                             };
                             responses.Add(response as ResourceResponse);
                         }
