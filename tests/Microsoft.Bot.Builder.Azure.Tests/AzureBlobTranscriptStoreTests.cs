@@ -217,13 +217,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             Assert.ThrowsException<FormatException>(() => new AzureBlobTranscriptStore("123", ContainerName));
 
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new AzureBlobTranscriptStore((CloudStorageAccount)null, ContainerName));
-
-            Assert.ThrowsException<ArgumentNullException>(() =>
                 new AzureBlobTranscriptStore((string)null, ContainerName));
-
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new AzureBlobTranscriptStore((CloudStorageAccount)null, null));
 
             Assert.ThrowsException<ArgumentNullException>(() => new AzureBlobTranscriptStore((string)null, null));
         }

@@ -55,7 +55,7 @@ namespace Microsoft.Bot.Builder.Azure
         /// </summary>
         /// <param name="storageAccount">Azure CloudStorageAccount instance.</param>
         /// <param name="containerName">Name of the Blob container where entities will be stored.</param>
-        public AzureBlobStorage(CloudStorageAccount storageAccount, string containerName)
+        private AzureBlobStorage(CloudStorageAccount storageAccount, string containerName)
         {
             _storageAccount = storageAccount ?? throw new ArgumentNullException(nameof(storageAccount));
             _containerName = containerName ?? throw new ArgumentNullException(nameof(containerName));

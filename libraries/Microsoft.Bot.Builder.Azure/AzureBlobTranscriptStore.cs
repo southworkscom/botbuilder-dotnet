@@ -45,7 +45,7 @@ namespace Microsoft.Bot.Builder.Azure
         /// </summary>
         /// <param name="storageAccount">Azure Storage Account to store transcripts.</param>
         /// <param name="containerName">Name of the container where transcript blobs will be stored.</param>
-        public AzureBlobTranscriptStore(CloudStorageAccount storageAccount, string containerName)
+        private AzureBlobTranscriptStore(CloudStorageAccount storageAccount, string containerName)
         {
             if (storageAccount == null)
             {

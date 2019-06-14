@@ -37,13 +37,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             Assert.ThrowsException<FormatException>(() => new AzureBlobStorage("123", ContainerName));
 
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new AzureBlobStorage((CloudStorageAccount)null, ContainerName));
-
-            Assert.ThrowsException<ArgumentNullException>(() =>
                 new AzureBlobStorage((string)null, ContainerName));
-
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new AzureBlobStorage((CloudStorageAccount)null, null));
 
             Assert.ThrowsException<ArgumentNullException>(() => new AzureBlobStorage((string)null, null));
         }
@@ -52,8 +46,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         public async Task TestBlobStorageWriteRead()
         {
             // Arrange
-            var storageAccount = CloudStorageAccount.Parse(ConnectionString);
-            var storage = new AzureBlobStorage(storageAccount, ContainerName);
+            var storage = new AzureBlobStorage(ConnectionString, ContainerName);
 
             var changes = new Dictionary<string, object>
             {
@@ -75,8 +68,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         public async Task TestBlobStorageWriteDeleteRead()
         {
             // Arrange
-            var storageAccount = CloudStorageAccount.Parse(ConnectionString);
-            var storage = new AzureBlobStorage(storageAccount, ContainerName);
+            var storage = new AzureBlobStorage(ConnectionString, ContainerName);
 
             var changes = new Dictionary<string, object>
             {
@@ -98,8 +90,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         public async Task TestBlobStorageChanges()
         {
             // Arrange
-            var storageAccount = CloudStorageAccount.Parse(ConnectionString);
-            var storage = new AzureBlobStorage(storageAccount, ContainerName);
+            var storage = new AzureBlobStorage(ConnectionString, ContainerName);
 
             // Act
             await storage.WriteAsync(new Dictionary<string, object> { { "a", "1.0" }, { "b", "2.0" } });
@@ -118,8 +109,7 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         public async Task TestConversationStateBlobStorage()
         {
             // Arrange
-            var storageAccount = CloudStorageAccount.Parse(ConnectionString);
-            var storage = new AzureBlobStorage(storageAccount, ContainerName);
+            var storage = new AzureBlobStorage(ConnectionString, ContainerName);
             var conversationState = new ConversationState(storage);
             var propAccessor = conversationState.CreateProperty<Prop>("prop");
             var adapter = new TestStorageAdapter();
