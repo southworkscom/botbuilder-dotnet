@@ -195,7 +195,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                     foreach (var property in message.GetType().GetFields())
                     {
                         string name = property.Name;
-                        var value = ((activity as dynamic)[name] != null) ? (activity as dynamic)[name] : null;
+                        var value = ((activity.ChannelData as dynamic)[name] != null) ? (activity.ChannelData as dynamic)[name] : null;
                         if (value != null)
                         {
                             message.GetType().GetField(name).SetValue(message, value);
