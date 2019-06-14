@@ -177,8 +177,6 @@ namespace Microsoft.BotKit.Adapters.Slack
 
             if (activity.Conversation.Properties["thread_ts"].ToString() != string.Empty)
             {
-                //object obj = JsonConvert.DeserializeObject<object>(activity.Conversation.Properties["thread_ts"].ToString());
-                //message.ThreadTS = (obj != null) ? (DateTime)obj : default(DateTime);
                 message.ThreadTS = activity.Conversation.Properties["thread_ts"].ToString();
             }
 
