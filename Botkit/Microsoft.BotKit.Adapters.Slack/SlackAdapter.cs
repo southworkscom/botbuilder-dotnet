@@ -193,7 +193,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                     foreach (var property in message.GetType().GetFields())
                     {
                         string name = property.Name;
-                        var value = ((activity.ChannelData as dynamic)[name] != null) ? (activity.ChannelData as dynamic)[name] : null;
+                        var value = (activity.ChannelData as dynamic)[name];
                         if (value != null)
                         {
                             message.GetType().GetField(name).SetValue(message, value);
@@ -253,20 +253,12 @@ namespace Microsoft.BotKit.Adapters.Slack
                             };
                             responses.Add(response as ResourceResponse);
                         }
-                        /*else
-                        {
-                            throw new Exception($"Error sending activity to API:{result}");
-                        }*/
                     }
                     catch (Exception ex)
                     {
                         throw ex;
                     }
                 }
-                /*else
-                {
-                     throw new Exception("Unknown message type encountered in sendActivities:${activity.Type}");
-                }*/
             }
 
             return responses.ToArray();
@@ -389,7 +381,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             };
 
                             // Extra fields that do not belong to activity
-                            activity.Conversation.Properties["thread_ts"] = ((dynamic)slackEvent)["event"].thread_ts;
+                            activity.Conversation.Properties["thread_ts"] = slackEvent["event"].thread_ts;
                             activity.Conversation.Properties["team"] = slackEvent.Team.Id;
 
                             // this complains because of extra fields in conversation
@@ -436,23 +428,23 @@ namespace Microsoft.BotKit.Adapters.Slack
                                 ChannelId = "slack",
                                 Conversation = new ConversationAccount()
                                 {
-                                    Id = (slackEvent as dynamic)["event"].channel,
+                                    Id = slackEvent["event"].channel,
                                 },
                                 From = new ChannelAccount()
                                 {
-                                    Id = (((dynamic)slackEvent)["event"].bot_id != null) ? ((dynamic)slackEvent)["event"].bot_id : ((dynamic)slackEvent)["event"].user,
+                                    Id = (slackEvent["event"].bot_id != null) ? slackEvent["event"].bot_id : slackEvent["event"].user,
                                 },
                                 Recipient = new ChannelAccount()
                                 {
                                     Id = null,
                                 },
-                                ChannelData = ((dynamic)slackEvent)["event"],
+                                ChannelData = slackEvent["event"],
                                 Text = null,
                                 Type = ActivityTypes.Event,
                             };
 
                             // Extra field that doesn't belong to activity
-                            activity.Conversation.Properties["thread_ts"] = ((dynamic)slackEvent)["event"].thread_ts;
+                            activity.Conversation.Properties["thread_ts"] = slackEvent["event"].thread_ts;
 
                             // this complains because of extra fields in conversation
                             activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity);
