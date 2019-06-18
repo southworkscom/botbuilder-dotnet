@@ -1,6 +1,5 @@
-﻿// <copyright file="BotkitDialogWrapper.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+// Licensed under the MIT License.
 
 namespace Microsoft.BotKit
 {
@@ -31,14 +30,14 @@ namespace Microsoft.BotKit
         /// Jump immediately to the first message in a different thread.
         /// </summary>
         /// <param name="thread">Name of a thread.</param>
-        public void GotoThread(string thread)
+        public async void GotoThread(string thread)
         {
         }
 
         /// <summary>
         ///  Repeat the last message sent on the next turn.
         /// </summary>
-        public void Repeat()
+        public async void Repeat()
         {
         }
 
