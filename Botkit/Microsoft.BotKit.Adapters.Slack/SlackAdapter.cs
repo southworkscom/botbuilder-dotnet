@@ -340,7 +340,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                 StreamReader sr = new StreamReader(request.Body);
                 dynamic slackEvent = JsonConvert.DeserializeObject(sr.ReadToEnd());
 
-                if ((slackEvent as dynamic).type == "url_verification")
+                if (slackEvent.type == "url_verification")
                 {
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
@@ -409,10 +409,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                             }
                         }
                     }
-                    else if ((slackEvent as dynamic).type == "event_callback")
+                    else if (slackEvent.type == "event_callback")
                     {
                         // this is an event api post
-                        if (this.options.VerificationToken != null && (slackEvent as dynamic).token != this.options.VerificationToken)
+                        if (this.options.VerificationToken != null && slackEvent.token != this.options.VerificationToken)
                         {
                             response.StatusCode = 403;
                             response.ContentType = "text/plain";
@@ -423,7 +423,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                         {
                             Activity activity = new Activity()
                             {
-                                Id = ((dynamic)slackEvent)["event"].ts,
+                                Id = slackEvent["event"].ts,
                                 Timestamp = default(DateTime),
                                 ChannelId = "slack",
                                 Conversation = new ConversationAccount()
@@ -456,10 +456,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                             activity.Conversation.Properties["team"] = (activity.ChannelData as dynamic).team;
 
                             // If this is conclusively a message originating from a user, we'll mark it as such
-                            if (((dynamic)slackEvent)["event"].type == "message" && ((dynamic)slackEvent)["event"].subtype == null)
+                            if (slackEvent["event"].type == "message" && slackEvent["event"].subtype == null)
                             {
                                 activity.Type = ActivityTypes.Message;
-                                activity.Text = ((dynamic)slackEvent)["event"].text;
+                                activity.Text = slackEvent["event"].text;
                             }
 
                             // create a conversation reference
