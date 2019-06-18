@@ -1,13 +1,13 @@
-// Copyright(c) Microsoft Corporation. All rights reserved.
+﻿// Copyright(c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
@@ -20,7 +20,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// </summary>
         public async Task OnTurnAsync(ITurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if ((context.Activity.Type == ActivityTypes.Event))
+            if (context.Activity.Type == ActivityTypes.Event)
             {
                 // Handle message sub-types
                 if ((context.Activity.ChannelData as dynamic)?.subtype != null)
