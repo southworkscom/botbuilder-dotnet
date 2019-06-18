@@ -1,6 +1,5 @@
-﻿// <copyright file="Channel.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+// Licensed under the MIT License.
 
 namespace Microsoft.BotKit
 {
