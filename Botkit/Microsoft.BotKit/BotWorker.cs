@@ -35,12 +35,13 @@ namespace Microsoft.BotKit
             this.config = config;
         }
 
-        // Send a message using whatever context the bot was spawned in or set using changeContext() --
-        // or more likely, one of the platform-specific helpers like startPrivateConversation() (Slack), startConversationWithUser() (Twilio SMS), and
-        // startConversationWithUser() (Facebook Messenger) Be sure to check the platform documentation for others - most adapters include at least one.
-        // </summary>
-        // <param name="message">A BotkitSlackMessage containing the text of a reply, or more fully formed message object</param>
-        // <returns>Return value will contain the results of the send action, typically {id: <id of message>}</returns>
+        /// <summary>
+        /// Send a message using whatever context the bot was spawned in or set using changeContext() --
+        /// or more likely, one of the platform-specific helpers like startPrivateConversation() (Slack), startConversationWithUser() (Twilio SMS), and
+        /// startConversationWithUser() (Facebook Messenger) Be sure to check the platform documentation for others - most adapters include at least one.
+        /// </summary>
+        /// <param name="message">A BotkitSlackMessage containing the text of a reply, or more fully formed message object.</param>
+        /// <returns>A <see cref="Task{TResult}"/>Return value will contain the results of the send action, typically {id:. <id of message>}.</returns>
         public async Task<ResourceResponse> Say(BotkitSlackMessage message)
         {
             var activity = this.EnsureMessageFormat(message);
@@ -49,10 +50,10 @@ namespace Microsoft.BotKit
         }
 
         /// <summary>
-        /// Say method that returns a Task.<ResourceResponse>
+        /// Say method that returns a Task.
         /// </summary>
-        /// <param name="message">message for the Say method</param>
-        /// <returns>A <see cref="Task{ResourceResponse}"/> representing the result of the asynchronous operation.</returns>
+        /// <param name="message">message of the Say method.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<ResourceResponse> Say(Activity message)
         {
             return await this.config.TurnContext.SendActivityAsync(message);
@@ -324,6 +325,13 @@ namespace Microsoft.BotKit
             return activity;
         }
 
+        /// <summary>
+        /// Take a crudely-formed Botkit message with any sort of field (may just be a string, may be a partial message object)
+        /// and map it into a beautiful BotFramework Activity.
+        /// Any fields not found in the Activity definition will be moved to activity.channelData.
+        /// </summary>
+        /// <param name="message">Message a string or partial outgoing message object.</param>
+        /// <returns>A properly formed Activity object.</returns>
         public Activity EnsureMessageFormat(string message)
         {
             return new Activity()
