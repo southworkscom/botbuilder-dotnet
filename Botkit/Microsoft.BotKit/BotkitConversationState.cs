@@ -1,12 +1,13 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
-// Licensed under the MIT License.
-
-using System;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
+﻿// <copyright file="BotkitConversationState.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace Microsoft.BotKit
 {
+    using System;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Schema;
+
     /// <summary>
     ///  A customized version of ConversationState that override the getStorageKey method to create a more complex key value.
     ///  This allows Botkit to automatically track conversation state in scenarios where multiple users are present in a single channel,
@@ -15,15 +16,24 @@ namespace Microsoft.BotKit
     /// </summary>
     public class BotkitConversationState : ConversationState
     {
-        public BotkitConversationState(IStorage storage) : base(storage)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BotkitConversationState"/> class.
+        /// </summary>
+        /// <param name="storage">BotkitConversationState constructor.</param>
+        public BotkitConversationState(IStorage storage)
+            : base(storage)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BotkitConversationState"/> class.
+        /// </summary>
+        /// <param name="context">TurnContext context.</param>
+        /// <returns>string type returned.</returns>
         public string GetStorageKey(TurnContext context)
         {
             Activity activity = context.Activity;
-            string ChannelId = activity.ChannelId;
+            string channelId = activity.ChannelId;
 
             if (activity.Conversation == null || activity.Conversation.Id == null)
             {
@@ -32,9 +42,9 @@ namespace Microsoft.BotKit
 
             // create a combo key by sorting all the fields in the conversation address and combining them all
             // mix in user id as well, because conversations are between the bot and a single user
-            const string ConversationId = "";//Object.keys(activity.conversation).sort().map((key) => activity.conversation[key]).filter((val) => val !== '' && val !== null && typeof val !== 'undefined').join('-') + '-' + activity.from.id;
+            const string ConversationId = ""; // Object.keys(activity.conversation).sort().map((key) => activity.conversation[key]).filter((val) => val !== '' && val !== null && typeof val !== 'undefined').join('-') + '-' + activity.from.id;
 
-            if (ChannelId == null)
+            if (channelId == null)
             {
                 throw new Exception("missing activity.channelId");
             }
@@ -44,7 +54,7 @@ namespace Microsoft.BotKit
                 throw new Exception("missing activity.conversation.id");
             }
 
-            return $"{ ChannelId }/ conversations /{ ConversationId }/{ typeof(BotkitConversationState).Namespace }";
+            return $"{channelId}/ conversations /{ConversationId}/{typeof(BotkitConversationState).Namespace}";
         }
     }
 }
