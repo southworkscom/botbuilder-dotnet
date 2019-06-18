@@ -392,14 +392,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
@@ -467,14 +460,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
@@ -530,14 +516,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
