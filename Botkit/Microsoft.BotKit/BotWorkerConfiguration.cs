@@ -1,12 +1,12 @@
 ﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
+
 namespace Microsoft.BotKit
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Schema;
-
     /// <summary>
     /// A base class for a `bot` instance, an object that contains the information and functionality for taking action in response to an incoming message.
     /// </summary>
