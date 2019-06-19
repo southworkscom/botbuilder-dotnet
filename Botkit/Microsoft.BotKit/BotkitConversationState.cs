@@ -42,7 +42,7 @@ namespace Microsoft.BotKit
 
             // create a combo key by sorting all the fields in the conversation address and combining them all
             // mix in user id as well, because conversations are between the bot and a single user
-            const string ConversationId = ""; // Object.keys(activity.conversation).sort().map((key) => activity.conversation[key]).filter((val) => val !== '' && val !== null && typeof val !== 'undefined').join('-') + '-' + activity.from.id;
+            const string ConversationId = "";
 
             if (channelId == null)
             {
