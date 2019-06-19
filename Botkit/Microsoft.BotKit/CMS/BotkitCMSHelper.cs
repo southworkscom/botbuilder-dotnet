@@ -1,17 +1,24 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
-
-using System;
-using Microsoft.BotKit.Core;
-using Microsoft.Bot.Builder.Dialogs;
 
 namespace Microsoft.BotKit.CMS
 {
+    using System;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.BotKit.Core;
+
+    /// <summary>
+    /// Data related to the BotkitCMSHelper.
+    /// </summary>
     public class BotkitCMSHelper
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BotkitCMSHelper"/> class.
+        /// </summary>
+        /// <param name="botkit">botkit for the Dialog.</param>
+        /// <param name="configuration">configuration id for the Dialog.</param>
         public BotkitCMSHelper(Botkit botkit, CMSConfiguration configuration)
         {
-
         }
 
         /// <summary>
@@ -20,27 +27,25 @@ namespace Microsoft.BotKit.CMS
         /// <param name="dialogSet">A DialogSet into which the dialogs should be loaded.  In most cases, this is `controller.dialogSet`, allowing Botkit to access these dialogs through `bot.beginDialog()`.</param>
         public async void LoadAllScripts(DialogSet dialogSet)
         {
-
         }
 
         /// <summary>
         /// Uses the Botkit CMS trigger API to test an incoming message against a list of predefined triggers.
         /// If a trigger is matched, the appropriate dialog will begin immediately.
         /// </summary>
-        /// <param name="bot">The current bot worker instance</param>
-        /// <param name="message">An incoming message to be interpreted</param>
+        /// <param name="bot">The current bot worker instance.</param>
+        /// <param name="message">An incoming message to be interpreted.</param>
         public async void TestTrigger(BotWorker bot, IBotkitMessage message)
         {
-
         }
 
         /// <summary>
         /// Bind a handler function that will fire before a given script and thread begin.
         /// Provides a way to use BotkitConversation.before() on dialogs loaded dynamically via the CMS api instead of being created in code.
         /// </summary>
-        /// <param name="scriptName">The name of the script to bind to</param>
-        /// <param name="threadName">The name of a thread within the script to bind to</param>
-        /// <param name="handler">A handler function in the form async(convo, bot) => {}</param>
+        /// <param name="scriptName">The name of the script to bind to.</param>
+        /// <param name="threadName">The name of a thread within the script to bind to.</param>
+        /// <param name="handler">A handler function in the form async(convo, bot) => {}.</param>
         public void Before(string scriptName, string threadName, Action<BotkitDialogWrapper, BotWorker> handler)
         {
             // TO-DO: the method firm must match this:
@@ -51,9 +56,9 @@ namespace Microsoft.BotKit.CMS
         /// Bind a handler function that will fire when a given variable is set within a a given script.
         /// Provides a way to use BotkitConversation.onChange() on dialogs loaded dynamically via the CMS api instead of being created in code.
         /// </summary>
-        /// <param name="scriptName">The name of the script to bind to</param>
-        /// <param name="variableName">The name of a variable within the script to bind to</param>
-        /// <param name="">A handler function in the form async(value, convo, bot) => {}</param>
+        /// <param name="scriptName">The name of the script to bind to.</param>
+        /// <param name="variableName">The name of a variable within the script to bind to.</param>
+        /// <param name="handler">A handler function in the form async(value, convo, bot) => {}.</param>
         public void OnChange(string scriptName, string variableName, Action<object, BotWorker> handler)
         {
             // TO-DO: Method name must match this:
@@ -64,8 +69,8 @@ namespace Microsoft.BotKit.CMS
         /// Bind a handler function that will fire after a given dialog ends.
         /// Provides a way to use BotkitConversation.after() on dialogs loaded dynamically via the CMS api instead of being created in code.
         /// </summary>
-        /// <param name="scriptName">The name of the script to bind to</param>
-        /// <param name="handler">A handler function in the form async(results, bot) => {}</param>
+        /// <param name="scriptName">The name of the script to bind to.</param>
+        /// <param name="handler">A handler function in the form async(results, bot) => {}.</param>
         public void After(string scriptName, Action<object, BotWorker> handler)
         {
             // TO-DO: method name must match this:
