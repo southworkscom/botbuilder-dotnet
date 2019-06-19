@@ -34,7 +34,7 @@ namespace Microsoft.BotKit
         }
 
         /// <summary>
-        /// Gets BotKit type.
+        /// Gets Controller of BotWorker.
         /// </summary>
         public Botkit Controller { get; }
 
