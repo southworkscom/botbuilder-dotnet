@@ -21,8 +21,6 @@ namespace Microsoft.BotKit
     {
         private BotWorkerConfiguration config;
 
-        public Botkit Controller { get; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="BotWorker"/> class.
         /// Create a new BotWorker instance. Do not call this directly - instead, use controller.spawn().
@@ -34,6 +32,11 @@ namespace Microsoft.BotKit
             this.Controller = controller;
             this.config = config;
         }
+
+        /// <summary>
+        /// Gets BotKit type.
+        /// </summary>
+        public Botkit Controller { get; }
 
         /// <summary>
         /// Send a message using whatever context the bot was spawned in or set using changeContext() --
