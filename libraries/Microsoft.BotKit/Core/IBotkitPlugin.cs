@@ -9,6 +9,7 @@ namespace Microsoft.BotKit.Core
     public interface IBotkitPlugin
     {
         string Name { get; set; }
+
         Task Init(Botkit botkit);
     }
 }

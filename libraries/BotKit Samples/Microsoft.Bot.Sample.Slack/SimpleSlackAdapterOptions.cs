@@ -1,6 +1,5 @@
-﻿using Microsoft.Bot.Connector.Authentication;
+﻿using System.Threading.Tasks;
 using Microsoft.BotKit.Adapters.Slack;
-using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Sample.Slack
 {
@@ -30,12 +29,12 @@ namespace Microsoft.Bot.Sample.Slack
 
         public string RedirectUri { get; set; }
 
-        public Task<string> GetBotUserByTeam(string TeamId)
+        public Task<string> GetBotUserByTeam(string teamId)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetTokenForTeam(string TeamId)
+        public Task<string> GetTokenForTeam(string teamId)
         {
             throw new System.NotImplementedException();
         }

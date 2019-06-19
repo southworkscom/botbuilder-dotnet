@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.BotKit.Core;
 
@@ -25,8 +26,10 @@ namespace Microsoft.BotKit.CMS
         /// Load all script content from the configured CMS instance into a DialogSet and prepare them to be used.
         /// </summary>
         /// <param name="dialogSet">A DialogSet into which the dialogs should be loaded.  In most cases, this is `controller.dialogSet`, allowing Botkit to access these dialogs through `bot.beginDialog()`.</param>
-        public async void LoadAllScripts(DialogSet dialogSet)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task LoadAllScripts(DialogSet dialogSet)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -35,8 +38,10 @@ namespace Microsoft.BotKit.CMS
         /// </summary>
         /// <param name="bot">The current bot worker instance.</param>
         /// <param name="message">An incoming message to be interpreted.</param>
-        public async void TestTrigger(BotWorker bot, IBotkitMessage message)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task TestTrigger(BotWorker bot, IBotkitMessage message)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>

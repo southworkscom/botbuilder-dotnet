@@ -1,4 +1,4 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.BotKit.Core
@@ -9,10 +9,9 @@ namespace Microsoft.BotKit.Core
 
         // TO-DO: pattern: string | RegExp | { (message: BotkitMessage): Promise<boolean> };
 
-        //string Pattern { get; set; }
-        //Regex RegEx { get; set; }
-        //Tuple<IBotkitMessage, Task<bool>> Message { get; set; }
-
+        // string Pattern { get; set; }
+        // Regex RegEx { get; set; }
+        // Tuple<IBotkitMessage, Task<bool>> Message { get; set; }
         IBotkitHandler Handler { get; set; }
     }
 }

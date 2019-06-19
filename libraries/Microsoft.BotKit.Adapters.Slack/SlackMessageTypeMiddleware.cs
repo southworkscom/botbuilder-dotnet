@@ -1,13 +1,8 @@
 ﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 
@@ -27,8 +22,9 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// Not for direct use - implements the MiddlewareSet's required onTurn function used to process the event.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
+        /// <param name="context">The context.</param>
+        /// <param name="next">The next.</param>
+        /// <param name="cancellationToken">The Cancellation Token.</param>
         public async void OnTurn(TurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context.Activity.Type == "message" && context.Activity.ChannelData != null)
@@ -38,34 +34,22 @@ namespace Microsoft.BotKit.Adapters.Slack
                 string botUserId = await adapter.GetBotUserByTeamAsync(context.Activity);
                 var mentionSyntax = "<@" + botUserId + "(\\|.*?)?>";
                 var mention = new Regex(mentionSyntax, RegexOptions.IgnoreCase);
-                var directMention = new Regex('^' + mentionSyntax, RegexOptions.IgnoreCase);
+                var directMention = new Regex('^' + mentionSyntax, RegexOptions.IgnoreCase).ToString();
 
                 // is this a DM, a mention, or just ambient messages passing through?
                 if ((context.Activity.ChannelData as dynamic)?.channel_type == "im")
                 {
                     (context.Activity.ChannelData as dynamic).botkitEventType = "direct_message";
 
-                    // strip any potential leading @mention
-                    Regex.Replace(
-                        Regex.Replace(
-                            Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
-                                @"/ ^\s +/", string.Empty),
-                            @"/ ^:\s +/", string.Empty),
-                        @"/ ^\s +/", string.Empty);
+                    // strip the @mention
+                    StripMention(context, directMention);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && !string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(directMention))
                 {
                     (context.Activity.ChannelData as dynamic).botkitEventType = "direct_mention";
 
                     // strip the @mention
-                    Regex.Replace(
-                        Regex.Replace(
-                            Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
-                                @"/ ^\s +/", string.Empty),
-                            @"/ ^:\s +/", string.Empty),
-                        @"/ ^\s +/", string.Empty);
+                    StripMention(context, directMention);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(mention))
                 {
@@ -85,6 +69,28 @@ namespace Microsoft.BotKit.Adapters.Slack
             }
 
             await next(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Strip any potential leading @mention.
+        /// </summary>
+        /// <param name="context">TurnContext to get the message text from.</param>
+        /// <param name="directMention">Regex expression containing the direct mention format.</param>
+        private void StripMention(TurnContext context, string directMention)
+        {
+            Regex.Replace(
+                Regex.Replace(
+                    Regex.Replace(
+                        Regex.Replace(
+                            context.Activity.Text,
+                            directMention,
+                            string.Empty),
+                        @"/ ^\s +/",
+                        string.Empty),
+                    @"/ ^:\s +/",
+                    string.Empty),
+                @"/ ^\s +/",
+                string.Empty);
         }
     }
 }
