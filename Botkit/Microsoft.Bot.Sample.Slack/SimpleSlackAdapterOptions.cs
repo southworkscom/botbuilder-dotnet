@@ -1,4 +1,4 @@
-using Microsoft.Bot.Connector.Authentication;
+﻿using Microsoft.Bot.Connector.Authentication;
 using Microsoft.BotKit.Adapters.Slack;
 using System.Threading.Tasks;
 
@@ -12,16 +12,22 @@ namespace Microsoft.Bot.Sample.Slack
 
         public SimpleSlackAdapterOptions(string verificationToken, string botToken)
         {
-            VerificationToken = verificationToken;
-            BotToken = botToken;
+            this.VerificationToken = verificationToken;
+            this.BotToken = botToken;
         }
 
         public string VerificationToken { get; set; }
+
         public string ClientSigningSecret { get; set; }
+
         public string BotToken { get; set; }
+
         public string ClientId { get; set; }
+
         public string ClientSecret { get; set; }
+
         public string[] Scopes { get; set; }
+
         public string RedirectUri { get; set; }
 
         public Task<string> GetBotUserByTeam(string TeamId)

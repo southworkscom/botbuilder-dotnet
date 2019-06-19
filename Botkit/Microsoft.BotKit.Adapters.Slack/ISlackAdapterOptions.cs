@@ -1,4 +1,4 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
@@ -45,7 +45,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// A method that receives a Slack team id and returns the bot token associated with that team. Required for multi-team apps.
         /// </summary>
-        /// <param name="TeamId">Team ID</param>
+        /// <param name="TeamId">Team ID.</param>
         /// <returns></returns>
         Task<string> GetTokenForTeam(string TeamId);
 

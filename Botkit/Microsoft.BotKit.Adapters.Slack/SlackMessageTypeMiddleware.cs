@@ -1,8 +1,6 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +8,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
@@ -25,10 +25,10 @@ namespace Microsoft.BotKit.Adapters.Slack
     public class SlackMessageTypeMiddleware : MiddlewareSet
     {
         /// <summary>
-        /// Not for direct use - implements the MiddlewareSet's required onTurn function used to process the event
+        /// Not for direct use - implements the MiddlewareSet's required onTurn function used to process the event.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name=""></param>
+        /// <param name="next"></param>
         public async void OnTurn(TurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context.Activity.Type == "message" && context.Activity.ChannelData != null)
@@ -49,10 +49,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                     Regex.Replace(
                         Regex.Replace(
                             Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), ""), 
-                                @"/ ^\s +/", ""), 
-                            @"/ ^:\s +/", ""), 
-                        @"/ ^\s +/", "");
+                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
+                                @"/ ^\s +/", string.Empty),
+                            @"/ ^:\s +/", string.Empty),
+                        @"/ ^\s +/", string.Empty);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && !string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(directMention))
                 {
@@ -62,10 +62,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                     Regex.Replace(
                         Regex.Replace(
                             Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), ""),
-                                @"/ ^\s +/", ""),
-                            @"/ ^:\s +/", ""),
-                        @"/ ^\s +/", "");
+                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
+                                @"/ ^\s +/", string.Empty),
+                            @"/ ^:\s +/", string.Empty),
+                        @"/ ^\s +/", string.Empty);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(mention))
                 {
@@ -83,6 +83,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                     context.Activity.Type = ActivityTypes.Event;
                 }
             }
+
             await next(cancellationToken).ConfigureAwait(false);
         }
     }

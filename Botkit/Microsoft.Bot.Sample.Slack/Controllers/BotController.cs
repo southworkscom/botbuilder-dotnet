@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
@@ -18,24 +18,23 @@ namespace Microsoft.Bot.Sample.Slack.Controllers
     [ApiController]
     public class BotController : ControllerBase
     {
-        private readonly SlackAdapter Adapter;
-        private readonly IBot Bot;
+        private readonly SlackAdapter adapter;
+        private readonly IBot bot;
 
         public BotController(SlackAdapter adapter, IBot bot)
         {
-            Adapter = adapter;
-            Bot = bot;
+            this.adapter = adapter;
+            this.bot = bot;
 
-            Adapter.Use(new SlackEventMiddleware());
+            this.adapter.Use(new SlackEventMiddleware());
         }
 
-        
         [HttpPost]
         public async Task PostAsync()
         {
             // Delegate the processing of the HTTP POST to the adapter.
             // The adapter will invoke the bot.
-            await Adapter.ProcessAsync(Request, Response, Bot);
+            await this.adapter.ProcessAsync(this.Request, this.Response, this.bot);
         }
     }
 }
