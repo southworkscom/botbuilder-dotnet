@@ -12,7 +12,7 @@ using Microsoft.Bot.Schema;
 namespace Microsoft.Bot.Sample.Slack.Bots
 {
     /// <summary>
-    /// An EchoBot class for that extends from the ActivityHandler.
+    /// An EchoBot class that extends from the ActivityHandler.
     /// </summary>
     public class EchoBot : ActivityHandler
     {
