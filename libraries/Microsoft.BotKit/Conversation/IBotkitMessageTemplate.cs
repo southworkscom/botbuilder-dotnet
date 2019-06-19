@@ -4,7 +4,7 @@
 namespace Microsoft.BotKit.Conversation
 {
     /// <summary>
-    /// Template for defining a BotkitConversation template.
+    /// Template for defining a BotkitConversation.
     /// </summary>
     public interface IBotkitMessageTemplate
     {
@@ -42,37 +42,5 @@ namespace Microsoft.BotKit.Conversation
         /// Gets or Sets the Collect object.
         /// </summary>
         Collect Collect { get; set; }
-    }
-
-    /// <summary>
-    /// Execute Class.
-    /// </summary>
-    public class Execute
-    {
-        /// <summary>
-        /// Gets or Sets the Script.
-        /// </summary>
-        public string Script { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Thread.
-        /// </summary>
-        public string Thread { get; set; }
-    }
-
-    /// <summary>
-    /// Collect class.
-    /// </summary>
-    public class Collect
-    {
-        /// <summary>
-        /// Gets or Sets the Key.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Options.
-        /// </summary>
-        public IBotkitConvoTrigger Options { get; set; }
     }
 }
