@@ -13,6 +13,8 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using System.Collections.Specialized;
+using System.Net;
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
@@ -234,24 +236,30 @@ namespace Microsoft.BotKit.Adapters.Slack
                     try
                     {
                         SlackTaskClient slack = await this.GetAPIAsync(turnContext.Activity);
-                        Response result;
+                        SlackResponse responseInString;
 
-                        if (message.Ephemeral != null)
-                        {
-                            result = await slack.PostEphemeralMessageAsync(message.channel, message.text, message.user);
-                        }
-                        else
-                        {
-                            result = await slack.PostMessageAsync(message.channel, message.text);
-                        }
+                        var data = new NameValueCollection();
+                        data["token"] = this.options.BotToken;
+                        data["channel"] = message.channel;
+                        data["text"] = message.text;
+                        data["thread_ts"] = message.ThreadTS;
 
-                        if (result.ok)
+                        var client = new WebClient();
+
+                        string url = message.Ephemeral != null
+                            ? "https://slack.com/api/chat.postEphemeral"
+                            : "https://slack.com/api/chat.postMessage";
+
+                        var response = client.UploadValues(url, "POST", data);
+                        responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
+
+                        if (responseInString.Ok)
                         {
-                            ResourceResponse response = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
+                            ResourceResponse rgResponse = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
                             {
-                                Id = (result as dynamic).ts,
+                                Id = responseInString.TS,
                             };
-                            responses.Add(response as ResourceResponse);
+                            responses.Add(rgResponse as ResourceResponse);
                         }
                     }
                     catch (Exception ex)
