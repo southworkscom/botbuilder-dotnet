@@ -3,13 +3,14 @@
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
-    public class AdapterError
+    public class SlackResponse
     {
-        public string Name;
-        public string Error;
+        public bool Ok;
 
-        public AdapterError()
-        {
-        }
+        public string Channel;
+
+        public string TS;
+
+        public SlackMessage Message;
     }
 }

@@ -1,4 +1,4 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -10,6 +10,5 @@ namespace Microsoft.BotKit.Core
     {
         string Name { get; set; }
         Task Init(Botkit botkit);
-        Tuple<string, object[]> Middlewares { get; set; }
     }
 }
