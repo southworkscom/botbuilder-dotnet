@@ -5,9 +5,12 @@ namespace Microsoft.BotKit.Adapters.Slack
 {
     public class SlackResponse
     {
-        public bool ok;
-        public string channel;
-        public string ts;
-        public SlackMessage message;
+        public bool Ok;
+
+        public string Channel;
+
+        public string TS;
+
+        public SlackMessage Message;
     }
 }

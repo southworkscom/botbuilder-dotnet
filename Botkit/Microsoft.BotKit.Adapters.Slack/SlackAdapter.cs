@@ -246,22 +246,18 @@ namespace Microsoft.BotKit.Adapters.Slack
 
                         var client = new WebClient();
 
-                        if (message.Ephemeral != null)
-                        {
-                            var response = client.UploadValues("https://slack.com/api/chat.postEphemeral", "POST", data);
-                            responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
-                        }
-                        else
-                        {
-                            var response = client.UploadValues("https://slack.com/api/chat.postMessage", "POST", data);
-                            responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
-                        }
+                        string url = message.Ephemeral != null
+                            ? "https://slack.com/api/chat.postEphemeral"
+                            : "https://slack.com/api/chat.postMessage";
 
-                        if (responseInString.ok)
+                        var response = client.UploadValues(url, "POST", data);
+                        responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
+
+                        if (responseInString.Ok)
                         {
                             ResourceResponse rgResponse = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
                             {
-                                Id = responseInString.ts,
+                                Id = responseInString.TS,
                             };
                             responses.Add(rgResponse as ResourceResponse);
                         }

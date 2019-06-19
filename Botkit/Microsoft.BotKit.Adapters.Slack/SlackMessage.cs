@@ -5,12 +5,18 @@ namespace Microsoft.BotKit.Adapters.Slack
 {
     public class SlackMessage
     {
-        public string type;
-        public string subtype;
-        public string text;
-        public string ts;
-        public string username;
-        public string bot_id;
-        public string thread_ts;
+        public string Type;
+
+        public string Subtype;
+
+        public string Text;
+
+        public string TS;
+
+        public string Username;
+
+        public string BotID;
+
+        public string ThreadTS;
     }
 }
