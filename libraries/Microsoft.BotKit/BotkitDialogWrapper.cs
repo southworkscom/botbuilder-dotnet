@@ -1,31 +1,37 @@
-// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.BotKit.Conversation;
-using Microsoft.Bot.Builder.Dialogs;
 using System;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.BotKit.Conversation;
 
 namespace Microsoft.BotKit
 {
+    /// <summary>
+    ///  BotkitDialogWrapper class.
+    /// </summary>
     public class BotkitDialogWrapper
     {
         /// <summary>
-        /// An object containing variables and user responses from this conversation.
+        /// Initializes a new instance of the <see cref="BotkitDialogWrapper"/> class.
         /// </summary>
-        public Tuple<string, object> Vars { get; set; }
-
+        /// <param name="dialogContext">dialogContext for the BotkitDialogWrapper.</param>
+        /// <param name="botkitconvoStep">botkitconvoStep for the BotkitDialogWrapper.</param>
         public BotkitDialogWrapper(DialogContext dialogContext, IBotkitConversationStep botkitconvoStep)
         {
-
         }
+
+        /// <summary>
+        /// Gets or sets an object containing variables and user responses from this conversation.
+        /// </summary>
+        public Tuple<string, object> Vars { get; set; }
 
         /// <summary>
         /// Jump immediately to the first message in a different thread.
         /// </summary>
-        /// <param name="thread">Name of a thread</param>
+        /// <param name="thread">Name of a thread.</param>
         public async void GotoThread(string thread)
         {
-
         }
 
         /// <summary>
@@ -33,7 +39,6 @@ namespace Microsoft.BotKit
         /// </summary>
         public async void Repeat()
         {
-
         }
 
         /// <summary>
@@ -41,11 +46,10 @@ namespace Microsoft.BotKit
         /// Equivalent to convo.vars.key = val;
         /// Results in {{vars.key}} being replaced with the value in val.
         /// </summary>
-        /// <param name="key">The name of the variable</param>
-        /// <param name="val">The value for the variable</param>
+        /// <param name="key">The name of the variable.</param>
+        /// <param name="val">The value for the variable.</param>
         public void SetVar(object key, object val)
         {
-
         }
     }
 }
