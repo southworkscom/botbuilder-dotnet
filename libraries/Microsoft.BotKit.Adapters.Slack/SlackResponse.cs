@@ -3,14 +3,29 @@
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
+    /// <summary>
+    /// SlackResponse class.
+    /// </summary>
     public class SlackResponse
     {
-        public bool Ok;
+        /// <summary>
+        /// Gets or sets a value indicating whether the Ok status is true or false.
+        /// </summary>
+        public bool Ok { get; set; }
 
-        public string Channel;
+        /// <summary>
+        /// Gets or sets the Channel property.
+        /// </summary>
+        public string Channel { get; set; }
 
-        public string TS;
+        /// <summary>
+        /// Gets or sets the TS property.
+        /// </summary>
+        public string TS { get; set; }
 
-        public SlackMessage Message;
+        /// <summary>
+        /// Gets or sets the Message property.
+        /// </summary>
+        public SlackMessage Message { get; set; }
     }
 }
