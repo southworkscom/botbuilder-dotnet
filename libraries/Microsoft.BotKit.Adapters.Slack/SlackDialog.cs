@@ -1,7 +1,6 @@
 ﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -13,6 +12,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         private DialogData data;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="SlackDialog"/> class.
         /// Create a Slack Dialog object for use with [replyWithDialog()](#replyWithDialog).
         /// </summary>
         /// <param name="title">The title of the dialog.</param>
@@ -226,7 +226,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <param name="name">Name of the input.</param>
         /// <param name="value">Value of the input.</param>
         /// <param name="optionList">List of options of the input.</param>
-        /// <param name="options">.</param>
+        /// <param name="options">The options.</param>
         public void AddSelect(string label, string name, string value, Dictionary<string, string> optionList, object options)
         {
             DialogElement element;
@@ -251,6 +251,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// Get the dialog object as a JSON encoded string.
         /// </summary>
+        /// <returns>The JSON encoded string.</returns>
         public string AsString()
         {
             return JsonConvert.ToString(this.data.ToString());
@@ -259,6 +260,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// Get the dialog object for use with bot.replyWithDialog().
         /// </summary>
+        /// <returns>The data.</returns>
         public DialogData AsObject()
         {
             return this.data;
