@@ -255,9 +255,14 @@ namespace Microsoft.BotKit.Adapters.Slack
 
                         if (responseInString.Ok)
                         {
-                            ResourceResponse rgResponse = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
+                            ActivityResourceResponse rgResponse = new ActivityResourceResponse()
                             {
                                 Id = responseInString.TS,
+                                ActivityID = responseInString.TS,
+                                Conversation = new ConversationAccount()
+                                {
+                                    Id = responseInString.Channel,
+                                },
                             };
                             responses.Add(rgResponse as ResourceResponse);
                         }
