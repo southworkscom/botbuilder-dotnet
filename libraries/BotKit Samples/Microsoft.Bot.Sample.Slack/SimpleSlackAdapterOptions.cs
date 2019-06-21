@@ -1,6 +1,5 @@
-﻿using Microsoft.Bot.Connector.Authentication;
+﻿using System.Threading.Tasks;
 using Microsoft.BotKit.Adapters.Slack;
-using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Sample.Slack
 {
