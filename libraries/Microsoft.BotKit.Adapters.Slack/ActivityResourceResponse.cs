@@ -13,11 +13,17 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// Gets or sets the Activity ID.
         /// </summary>
+        /// <value>
+        /// The Activity ID.
+        /// </value>
         public string ActivityID { get; set; }
 
         /// <summary>
         /// Gets or sets a Conversation Account.
         /// </summary>
+        /// <value>
+        /// Conversation Account.
+        /// </value>
         public ConversationAccount Conversation { get; set; }
     }
 }
