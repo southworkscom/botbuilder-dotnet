@@ -48,7 +48,7 @@ namespace Microsoft.BotKit.Adapters.Slack
             if (channel.ok)
             {
                 var convRef = new ConversationReference();
-                var activity = this.config.Activity;
+                var activity = this.Config.Activity;
 
                 convRef.Conversation.Id = channel.channel.id;
                 (convRef.Conversation as dynamic).Team = (activity.Conversation as dynamic).Team; // TO-DO: replace 'as dynamic'
@@ -73,7 +73,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         public async Task<object> StartConversationInChannel(string channelId, string userId)
         {
             var convRef = new ConversationReference();
-            var activity = this.config.Activity;
+            var activity = this.Config.Activity;
 
             convRef.Conversation.Id = channelId;
             (convRef.Conversation as dynamic).Team = (activity.Conversation as dynamic).Team; // TO-DO: replace 'as dynamic'
@@ -94,7 +94,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         public async Task<object> StartConversationInThread(string channelId, string userId, string threadTs)
         {
             var convRef = new ConversationReference();
-            var activity = this.config.Activity;
+            var activity = this.Config.Activity;
 
             convRef.Conversation.Id = channelId;
             (convRef.Conversation as dynamic).Team = (activity.Conversation as dynamic).Team; // TO-DO: replace 'as dynamic'
@@ -269,7 +269,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         public async Task<ResourceResponse> UpdateMessage(IBotkitMessage update)
         {
             SlackAdapter adapter = (SlackAdapter)this.Controller.Adapter;
-            TurnContext context = this.config.TurnContext;
+            TurnContext context = this.Config.TurnContext;
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
             return await adapter.UpdateActivityAsync(context, update.IncomingMessage, token);
@@ -282,7 +282,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         public async Task DeleteMessage(IBotkitMessage update)
         {
             var adapter = (BotFrameworkAdapter)this.Controller.Adapter;
-            var context = this.config.TurnContext;
+            var context = this.Config.TurnContext;
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
             await adapter.DeleteActivityAsync(context, update.Reference, token);
