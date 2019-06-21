@@ -18,7 +18,7 @@ namespace Microsoft.BotKit
         /// <summary>
         /// Initializes a new instance of the <see cref="BotkitConversationState"/> class.
         /// </summary>
-        /// <param name="storage">BotkitConversationState constructor.</param>
+        /// <param name="storage">storage of the BotkitConversationState.</param>
         public BotkitConversationState(IStorage storage)
             : base(storage)
         {
