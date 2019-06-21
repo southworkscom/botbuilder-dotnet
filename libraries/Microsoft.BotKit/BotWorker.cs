@@ -19,7 +19,7 @@ namespace Microsoft.BotKit
     /// </summary>
     public class BotWorker
     {
-        private BotWorkerConfiguration config;
+        public BotWorkerConfiguration Config { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotWorker"/> class.
@@ -30,7 +30,7 @@ namespace Microsoft.BotKit
         public BotWorker(Botkit controller, BotWorkerConfiguration config)
         {
             this.Controller = controller;
-            this.config = config;
+            this.Config = config;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Microsoft.BotKit
         {
             var activity = this.EnsureMessageFormat(message);
 
-            return await this.config.TurnContext.SendActivityAsync(activity);
+            return await this.Config.TurnContext.SendActivityAsync(activity);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.BotKit
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<ResourceResponse> Say(Activity message)
         {
-            return await this.config.TurnContext.SendActivityAsync(message);
+            return await this.Config.TurnContext.SendActivityAsync(message);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.BotKit
         {
             var activity = this.EnsureMessageFormat(message);
 
-            return await this.config.TurnContext.SendActivityAsync(activity);
+            return await this.Config.TurnContext.SendActivityAsync(activity);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Microsoft.BotKit
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task BeginDialogAsync(string id, Dictionary<string, object> options)
         {
-            if (this.config.DialogContext == null)
+            if (this.Config.DialogContext == null)
             {
                 throw new Exception("Call to beginDialog on a bot that did not receive a dialogContext during spawn");
             }
@@ -114,10 +114,10 @@ namespace Microsoft.BotKit
                 opt.Add(entry.Key, entry.Value);
             }
 
-            opt.Add("user", this.config.TurnContext.Activity.From.Id);
-            opt.Add("channel", this.config.TurnContext.Activity.Conversation.Id);
+            opt.Add("user", this.Config.TurnContext.Activity.From.Id);
+            opt.Add("channel", this.Config.TurnContext.Activity.Conversation.Id);
 
-            await this.config.DialogContext.BeginDialogAsync(id + ":botkit-wrapper", options);
+            await this.Config.DialogContext.BeginDialogAsync(id + ":botkit-wrapper", options);
 
             // make sure we save the state change caused by the dialog.
             // this may also get saved again at end of turn
@@ -132,16 +132,16 @@ namespace Microsoft.BotKit
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task BeginDialogAsync(string id)
         {
-            if (this.config.DialogContext == null)
+            if (this.Config.DialogContext == null)
             {
                 throw new Exception("Call to beginDialog on a bot that did not receive a dialogContext during spawn");
             }
 
             var opt = new Dictionary<string, object>();
-            opt.Add("user", this.config.TurnContext.Activity.From.Id);
-            opt.Add("channel", this.config.TurnContext.Activity.Conversation.Id);
+            opt.Add("user", this.Config.TurnContext.Activity.From.Id);
+            opt.Add("channel", this.Config.TurnContext.Activity.Conversation.Id);
 
-            await this.config.DialogContext.BeginDialogAsync(id + ":botkit-wrapper");
+            await this.Config.DialogContext.BeginDialogAsync(id + ":botkit-wrapper");
 
             // make sure we save the state change caused by the dialog.
             // this may also get saved again at end of turn
@@ -154,8 +154,8 @@ namespace Microsoft.BotKit
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task<DialogTurnResult> CancelAllDialogsAsync()
         {
-            return (this.config.DialogContext != null)
-                ? await this.config.DialogContext.CancelAllDialogsAsync()
+            return (this.Config.DialogContext != null)
+                ? await this.Config.DialogContext.CancelAllDialogsAsync()
                 : throw new Exception("Call to CancelAllDialogs on a bot that did not receive a dialogContext during spawn");
         }
 
@@ -168,7 +168,7 @@ namespace Microsoft.BotKit
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ReplaceDialogAsync(string id, Dictionary<string, object> options)
         {
-            if (this.config.DialogContext == null)
+            if (this.Config.DialogContext == null)
             {
                 throw new Exception("Call to beginDialog on a bot that did not receive a dialogContext during spawn");
             }
@@ -181,10 +181,10 @@ namespace Microsoft.BotKit
                 opt.Add(entry.Key, entry.Value);
             }
 
-            opt.Add("user", this.config.TurnContext.Activity.From.Id);
-            opt.Add("channel", this.config.TurnContext.Activity.Conversation.Id);
+            opt.Add("user", this.Config.TurnContext.Activity.From.Id);
+            opt.Add("channel", this.Config.TurnContext.Activity.Conversation.Id);
 
-            await this.config.DialogContext.ReplaceDialogAsync(id + ":botkit-wrapper", opt);
+            await this.Config.DialogContext.ReplaceDialogAsync(id + ":botkit-wrapper", opt);
 
             // make sure we save the state change caused by the dialog.
             // this may also get saved again at end of turn
@@ -200,7 +200,7 @@ namespace Microsoft.BotKit
         public async Task<BotWorker> ChangeContextAsync(ConversationReference conversationReference)
         {
             // change context of outbound activities to use this new address
-            this.config.ConversationReference = conversationReference;
+            this.Config.ConversationReference = conversationReference;
 
             // Create an activity using this reference
             var activity = new Activity();
@@ -212,9 +212,9 @@ namespace Microsoft.BotKit
                 // create a new dialogContext so beginDialog works.
                 var dialogContext = await this.Controller.DialogSet.CreateContextAsync(turnContext);
 
-                this.config.TurnContext = turnContext;
-                this.config.DialogContext = dialogContext;
-                this.config.Activity = activity;
+                this.Config.TurnContext = turnContext;
+                this.Config.DialogContext = dialogContext;
+                this.Config.Activity = activity;
             }
 
             return this;
@@ -291,9 +291,9 @@ namespace Microsoft.BotKit
                 var ds = new DialogSet(dialogStateProperty);
                 var dialogContext = await ds.CreateContextAsync(turnContext);
 
-                this.config.TurnContext = turnContext;
-                this.config.DialogContext = dialogContext;
-                this.config.Activity = request;
+                this.Config.TurnContext = turnContext;
+                this.Config.DialogContext = dialogContext;
+                this.Config.Activity = request;
             }
         }
 
@@ -351,7 +351,7 @@ namespace Microsoft.BotKit
         /// <param name="status">A valid HTTP status code like 200 202 301 500 etc.</param>
         public void HTTPStatus(int status)
         {
-            this.config.TurnContext.TurnState["httpStatus"] = status;
+            this.Config.TurnContext.TurnState["httpStatus"] = status;
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Microsoft.BotKit
         /// <param name="body">Body parameter of the HTTPBody.</param>
         public void HTTPBody(object body)
         {
-            this.config.TurnContext.TurnState["httpStatus"] = body;
+            this.Config.TurnContext.TurnState["httpStatus"] = body;
         }
 
         private object AssignChannelData(object target, BotkitSlackMessage source)
