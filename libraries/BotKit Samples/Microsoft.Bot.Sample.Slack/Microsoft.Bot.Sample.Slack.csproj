@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.BotKit.Adapters.Slack\Microsoft.BotKit.Adapters.Slack.csproj" />
+    <ProjectReference Include="..\..\Microsoft.BotKit.Adapters.Slack\Microsoft.BotKit.Adapters.Slack.csproj" />
   </ItemGroup>
 
     <ItemGroup>
