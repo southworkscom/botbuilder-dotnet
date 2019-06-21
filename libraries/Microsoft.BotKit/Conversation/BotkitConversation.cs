@@ -152,7 +152,7 @@ namespace Microsoft.BotKit.Conversation
         /// </summary>
         /// <param name="context">The current dialog context.</param>
         /// <param name="any">An object containing the final results of the dialog.</param>
-        public void RunAfter(DialogContext context, object any)
+        public async void RunAfter(DialogContext context, object any)
         {
         }
 
