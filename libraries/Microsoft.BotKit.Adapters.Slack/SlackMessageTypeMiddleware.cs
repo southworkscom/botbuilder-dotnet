@@ -1,13 +1,8 @@
 ﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 
@@ -27,8 +22,9 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <summary>
         /// Not for direct use - implements the MiddlewareSet's required onTurn function used to process the event.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
+        /// <param name="context">The context.</param>
+        /// <param name="next">The next.</param>
+        /// <param name="cancellationToken">The Cancellation Token.</param>
         public async void OnTurn(TurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context.Activity.Type == "message" && context.Activity.ChannelData != null)
