@@ -32,7 +32,6 @@ namespace Microsoft.BotKit.Adapters.Slack
             // TODO make overload to allow a teamid (string) to be passed in
         }
 
-        // public SlackClient api;
         public SlackTaskClient ApiClient { get; set; }
 
         /// <summary>
