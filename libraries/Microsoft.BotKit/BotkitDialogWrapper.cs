@@ -1,12 +1,12 @@
 ﻿// Copyright(c) Microsoft Corporation.All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.BotKit.Conversation;
+
 namespace Microsoft.BotKit
 {
-    using System;
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.BotKit.Conversation;
-
     /// <summary>
     ///  BotkitDialogWrapper class.
     /// </summary>

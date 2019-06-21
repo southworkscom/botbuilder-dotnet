@@ -1,6 +1,5 @@
-﻿// <copyright file="BotkitConversationState.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+// Licensed under the MIT License.
 
 using System;
 using Microsoft.Bot.Builder;
@@ -8,10 +7,6 @@ using Microsoft.Bot.Schema;
 
 namespace Microsoft.BotKit
 {
-    using System;
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
-
     /// <summary>
     ///  A customized version of ConversationState that override the getStorageKey method to create a more complex key value.
     ///  This allows Botkit to automatically track conversation state in scenarios where multiple users are present in a single channel,
