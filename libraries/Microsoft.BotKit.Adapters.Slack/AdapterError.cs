@@ -5,11 +5,12 @@ namespace Microsoft.BotKit.Adapters.Slack
 {
     public class AdapterError
     {
-        public string Name;
-        public string Error;
-
         public AdapterError()
         {
         }
+
+        public string Name { get; private set; }
+
+        public string Error { get; private set; }
     }
 }
