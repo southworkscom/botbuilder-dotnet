@@ -13,6 +13,8 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using System.Collections.Specialized;
+using System.Net;
 
 namespace Microsoft.BotKit.Adapters.Slack
 {
@@ -193,7 +195,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                     foreach (var property in message.GetType().GetFields())
                     {
                         string name = property.Name;
-                        var value = ((activity.ChannelData as dynamic)[name] != null) ? (activity.ChannelData as dynamic)[name] : null;
+                        var value = (activity.ChannelData as dynamic)[name];
                         if (value != null)
                         {
                             message.GetType().GetField(name).SetValue(message, value);
@@ -234,39 +236,37 @@ namespace Microsoft.BotKit.Adapters.Slack
                     try
                     {
                         SlackTaskClient slack = await this.GetAPIAsync(turnContext.Activity);
-                        Response result;
+                        SlackResponse responseInString;
 
-                        if (message.Ephemeral != null)
-                        {
-                            result = await slack.PostEphemeralMessageAsync(message.channel, message.text, message.user);
-                        }
-                        else
-                        {
-                            result = await slack.PostMessageAsync(message.channel, message.text);
-                        }
+                        var data = new NameValueCollection();
+                        data["token"] = this.options.BotToken;
+                        data["channel"] = message.channel;
+                        data["text"] = message.text;
+                        data["thread_ts"] = message.ThreadTS;
 
-                        if (result.ok)
+                        var client = new WebClient();
+
+                        string url = message.Ephemeral != null
+                            ? "https://slack.com/api/chat.postEphemeral"
+                            : "https://slack.com/api/chat.postMessage";
+
+                        var response = client.UploadValues(url, "POST", data);
+                        responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
+
+                        if (responseInString.Ok)
                         {
-                            ResourceResponse response = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
+                            ResourceResponse rgResponse = new ResourceResponse() // { id = result.ts, activityId = result.ts, conversation = new { Id = result.Channel } };
                             {
-                                Id = (result as dynamic).ts,
+                                Id = responseInString.TS,
                             };
-                            responses.Add(response as ResourceResponse);
+                            responses.Add(rgResponse as ResourceResponse);
                         }
-                        /*else
-                        {
-                            throw new Exception($"Error sending activity to API:{result}");
-                        }*/
                     }
                     catch (Exception ex)
                     {
                         throw ex;
                     }
                 }
-                /*else
-                {
-                     throw new Exception("Unknown message type encountered in sendActivities:${activity.Type}");
-                }*/
             }
 
             return responses.ToArray();
@@ -348,7 +348,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                 StreamReader sr = new StreamReader(request.Body);
                 dynamic slackEvent = JsonConvert.DeserializeObject(sr.ReadToEnd());
 
-                if ((slackEvent as dynamic).type == "url_verification")
+                if (slackEvent.type == "url_verification")
                 {
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
@@ -389,7 +389,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             };
 
                             // Extra fields that do not belong to activity
-                            activity.Conversation.Properties["thread_ts"] = ((dynamic)slackEvent)["event"].thread_ts;
+                            activity.Conversation.Properties["thread_ts"] = slackEvent["event"].thread_ts;
                             activity.Conversation.Properties["team"] = slackEvent.Team.Id;
 
                             // this complains because of extra fields in conversation
@@ -400,14 +400,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
@@ -417,10 +410,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                             }
                         }
                     }
-                    else if ((slackEvent as dynamic).type == "event_callback")
+                    else if (slackEvent.type == "event_callback")
                     {
                         // this is an event api post
-                        if (this.options.VerificationToken != null && (slackEvent as dynamic).token != this.options.VerificationToken)
+                        if (this.options.VerificationToken != null && slackEvent.token != this.options.VerificationToken)
                         {
                             response.StatusCode = 403;
                             response.ContentType = "text/plain";
@@ -431,28 +424,28 @@ namespace Microsoft.BotKit.Adapters.Slack
                         {
                             Activity activity = new Activity()
                             {
-                                Id = ((dynamic)slackEvent)["event"].ts,
+                                Id = slackEvent["event"].ts,
                                 Timestamp = default(DateTime),
                                 ChannelId = "slack",
                                 Conversation = new ConversationAccount()
                                 {
-                                    Id = (slackEvent as dynamic)["event"].channel,
+                                    Id = slackEvent["event"].channel,
                                 },
                                 From = new ChannelAccount()
                                 {
-                                    Id = (((dynamic)slackEvent)["event"].bot_id != null) ? ((dynamic)slackEvent)["event"].bot_id : ((dynamic)slackEvent)["event"].user,
+                                    Id = (slackEvent["event"].bot_id != null) ? slackEvent["event"].bot_id : slackEvent["event"].user,
                                 },
                                 Recipient = new ChannelAccount()
                                 {
                                     Id = null,
                                 },
-                                ChannelData = ((dynamic)slackEvent)["event"],
+                                ChannelData = slackEvent["event"],
                                 Text = null,
                                 Type = ActivityTypes.Event,
                             };
 
                             // Extra field that doesn't belong to activity
-                            activity.Conversation.Properties["thread_ts"] = ((dynamic)slackEvent)["event"].thread_ts;
+                            activity.Conversation.Properties["thread_ts"] = slackEvent["event"].thread_ts;
 
                             // this complains because of extra fields in conversation
                             activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity);
@@ -464,10 +457,10 @@ namespace Microsoft.BotKit.Adapters.Slack
                             activity.Conversation.Properties["team"] = (activity.ChannelData as dynamic).team;
 
                             // If this is conclusively a message originating from a user, we'll mark it as such
-                            if (((dynamic)slackEvent)["event"].type == "message" && ((dynamic)slackEvent)["event"].subtype == null)
+                            if (slackEvent["event"].type == "message" && slackEvent["event"].subtype == null)
                             {
                                 activity.Type = ActivityTypes.Message;
-                                activity.Text = ((dynamic)slackEvent)["event"].text;
+                                activity.Text = slackEvent["event"].text;
                             }
 
                             // create a conversation reference
@@ -475,14 +468,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
@@ -538,14 +524,7 @@ namespace Microsoft.BotKit.Adapters.Slack
                             {
                                 context.TurnState.Add("httpStatus", "200");
 
-                                try
-                                {
-                                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
+                                await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
 
                                 // send http response back
                                 response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"));
