@@ -34,34 +34,22 @@ namespace Microsoft.BotKit.Adapters.Slack
                 string botUserId = await adapter.GetBotUserByTeamAsync(context.Activity);
                 var mentionSyntax = "<@" + botUserId + "(\\|.*?)?>";
                 var mention = new Regex(mentionSyntax, RegexOptions.IgnoreCase);
-                var directMention = new Regex('^' + mentionSyntax, RegexOptions.IgnoreCase);
+                var directMention = new Regex('^' + mentionSyntax, RegexOptions.IgnoreCase).ToString();
 
                 // is this a DM, a mention, or just ambient messages passing through?
                 if ((context.Activity.ChannelData as dynamic)?.channel_type == "im")
                 {
                     (context.Activity.ChannelData as dynamic).botkitEventType = "direct_message";
 
-                    // strip any potential leading @mention
-                    Regex.Replace(
-                        Regex.Replace(
-                            Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
-                                @"/ ^\s +/", string.Empty),
-                            @"/ ^:\s +/", string.Empty),
-                        @"/ ^\s +/", string.Empty);
+                    // strip the @mention
+                    StripMention(context, directMention);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && !string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(directMention))
                 {
                     (context.Activity.ChannelData as dynamic).botkitEventType = "direct_mention";
 
                     // strip the @mention
-                    Regex.Replace(
-                        Regex.Replace(
-                            Regex.Replace(
-                                Regex.Replace(context.Activity.Text, directMention.ToString(), string.Empty),
-                                @"/ ^\s +/", string.Empty),
-                            @"/ ^:\s +/", string.Empty),
-                        @"/ ^\s +/", string.Empty);
+                    StripMention(context, directMention);
                 }
                 else if (!string.IsNullOrEmpty(botUserId) && string.IsNullOrEmpty(context.Activity.Text) && context.Activity.Text.Equals(mention))
                 {
@@ -81,6 +69,28 @@ namespace Microsoft.BotKit.Adapters.Slack
             }
 
             await next(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Strip any potential leading @mention.
+        /// </summary>
+        /// <param name="context">TurnContext to get the message text from.</param>
+        /// <param name="directMention">Regex expression containing the direct mention format.</param>
+        private void StripMention(TurnContext context, string directMention)
+        {
+            Regex.Replace(
+                Regex.Replace(
+                    Regex.Replace(
+                        Regex.Replace(
+                            context.Activity.Text,
+                            directMention,
+                            string.Empty),
+                        @"/ ^\s +/",
+                        string.Empty),
+                    @"/ ^:\s +/",
+                    string.Empty),
+                @"/ ^\s +/",
+                string.Empty);
         }
     }
 }
