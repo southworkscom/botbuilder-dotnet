@@ -47,9 +47,9 @@ namespace Microsoft.BotKit.Adapters.Slack
         string[] Scopes { get; set; }
 
         /// <summary>
-        /// Gets or Sets the URL users will be redirected to after an oauth flow. In most cases, should be `https://mydomain.com/install/auth`.
+        /// Gets or Sets the URI users will be redirected to after an oauth flow. In most cases, should be `https://mydomain.com/install/auth`.
         /// </summary>
-        /// <value>The Redirect URL.</value>
+        /// <value>The Redirect URI.</value>
         string RedirectUri { get; set; }
 
         /// <summary>
