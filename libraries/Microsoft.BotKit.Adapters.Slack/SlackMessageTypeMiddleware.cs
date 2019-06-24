@@ -75,7 +75,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// Strip any potential leading @mention.
         /// </summary>
         /// <param name="context">TurnContext to get the message text from.</param>
-        /// <param name="directMention">Regex expressio containing the direct mention format.</param>
+        /// <param name="directMention">Regex expression containing the direct mention format.</param>
         private void StripMention(TurnContext context, string directMention)
         {
             Regex.Replace(
