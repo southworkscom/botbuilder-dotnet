@@ -161,7 +161,7 @@ namespace Microsoft.BotKit.Conversation
         /// </summary>
         /// <param name="variable">Name of the variable to watch for changes.</param>
         /// <param name="handler">A handler function that will fire whenever a user's response is used to change the value of the watched variable.</param>
-    public void OnChange(string variable, Func<object, BotkitConversation, BotWorker, object> handler)
+        public void OnChange(string variable, Func<object, BotkitConversation, BotWorker, object> handler)
         {
         }
 
