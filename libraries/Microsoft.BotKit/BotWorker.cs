@@ -34,13 +34,13 @@ namespace Microsoft.BotKit
         /// <summary>
         /// Gets the configuration for BotWorker.
         /// </summary>
-        /// <value>The botkit Configuration.</value>
+        /// <value>The BotWorker Configuration.</value>
         public BotWorkerConfiguration Config { get; private set; }
 
         /// <summary>
         /// Gets Controller of BotWorker.
         /// </summary>
-        /// <value>The botkit Controller.</value>
+        /// <value>The BotWorker Controller.</value>
         public Botkit Controller { get; }
 
         /// <summary>
