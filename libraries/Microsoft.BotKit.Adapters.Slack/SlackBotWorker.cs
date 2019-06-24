@@ -193,7 +193,8 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> ReplyInteractive(BotkitSlackMessage source, BotkitSlackMessage resp)
         {
-            if ((source.IncomingMessage.ChannelData as dynamic).ResponseUrl is null) // TO-DO: replace 'as dynamic'
+            // TO-DO: replace 'as dynamic'
+            if ((source.IncomingMessage.ChannelData as dynamic).ResponseUrl is null)
             {
                 throw new Exception("No responseUrl found in incoming message");
             }
@@ -204,7 +205,8 @@ namespace Microsoft.BotKit.Adapters.Slack
 
             (activity.ChannelData as dynamic).To = source.User; // TO-DO: replace 'as dynamic'
 
-            if ((source.IncomingMessage.ChannelData as dynamic).ThreadTs != null) // TO-DO: replace 'as dynamic'
+            // TO-DO: replace 'as dynamic'
+            if ((source.IncomingMessage.ChannelData as dynamic).ThreadTs != null)
             {
                 (activity.Conversation as dynamic).ThreadTs = (source.IncomingMessage.ChannelData as dynamic).ThreadTs; // TO-DO: replace 'as dynamic'
             }

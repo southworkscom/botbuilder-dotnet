@@ -8,7 +8,6 @@ namespace Microsoft.BotKit.Adapters.Slack
 {
     public class SlackDialog
     {
-        private readonly List<DialogElement> elements;
         private DialogData data;
 
         /// <summary>
