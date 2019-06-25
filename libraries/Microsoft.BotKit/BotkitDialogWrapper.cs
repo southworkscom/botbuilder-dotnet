@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.BotKit.Conversation;
 
@@ -24,21 +25,26 @@ namespace Microsoft.BotKit
         /// <summary>
         /// Gets or sets an object containing variables and user responses from this conversation.
         /// </summary>
+        /// <value>An object with variables.</value>
         public Tuple<string, object> Vars { get; set; }
 
         /// <summary>
         /// Jump immediately to the first message in a different thread.
         /// </summary>
         /// <param name="thread">Name of a thread.</param>
-        public async void GotoThread(string thread)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task GotoThread(string thread)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
         ///  Repeat the last message sent on the next turn.
         /// </summary>
-        public async void Repeat()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task Repeat()
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>

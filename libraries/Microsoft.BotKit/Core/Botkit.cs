@@ -27,42 +27,50 @@ namespace Microsoft.BotKit.Core
         /// <summary>
         /// Gets the current version of Botkit Core.
         /// </summary>
+        /// <value>Current version.</value>
         public string Version { get; private set; }
 
         /// <summary>
         /// Gets or sets a BotBuilder storage driver - defaults to MemoryStorage.
         /// </summary>
+        /// <value>Storage driver.</value>
         public IStorage Storage { get; set; }
 
         /// <summary>
         /// Gets or sets an Express webserver.
         /// </summary>
+        /// <value>The webserver.</value>
         public object Webserver { get; set; }
 
         /// <summary>
         /// Gets or sets a direct reference to the underlying HTTP server object.
         /// </summary>
+        /// <value>The HTTP object.</value>
         public object HTTP { get; set; }
 
         /// <summary>
         /// Gets or sets any BotBuilder-compatible adapter - defaults to a BotFrameworkAdapter.
         /// </summary>
+        /// <value>The adapter.</value>
         public BotAdapter Adapter { get; set; }
 
         /// <summary>
         /// Gets or sets a BotBuilder DialogSet that serves as the top level dialog container for the Botkit app.
         /// </summary>
+        /// <value>The DialogSet.</value>
         public DialogSet DialogSet { get; set; }
 
         /// <summary>
         /// Gets or sets the path of the main Botkit SDK, used to generate relative paths.
         /// </summary>
+        /// <value>Path to the SDK.</value>
         public string Path { get; set; }
 
         /// <summary>
         /// Gets plugin extension methods.
         /// After a plugin calls controller.addPluginExtension('foo', extension_methods), the extension will then be available at controller.plugins.foo.
         /// </summary>
+        /// <value>Tuple with plugins.</value>
         public Tuple<string, object> Plugins { get; }
 
         /// <summary>
@@ -70,8 +78,10 @@ namespace Microsoft.BotKit.Core
         /// Causes Botkit to first emit a special shutdown event, process any bound handlers, and then finally terminate the webserver.
         /// Bind any necessary cleanup helpers to the shutdown event - for example, close the connection to mongo.
         /// </summary>
-        public async void Shutdown()
+        /// <returns>The resulting task.</returns>
+        public async Task Shutdown()
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -160,7 +170,7 @@ namespace Microsoft.BotKit.Core
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> HandleTurn(TurnContext turnContext)
         {
-            return new object();
+            return await Task.FromException<object>(new NotImplementedException());
         }
 
         /// <summary>
@@ -171,6 +181,7 @@ namespace Microsoft.BotKit.Core
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task SaveState(BotWorker bot)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -216,7 +227,7 @@ namespace Microsoft.BotKit.Core
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> Trigger(string eventName, BotWorker bot, IBotkitMessage botkit)
         {
-            return new object();
+            return await Task.FromException<object>(new NotImplementedException());
         }
 
         /// <summary>
@@ -228,7 +239,7 @@ namespace Microsoft.BotKit.Core
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<BotWorker> Spawn(BotWorkerConfiguration config)
         {
-            return new BotWorker(new Botkit(new BotkitConfiguration()), config);
+            return await Task.FromResult<BotWorker>(new BotWorker(new Botkit(new BotkitConfiguration()), config));
         }
 
         /// <summary>
