@@ -25,7 +25,7 @@ namespace Microsoft.BotKit
         /// <summary>
         /// Gets or sets an object containing variables and user responses from this conversation.
         /// </summary>
-        /// <value> An object with variables. </value>
+        /// <value>An object with variables.</value>
         public Tuple<string, object> Vars { get; set; }
 
         /// <summary>
