@@ -90,7 +90,7 @@ namespace Microsoft.BotKit.Adapters.Slack
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <param name="channelId">A Slack channel id, like one found in `message.channel`.</param>
-        /// <param name="userId">A Slack user id, like one found in `message.user` or in a `.<@mention>`</param>
+        /// <param name="userId">A Slack user id, like one found in `message.user` or in a '.@mention'.</param>
         /// <param name="threadTs">A thread_ts value found in the `message.thread_ts` or `message.ts` field.</param>
         public async Task<object> StartConversationInThread(string channelId, string userId, string threadTs)
         {
