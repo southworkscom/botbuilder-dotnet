@@ -133,11 +133,10 @@ namespace Microsoft.BotKit.Conversation
         /// <param name="threadName">The thread about to begin.</param>
         /// <param name="dialogContext">The current DialogContext.</param>
         /// <param name="step">The current step object.</param>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async void RunBefore(string threadName, DialogContext dialogContext, IBotkitConversationStep step)
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task RunBefore(string threadName, DialogContext dialogContext, IBotkitConversationStep step)
         {
-            throw new NotImplementedException();
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -146,8 +145,10 @@ namespace Microsoft.BotKit.Conversation
         /// The second parameter to the handler is a BotWorker object that can be used to start new dialogs or take other actions.
         /// </summary>
         /// <param name="handler">In the form async(results, bot) { ... }.</param>
-        public async void After(Action<object, BotWorker> handler)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task After(Action<object, BotWorker> handler)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -155,8 +156,10 @@ namespace Microsoft.BotKit.Conversation
         /// </summary>
         /// <param name="context">The current dialog context.</param>
         /// <param name="any">An object containing the final results of the dialog.</param>
-        public async void RunAfter(DialogContext context, object any)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task RunAfter(DialogContext context, object any)
         {
+            await Task.FromException(new NotImplementedException());
         }
 
         /// <summary>
@@ -176,7 +179,7 @@ namespace Microsoft.BotKit.Conversation
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> BeginDialog(DialogContext dialogContext, object options)
         {
-            return new object();
+             return await Task.FromException<object>(new NotImplementedException());
         }
 
         /// <summary>
@@ -186,7 +189,7 @@ namespace Microsoft.BotKit.Conversation
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> ContinueDialog(DialogContext dialogContext)
         {
-            return new object();
+            return await Task.FromException<object>(new NotImplementedException());
         }
 
         /// <summary>
@@ -198,7 +201,7 @@ namespace Microsoft.BotKit.Conversation
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<object> ResumeDialog(DialogContext dialogContext, string reason, object result)
         {
-            return new object();
+            return await Task.FromException<object>(new NotImplementedException());
         }
 
         /// <summary>
@@ -208,6 +211,7 @@ namespace Microsoft.BotKit.Conversation
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<DialogTurnStatus> End(DialogContext dialogContext)
         {
+            await Task.Yield();
             return DialogTurnStatus.Cancelled;
         }
     }
