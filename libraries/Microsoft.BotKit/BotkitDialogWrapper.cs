@@ -30,8 +30,11 @@ namespace Microsoft.BotKit
         /// Jump immediately to the first message in a different thread.
         /// </summary>
         /// <param name="thread">Name of a thread.</param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async void GotoThread(string thread)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            throw new NotImplementedException();
         }
 
         /// <summary>

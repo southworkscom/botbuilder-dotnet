@@ -133,8 +133,11 @@ namespace Microsoft.BotKit.Conversation
         /// <param name="threadName">The thread about to begin.</param>
         /// <param name="dialogContext">The current DialogContext.</param>
         /// <param name="step">The current step object.</param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async void RunBefore(string threadName, DialogContext dialogContext, IBotkitConversationStep step)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            throw new NotImplementedException();
         }
 
         /// <summary>

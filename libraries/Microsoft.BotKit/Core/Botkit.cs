@@ -70,8 +70,11 @@ namespace Microsoft.BotKit.Core
         /// Causes Botkit to first emit a special shutdown event, process any bound handlers, and then finally terminate the webserver.
         /// Bind any necessary cleanup helpers to the shutdown event - for example, close the connection to mongo.
         /// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async void Shutdown()
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            throw new NotImplementedException();
         }
 
         /// <summary>
