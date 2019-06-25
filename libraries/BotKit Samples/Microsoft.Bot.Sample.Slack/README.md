@@ -1,12 +1,12 @@
 ﻿# Microsoft.Bot.Sample.Slack
 
-Bot Framework v4 echo bot sample.
+Bot Framework v4 echo bot using Slack Adapter sample.
 
-This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple bot that accepts input from the user and echoes it back.
+This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple bot and connect it to Slack using the Slack Adapter.
 
 ## Prerequisites
 
-- [.NET Core SDK](https://dotnet.microsoft.com/download) version 2.1
+- [.NET Core SDK](https://dotnet.microsoft.com/download) version 2.1 or higher
 
   ```bash
   # determine dotnet version
@@ -14,6 +14,10 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
   ```
 
 ## To try this sample
+
+- Create a **Slack Application** for the bot following [this guide](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-channel-connect-slack?view=azure-bot-service-4.0)
+
+- Complete the Slack credentials (_VerificationToken_ and _BotToken_) in [appsettings.json](https://github.com/southworkscom/botbuilder-dotnet/blob/add/botkit-packages/libraries/BotKit%20Samples/Microsoft.Bot.Sample.Slack/appsettings.json)
 
 - In a terminal, navigate to `Microsoft.Bot.Sample.Slack`
 
@@ -39,17 +43,14 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
   - Select `Microsoft.Bot.Sample.Slack.csproj` file
   - Press `F5` to run the project
 
-## Testing the bot using Bot Framework Emulator
+- Using [Ngrok](https://ngrok.com/) tool, run the following command to create a public HTTPS URL for your localhost 
+```bash
+  # expose your localhost
+  ngrok http 3978 -host-header="localhost:3978"
+  ```
+- Configure this URL in your Slack Application
 
-[Bot Framework Emulator](https://github.com/microsoft/botframework-emulator) is a desktop application that allows bot developers to test and debug their bots on localhost or running remotely through a tunnel.
-
-- Install the Bot Framework Emulator version 4.3.0 or greater from [here](https://github.com/Microsoft/BotFramework-Emulator/releases)
-
-### Connect to the bot using Bot Framework Emulator
-
-- Launch Bot Framework Emulator
-- File -> Open Bot
-- Enter a Bot URL of `http://localhost:3978/api/messages`
+- Browse for your App in Slack and send a message to your bot 
 
 ## Deploy the bot to Azure
 
