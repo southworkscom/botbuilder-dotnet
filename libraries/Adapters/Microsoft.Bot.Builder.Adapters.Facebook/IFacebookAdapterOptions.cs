@@ -44,6 +44,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// When bound to multiple teams, provide a function that, given a page id, will return the page access token for that page.
         /// </summary>
         /// <returns>The access token for the page.</returns>
-        Func<string, Task<string>> GetAccessTokenForPage();
+        Task<string> GetAccessTokenForPageAsync(string pageId);
     }
 }

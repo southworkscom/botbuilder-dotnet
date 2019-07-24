@@ -27,6 +27,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         {
         }
 
+        // TODO: Typing indicators
+
         /// <summary>
         /// Gets or sets an instance of the [webex api client].
         /// </summary>

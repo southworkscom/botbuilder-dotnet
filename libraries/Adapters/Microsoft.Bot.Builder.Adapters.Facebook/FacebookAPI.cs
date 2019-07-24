@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
+using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +25,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="apiVersion">Optional api version used when constructing api calls, defaults to v3.2.</param>
         public FacebookAPI(string token, string secret, string apiHost = "graph.facebook.com", string apiVersion = "v3.2")
         {
+            this.token = token;
+            this.secret = secret;
+            this.apiHost = apiHost;
+            this.apiVersion = apiVersion;
         }
 
         /// <summary>
@@ -33,9 +38,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="payload">An object to be sent as parameters to the API call..</param>
         /// <param name="method">HTTP method, for example POST, GET, DELETE or PUT.</param>
         /// <returns>A task representing the async operation.</returns>
-        public async Task CallAPIAsync(string path, string payload, string method = "POST")
+        public async Task<HttpResponseMessage> CallAPIAsync(string path, FacebookMessage payload, HttpMethod method = null)
         {
-            await Task.FromException(new NotImplementedException());
+            var proof = this.GetAppSecretProof(this.token, this.secret);
+
+            if (method == null)
+            {
+                method = HttpMethod.Post;
+            }
+
+            // send the request
+            HttpRequestMessage request = new HttpRequestMessage();
+            request.RequestUri = new Uri("https://" + this.apiHost + "/" + this.apiVersion + path + "?access_token=" + this.token + "&appsecret_proof=" + proof);
+            request.Method = method;
+            // content type json?
+
+            HttpClient client = new HttpClient();
+
+            return await client.SendAsync(request);
         }
 
         /// <summary>
@@ -46,7 +66,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>The app secret proof.</returns>
         private string GetAppSecretProof(string accessToken, string appSecret)
         {
-            return string.Empty;
+            var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(appSecret));
+            return hmac.ComputeHash(Encoding.UTF8.GetBytes(accessToken)).ToString();
         }
     }
 }
