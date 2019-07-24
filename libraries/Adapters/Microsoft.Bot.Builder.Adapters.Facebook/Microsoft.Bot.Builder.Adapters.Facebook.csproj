@@ -9,7 +9,7 @@
   
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Microsoft.BotBuilder.Adapters.Facebook</RootNamespace>
+    <RootNamespace>Microsoft.Bot.Builder.Adapters.Facebook</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' ">

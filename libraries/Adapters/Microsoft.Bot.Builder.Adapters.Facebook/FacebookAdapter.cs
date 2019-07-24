@@ -198,7 +198,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 {
                     for (var i = 0; i < (facebookEvent as dynamic).entry.Lenght; i++)
                     {
-                        object[] payload = null;
+                        FacebookMessage[] payload = null;
                         var entry = (facebookEvent as dynamic).entry;
 
                         // handle normal incoming stuff
@@ -285,9 +285,59 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="message">The message to be processed.</param>
         /// <param name="logic">The callback logic to call upon the message.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        private async Task ProcessSingleMessageAsync(object message, BotCallbackHandler logic)
+        private async Task ProcessSingleMessageAsync(FacebookMessage message, BotCallbackHandler logic)
         {
-            await Task.FromException<bool>(new NotImplementedException());
+            if (message.SenderId == null)
+            {
+                message.SenderId = (message as dynamic).optin?.user_ref;
+            }
+
+            var activity = new Activity()
+            {
+                ChannelId = "facebook",
+                Timestamp = new DateTime(),
+                Conversation = new ConversationAccount()
+                {
+                    Id = message.SenderId,
+                },
+                From = new ChannelAccount()
+                {
+                    Id = message.SenderId,
+                    Name = message.SenderId,
+                },
+                Recipient = new ChannelAccount()
+                {
+                    Id = message.RecipientId,
+                    Name = message.RecipientId,
+                },
+                ChannelData = message,
+                Type = ActivityTypes.Event,
+                Text = null,
+            };
+
+            if (message.Message != null)
+            {
+                activity.Type = ActivityTypes.Message;
+                activity.Text = message.Message.Text;
+
+                if ((activity.ChannelData as dynamic).message.is_echo)
+                {
+                    activity.Type = ActivityTypes.Event;
+                }
+
+                // copy fields like attachments, sticker, quick_reply, nlp, etc. // TODO Check
+                activity.ChannelData = message.Message;
+            }
+            else if ((message as dynamic).postback != null)
+            {
+                activity.Type = ActivityTypes.Message;
+                activity.Text = (message as dynamic).postback.payload;
+            }
+
+            using (var context = new TurnContext(this, activity))
+            {
+                await this.RunPipelineAsync(context, logic, default(CancellationToken));
+            }
         }
 
         /// <summary>
