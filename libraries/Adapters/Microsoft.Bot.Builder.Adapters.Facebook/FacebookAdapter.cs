@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -50,8 +51,25 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task Init(Botkit botkit)
         {
-            // botkit.Webserver // TODO: implement class analog to ExpressJs webserver in Botkit
-            await Task.FromException(new NotImplementedException());
+            await botkit.HttpClient.GetAsync(botkit.Config.WebhookUri).ContinueWith(async (task) =>
+            {
+                var response = (task as Task<HttpResponseMessage>).Result;
+                if (response.RequestMessage.Properties["hub.mode"].ToString() == "subscribe")
+                {
+                    if (response.RequestMessage.Properties["hub.verify_token"].ToString() == this.options.VerifyToken)
+                    {
+                        response.StatusCode = HttpStatusCode.OK;
+                        response.Content = new StringContent(response.RequestMessage.Properties["hub.challenge"].ToString());
+                        // send?
+                    }
+                    else
+                    {
+                        response.StatusCode = HttpStatusCode.OK;
+                        response.Content = new StringContent("Ok");
+                        // send?
+                    }
+                }
+            });
         }
 
         /// <summary>

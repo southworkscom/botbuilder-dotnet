@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -14,6 +15,8 @@ namespace Microsoft.Bot.Builder.BotKit.Core
     /// </summary>
     public class Botkit
     {
+        public BotkitConfiguration Config { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Botkit"/> class.
         /// Create a new Botkit instance and optionally specify a platform-specific adapter.
@@ -37,10 +40,10 @@ namespace Microsoft.Bot.Builder.BotKit.Core
         public IStorage Storage { get; set; }
 
         /// <summary>
-        /// Gets or sets an Express webserver.
+        /// Gets or sets a http client.
         /// </summary>
-        /// <value>The webserver.</value>
-        public object Webserver { get; set; }
+        /// <value>The http client.</value>
+        public HttpClient HttpClient { get; set; }
 
         /// <summary>
         /// Gets or sets a direct reference to the underlying HTTP server object.
@@ -82,16 +85,6 @@ namespace Microsoft.Bot.Builder.BotKit.Core
         public async Task Shutdown()
         {
             await Task.FromException(new NotImplementedException());
-        }
-
-        /// <summary>
-        /// Get a value from the configuration.
-        /// </summary>
-        /// <param name="key">The name of a value stored in the configuration.</param>
-        /// <returns>The value stored in the configuration (or null if absent).</returns>
-        public object GetConfig(string key)
-        {
-            return new object();
         }
 
         /// <summary>

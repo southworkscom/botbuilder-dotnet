@@ -34,7 +34,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         public async Task StartConversationWithUserAsync(string userID)
         {
             var userChannelAccount = new ChannelAccount(userID);
-            var botChannelAccount = new ChannelAccount(this.Controller.GetConfig("twilio_number").ToString(), "bot");
+            var botChannelAccount = new ChannelAccount(this.Controller.Config.Properties["twilio_number"], "bot");
             var conversation = new ConversationAccount(null, null, userID);
             var conversationReference = new ConversationReference(null, userChannelAccount, botChannelAccount, conversation, "twilio-sms");
 

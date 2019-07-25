@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.Bot.Builder;
 
 namespace Microsoft.Bot.Builder.BotKit.Core
@@ -73,11 +75,11 @@ namespace Microsoft.Bot.Builder.BotKit.Core
         public Tuple<AdapterKey, string> AdapterConfig { get; set; }
 
         /// <summary>
-        /// Gets or sets an instance of Express used to define web endpoints. If not specified, it will be created internally.
-        /// Note: only use your own Express if you absolutely must for some reason. Otherwise, use `controller.webserver`.
+        /// Gets or sets an instance of httpclient used to define web endpoints. If not specified, it will be created internally.
+        /// Note: only use your own httpclient if you absolutely must for some reason. Otherwise, use `controller.HttpClient`.
         /// </summary>
-        /// <value>The instance of Express used to define web endpoints.</value>
-        public IWebserver Webserver { get; set; }
+        /// <value>The httpclient instance used to define web endpoints.</value>
+        public HttpClient HttpClient { get; set; }
 
         /// <summary>
         /// Gets or sets a storage interface. Defaults to the ephemeral `MemoryStorage`.
@@ -88,7 +90,13 @@ namespace Microsoft.Bot.Builder.BotKit.Core
         /// <summary>
         /// Gets or sets a value indicating whether if Botkit will not create a webserver or expose any webhook endpoints automatically or it Will. Defaults to false.
         /// </summary>
-        /// <value>The indicator to desable WebServer.</value>
+        /// <value>The indicator to disable WebServer.</value>
         public bool DisableWebserver { get; set; }
+
+        /// <summary>
+        /// Gets or sets any extra properties you might need that are not represented in the above values.
+        /// </summary>
+        /// <value>The dictionary.</value>
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

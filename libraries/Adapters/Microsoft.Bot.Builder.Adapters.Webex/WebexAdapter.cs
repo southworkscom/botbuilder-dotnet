@@ -105,7 +105,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
 
             await this.GetIdentityAsync().ContinueWith((task) => botkit.CompleteDep("webex-identity"));
 
-            botkit.Ready(async () => { await (botkit.Adapter as WebexAdapter).RegisterWebhookSubscriptionAsync(botkit.GetConfig("webhook_uri").ToString()); });
+            botkit.Ready(async () => { await (botkit.Adapter as WebexAdapter).RegisterWebhookSubscriptionAsync(botkit.Config.WebhookUri); });
         }
 
         /// <summary>
