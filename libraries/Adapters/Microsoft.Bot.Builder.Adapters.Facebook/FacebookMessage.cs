@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,20 +21,52 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             this.SenderId = senderId;
         }
 
+        /// <summary>
+        /// Gets or sets the ID of the recipient.
+        /// </summary>
+        /// <value>The ID of the recipient.</value>
         public string RecipientId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ID of the sender.
+        /// </summary>
+        /// <value>The ID of the sender.</value>
         public string SenderId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the message to be sent.
+        /// </summary>
+        /// <value>The message.</value>
         public Message Message { get; set; }
 
+        /// <summary>
+        /// Gets or sets the messaging type.
+        /// </summary>
+        /// <value>The messaging type.</value>
         public string MessagingType { get; set; }
 
+        /// <summary>
+        /// Gets or sets a tag to the message.
+        /// </summary>
+        /// <value>The tag.</value>
         public string Tag { get; set; }
 
+        /// <summary>
+        /// Gets or sets the notification type.
+        /// </summary>
+        /// <value>The notification type.</value>
         public string NotificationType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the persona ID.
+        /// </summary>
+        /// <value>The persona ID.</value>
         public string PersonaId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the sender action.
+        /// </summary>
+        /// <value>The sender action.</value>
         public string SenderAction { get; set; }
     }
 }
