@@ -33,7 +33,7 @@ namespace Microsoft.Bot.Builder.Facebook.Sample
             services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
 
             // Create the options for the Facebook Adapter
-            services.AddSingleton<IFacebookAdapterOptions/*, ConfigurationFacebookAdapterOption*/>();
+            services.AddSingleton<IFacebookAdapterOptions, ConfigurationFacebookAdapterOptions>();
 
             // Create the Bot Framework Adapter.
             services.AddSingleton<FacebookAdapter>();
