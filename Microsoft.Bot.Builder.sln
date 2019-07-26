@@ -94,7 +94,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.Adapt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.Adapters.Twilio", "libraries\Adapters\Microsoft.Bot.Builder.Adapters.Twilio\Microsoft.Bot.Builder.Adapters.Twilio.csproj", "{F4799B06-5397-415A-81CB-4D25A86C3E00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Bot.Builder.Adapters.Facebook", "libraries\Adapters\Microsoft.Bot.Builder.Adapters.Facebook\Microsoft.Bot.Builder.Adapters.Facebook.csproj", "{6AAD972B-FF38-409E-A60D-B1420A493582}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.Adapters.Facebook", "libraries\Adapters\Microsoft.Bot.Builder.Adapters.Facebook\Microsoft.Bot.Builder.Adapters.Facebook.csproj", "{6AAD972B-FF38-409E-A60D-B1420A493582}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Bot.Builder.Facebook.Sample", "libraries\Adapters\Microsoft.Bot.Builder.Facebook.Sample\Microsoft.Bot.Builder.Facebook.Sample.csproj", "{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -343,6 +345,12 @@ Global
 		{6AAD972B-FF38-409E-A60D-B1420A493582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AAD972B-FF38-409E-A60D-B1420A493582}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AAD972B-FF38-409E-A60D-B1420A493582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Debug - NuGet Packages|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Debug - NuGet Packages|Any CPU.Build.0 = Debug|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -392,6 +400,7 @@ Global
 		{FAE650B7-B048-4307-A01C-FF75D357906C} = {B765958C-1CD5-49DF-9EA0-8F8756951F57}
 		{F4799B06-5397-415A-81CB-4D25A86C3E00} = {B765958C-1CD5-49DF-9EA0-8F8756951F57}
 		{6AAD972B-FF38-409E-A60D-B1420A493582} = {B765958C-1CD5-49DF-9EA0-8F8756951F57}
+		{3BC86504-7CEA-4DD9-B5CB-0C1794ED87D4} = {B765958C-1CD5-49DF-9EA0-8F8756951F57}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7173C9F3-A7F9-496E-9078-9156E35D6E16}
