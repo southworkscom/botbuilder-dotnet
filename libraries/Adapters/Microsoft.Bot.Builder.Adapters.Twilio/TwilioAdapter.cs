@@ -52,7 +52,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// <returns>A resource response.</returns>
         public override async Task<ResourceResponse[]> SendActivitiesAsync(ITurnContext turnContext, Activity[] activities, CancellationToken cancellationToken)
         {
-            List<ResourceResponse> responses = new List<ResourceResponse>();
+            var responses = new List<ResourceResponse>();
             for (var i = 0; i < activities.Length; i++)
             {
                 var activity = activities[i];
@@ -147,7 +147,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
 
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
-                    string text = (context.TurnState["httpBody"] != null) ? context.TurnState["httpBody"].ToString() : string.Empty;
+                    var text = (context.TurnState["httpBody"] != null) ? context.TurnState["httpBody"].ToString() : string.Empty;
                     await response.WriteAsync(text);
                 }
             }
