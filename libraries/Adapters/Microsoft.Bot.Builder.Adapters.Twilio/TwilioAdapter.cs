@@ -118,15 +118,15 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                     ChannelId = "twilio-sms",
                     Conversation = new ConversationAccount()
                     {
-                        Id = twilioEvent.From.ToString(),
+                        Id = twilioEvent.From,
                     },
                     From = new ChannelAccount()
                     {
-                        Id = twilioEvent.From.ToString(),
+                        Id = twilioEvent.From,
                     },
                     Recipient = new ChannelAccount()
                     {
-                        Id = twilioEvent.To.ToString(),
+                        Id = twilioEvent.To,
                     },
                     Text = (twilioEvent as dynamic).Body,
                     ChannelData = twilioEvent,
