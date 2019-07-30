@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Twilio;
+using Twilio.Exceptions;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Security;
 
@@ -163,7 +164,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         public override async Task<ResourceResponse> UpdateActivityAsync(ITurnContext turnContext, Activity activity, CancellationToken cancellationToken)
         {
             // Twilio adapter does not support updateActivity.
-            return await Task.FromException<ResourceResponse>(new NotImplementedException("Twilio SMS does not support updating activities."));
+            return await Task.FromException<ResourceResponse>(new NotSupportedException("Twilio SMS does not support updating activities."));
         }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         public override async Task DeleteActivityAsync(ITurnContext turnContext, ConversationReference reference, CancellationToken cancellationToken)
         {
             // Twilio adapter does not support deleteActivity.
-            await Task.FromException<ResourceResponse>(new NotImplementedException("Twilio SMS does not support deleting activities."));
+            await Task.FromException<ResourceResponse>(new NotSupportedException("Twilio SMS does not support deleting activities."));
         }
 
         /// <summary>
