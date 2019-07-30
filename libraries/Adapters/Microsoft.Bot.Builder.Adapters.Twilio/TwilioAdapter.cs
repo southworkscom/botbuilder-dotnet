@@ -58,7 +58,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 var activity = activities[i];
                 if (activity.Type == ActivityTypes.Message)
                 {
-                    var messageOptions = this.ActivityToTwilio(activity);
+                    var messageOptions = ActivityToTwilio(activity);
 
                     var res = await MessageResource.CreateAsync(messageOptions);
 
@@ -143,7 +143,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 // create a conversation reference
                 using (var context = new TurnContext(this, activity))
                 {
-                    await this.RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
+                    await RunPipelineAsync(context, bot.OnTurnAsync, default);
 
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
@@ -215,7 +215,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
 
             using (var context = new TurnContext(this, request))
             {
-                await this.RunPipelineAsync(context, logic, default(CancellationToken));
+                await RunPipelineAsync(context, logic, default);
             }
         }
 
