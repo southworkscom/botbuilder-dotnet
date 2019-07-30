@@ -193,12 +193,13 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 mediaUrls.Add(new Uri((activity.ChannelData as dynamic).mediaURL));
             }
 
-            var messageOptions = new CreateMessageOptions(activity.Conversation.Id);
-
-            messageOptions.ApplicationSid = activity.Conversation.Id;
-            messageOptions.From = this.options.TwilioNumber;
-            messageOptions.Body = activity.Text;
-            messageOptions.MediaUrl = mediaURLs;
+            var messageOptions = new CreateMessageOptions(activity.Conversation.Id)
+            {
+                ApplicationSid = activity.Conversation.Id,
+                From = _options.TwilioNumber,
+                Body = activity.Text,
+                MediaUrl = mediaUrls,
+            };
 
             return messageOptions;
         }
