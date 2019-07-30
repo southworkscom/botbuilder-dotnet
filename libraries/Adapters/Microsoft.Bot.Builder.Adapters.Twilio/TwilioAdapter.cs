@@ -86,7 +86,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// <param name="bot">A bot with logic function in the form `async(context) => { ... }`.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken = default)
         {
             response.StatusCode = 200;
             await response.WriteAsync(string.Empty);
