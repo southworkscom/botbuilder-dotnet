@@ -68,7 +68,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             {
                 if (activity.Type == ActivityTypes.Message)
                 {
-                    var messageOptions = ActivityToTwilio(activity);
+                    var messageOptions = TwilioHelper.ActivityToTwilio(activity, _options);
 
                     var res = await MessageResource.CreateAsync(messageOptions).ConfigureAwait(false);
 
@@ -170,31 +170,6 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             {
                 await RunPipelineAsync(context, logic, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// Formats a BotBuilder activity into an outgoing Twilio SMS message.
-        /// </summary>
-        /// <param name="activity">A BotBuilder Activity object.</param>
-        /// <returns>A Message's options object with {body, from, to, mediaUrl}.</returns>
-        private CreateMessageOptions ActivityToTwilio(Activity activity)
-        {
-            var mediaUrls = new List<Uri>();
-
-            if ((activity.ChannelData as TwilioEvent)?.MediaUrls != null)
-            {
-                mediaUrls = ((TwilioEvent)activity.ChannelData).MediaUrls;
-            }
-
-            var messageOptions = new CreateMessageOptions(activity.Conversation.Id)
-            {
-                ApplicationSid = activity.Conversation.Id,
-                From = _options.TwilioNumber,
-                Body = activity.Text,
-                MediaUrl = mediaUrls,
-            };
-
-            return messageOptions;
         }
 
         /// <summary>

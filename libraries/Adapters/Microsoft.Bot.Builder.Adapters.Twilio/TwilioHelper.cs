@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Bot.Schema;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
@@ -43,12 +45,38 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             {
                 var pair = p.Split('=');
                 var key = pair[0];
-                var value = System.Uri.UnescapeDataString(pair[1]);
+                var value = Uri.UnescapeDataString(pair[1]);
 
                 values.Add(key, value);
             }
 
             return values;
+        }
+
+        /// <summary>
+        /// Formats a BotBuilder activity into an outgoing Twilio SMS message.
+        /// </summary>
+        /// <param name="activity">A BotBuilder Activity object.</param>
+        /// <param name="options">A set of params with the required values for authentication.</param>
+        /// <returns>A Message's options object with {body, from, to, mediaUrl}.</returns>
+        public static CreateMessageOptions ActivityToTwilio(Activity activity, ITwilioAdapterOptions options)
+        {
+            var mediaUrls = new List<Uri>();
+
+            if ((activity.ChannelData as TwilioEvent)?.MediaUrls != null)
+            {
+                mediaUrls = ((TwilioEvent)activity.ChannelData).MediaUrls;
+            }
+
+            var messageOptions = new CreateMessageOptions(activity.Conversation.Id)
+            {
+                ApplicationSid = activity.Conversation.Id,
+                From = options.TwilioNumber,
+                Body = activity.Text,
+                MediaUrl = mediaUrls,
+            };
+
+            return messageOptions;
         }
     }
 }
