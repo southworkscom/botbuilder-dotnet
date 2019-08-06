@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +13,9 @@ using Twilio.Security;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
+    /// <summary>
+    /// Contains helper functions for the TwilioAdapter class.
+    /// </summary>
     public static class TwilioHelper
     {
         /// <summary>
@@ -19,6 +25,11 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// <returns>An Attachments array with the converted attachments.</returns>
         public static List<Attachment> GetMessageAttachments(TwilioEvent message)
         {
+            if (message == null)
+            {
+                return null;
+            }
+
             var attachments = new List<Attachment>();
             if (int.TryParse(message.NumMedia, out var numMediaResult) && numMediaResult > 0)
             {
@@ -43,6 +54,11 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// <returns>A dictionary with the query values.</returns>
         public static Dictionary<string, string> QueryStringToDictionary(string query)
         {
+            if (query == null)
+            {
+                return null;
+            }
+
             var pairs = query.Replace("+", "%20").Split('&');
             var values = new Dictionary<string, string>();
 
@@ -62,21 +78,32 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// Formats a BotBuilder activity into an outgoing Twilio SMS message.
         /// </summary>
         /// <param name="activity">A BotBuilder Activity object.</param>
-        /// <param name="options">A set of params with the required values for authentication.</param>
+        /// <param name="twilioNumber">The assigned Twilio phone number.</param>
         /// <returns>A Message's options object with {body, from, to, mediaUrl}.</returns>
-        public static CreateMessageOptions ActivityToTwilio(Activity activity, ITwilioAdapterOptions options)
+        public static CreateMessageOptions ActivityToTwilio(Activity activity, string twilioNumber)
         {
-            var mediaUrls = new List<Uri>();
+            if (activity == null)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(twilioNumber))
+            {
+                throw new ArgumentNullException("Parameter 'twilioNumber' is null or empty.");
+            }
+
+            List<Uri> mediaUrls = null;
 
             if ((activity.ChannelData as TwilioEvent)?.MediaUrls != null)
             {
+                mediaUrls = new List<Uri>();
                 mediaUrls = ((TwilioEvent)activity.ChannelData).MediaUrls;
             }
 
             var messageOptions = new CreateMessageOptions(activity.Conversation.Id)
             {
                 ApplicationSid = activity.Conversation.Id,
-                From = options.TwilioNumber,
+                From = twilioNumber,
                 Body = activity.Text,
                 MediaUrl = mediaUrls,
             };
@@ -88,13 +115,19 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// Processes a HTTP request into an Activity.
         /// </summary>
         /// <param name="httpRequest">A httpRequest object.</param>
-        /// <param name="options">A set of params with the required values for authentication.</param>
+        /// <param name="validationUrl">The URL to check the validation against.</param>
+        /// <param name="authToken">The authentication token for the Twilio app.</param>
         /// <returns>The Activity obtained from the httpRequest object.</returns>
-        public static Activity ReadRequest(HttpRequest httpRequest, ITwilioAdapterOptions options)
+        public static Activity ReadRequest(HttpRequest httpRequest, string validationUrl, string authToken)
         {
-            var twilioSignature = httpRequest.Headers["x-twilio-signature"];
-            var validationUrl = options.ValidationUrl ?? (httpRequest.Headers["x-forwarded-proto"][0] ?? httpRequest.Protocol + "://" + httpRequest.Host + httpRequest.Path);
-            var requestValidator = new RequestValidator(options.AuthToken);
+            if (httpRequest == null)
+            {
+                throw new ArgumentNullException("Parameter 'httpRequest' cannot be null.");
+            }
+
+            var signature = httpRequest.Headers["x-twilio-signature"];
+            validationUrl = validationUrl ?? (httpRequest.Headers["x-forwarded-proto"][0] ?? httpRequest.Protocol + "://" + httpRequest.Host + httpRequest.Path);
+            var requestValidator = new RequestValidator(authToken);
             Dictionary<string, string> body;
 
             using (var bodyStream = new StreamReader(httpRequest.Body))
@@ -102,18 +135,12 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 body = QueryStringToDictionary(bodyStream.ReadToEnd());
             }
 
-            if (!requestValidator.Validate(validationUrl, body, twilioSignature))
+            if (!requestValidator.Validate(validationUrl, body, signature))
             {
                 throw new AuthenticationException("Request does not match provided signature");
             }
 
             var twilioEvent = JsonConvert.DeserializeObject<TwilioEvent>(JsonConvert.SerializeObject(body));
-
-            if (int.TryParse(twilioEvent.NumMedia, out var numMediaResult) && numMediaResult > 0)
-            {
-                // specify a different event type
-                twilioEvent.EventType = "picture_message";
-            }
 
             return new Activity()
             {
