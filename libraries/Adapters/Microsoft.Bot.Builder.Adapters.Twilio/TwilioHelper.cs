@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
+using Twilio.Exceptions;
 using Twilio.Rest.Api.V2010.Account;
+using Twilio.Security;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
@@ -77,6 +82,61 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             };
 
             return messageOptions;
+        }
+
+        /// <summary>
+        /// Processes a HTTP request into an Activity.
+        /// </summary>
+        /// <param name="httpRequest">A httpRequest object.</param>
+        /// <param name="options">A set of params with the required values for authentication.</param>
+        /// <returns>The Activity obtained from the httpRequest object.</returns>
+        public static Activity ReadRequest(HttpRequest httpRequest, ITwilioAdapterOptions options)
+        {
+            var twilioSignature = httpRequest.Headers["x-twilio-signature"];
+            var validationUrl = options.ValidationUrl ?? (httpRequest.Headers["x-forwarded-proto"][0] ?? httpRequest.Protocol + "://" + httpRequest.Host + httpRequest.Path);
+            var requestValidator = new RequestValidator(options.AuthToken);
+            Dictionary<string, string> body;
+
+            using (var bodyStream = new StreamReader(httpRequest.Body))
+            {
+                body = QueryStringToDictionary(bodyStream.ReadToEnd());
+            }
+
+            if (!requestValidator.Validate(validationUrl, body, twilioSignature))
+            {
+                throw new AuthenticationException("Request does not match provided signature");
+            }
+
+            var twilioEvent = JsonConvert.DeserializeObject<TwilioEvent>(JsonConvert.SerializeObject(body));
+
+            if (int.TryParse(twilioEvent.NumMedia, out var numMediaResult) && numMediaResult > 0)
+            {
+                // specify a different event type
+                twilioEvent.EventType = "picture_message";
+            }
+
+            return new Activity()
+            {
+                Id = twilioEvent.MessageSid,
+                Timestamp = new DateTime(),
+                ChannelId = "twilio-sms",
+                Conversation = new ConversationAccount()
+                {
+                    Id = twilioEvent.From,
+                },
+                From = new ChannelAccount()
+                {
+                    Id = twilioEvent.From,
+                },
+                Recipient = new ChannelAccount()
+                {
+                    Id = twilioEvent.To,
+                },
+                Text = twilioEvent.Body,
+                ChannelData = twilioEvent,
+                Type = ActivityTypes.Message,
+                Attachments = GetMessageAttachments(twilioEvent),
+            };
         }
     }
 }
