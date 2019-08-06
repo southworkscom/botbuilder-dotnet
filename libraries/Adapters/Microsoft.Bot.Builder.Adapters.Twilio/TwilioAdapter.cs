@@ -173,28 +173,6 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         }
 
         /// <summary>
-        /// Converts a query string to a dictionary with key-value pairs.
-        /// </summary>
-        /// <param name="query">The query string to convert.</param>
-        /// <returns>A dictionary with the query values.</returns>
-        private static Dictionary<string, string> QueryStringToDictionary(string query)
-        {
-            var pairs = query.Replace("+", "%20").Split('&');
-            var values = new Dictionary<string, string>();
-
-            foreach (var p in pairs)
-            {
-                var pair = p.Split('=');
-                var key = pair[0];
-                var value = Uri.UnescapeDataString(pair[1]);
-
-                values.Add(key, value);
-            }
-
-            return values;
-        }
-
-        /// <summary>
         /// Formats a BotBuilder activity into an outgoing Twilio SMS message.
         /// </summary>
         /// <param name="activity">A BotBuilder Activity object.</param>
@@ -233,7 +211,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
 
             using (var bodyStream = new StreamReader(httpRequest.Body))
             {
-                body = QueryStringToDictionary(bodyStream.ReadToEnd());
+                body = TwilioHelper.QueryStringToDictionary(bodyStream.ReadToEnd());
             }
 
             if (!requestValidator.Validate(validationUrl, body, twilioSignature))
