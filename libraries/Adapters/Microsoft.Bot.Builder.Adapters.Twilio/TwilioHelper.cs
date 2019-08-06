@@ -82,14 +82,9 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// <returns>A Message's options object with {body, from, to, mediaUrl}.</returns>
         public static CreateMessageOptions ActivityToTwilio(Activity activity, string twilioNumber)
         {
-            if (activity == null)
+            if (activity == null || string.IsNullOrWhiteSpace(twilioNumber))
             {
                 return null;
-            }
-
-            if (string.IsNullOrWhiteSpace(twilioNumber))
-            {
-                throw new ArgumentNullException("Parameter 'twilioNumber' is null or empty.");
             }
 
             List<Uri> mediaUrls = null;
@@ -122,7 +117,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         {
             if (httpRequest == null)
             {
-                throw new ArgumentNullException("Parameter 'httpRequest' cannot be null.");
+                return null;
             }
 
             var signature = httpRequest.Headers["x-twilio-signature"];
