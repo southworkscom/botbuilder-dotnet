@@ -14,9 +14,10 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             TwilioClient.Init(username, password);
         }
 
-        public async Task<object> CreateMessageResourceAsync(object messageOptions)
+        public async Task<string> GetResourceIdentifier(object messageOptions)
         {
-            return await MessageResource.CreateAsync((CreateMessageOptions)messageOptions).ConfigureAwait(false);
+            var messageResource = await MessageResource.CreateAsync((CreateMessageOptions)messageOptions).ConfigureAwait(false);
+            return messageResource.Sid;
         }
     }
 }

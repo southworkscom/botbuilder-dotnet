@@ -9,6 +9,6 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
     {
         void LogIn(string username, string password);
 
-        Task<object> CreateMessageResourceAsync(object messageOptions);
+        Task<string> GetResourceIdentifier(object messageOptions);
     }
 }
