@@ -17,7 +17,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
         [Fact]
         public void Constructor_Should_Fail_With_Null_Options()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TwilioAdapter(null); });
+            var twilioApi = new TwilioApi();
+            Assert.Throws<ArgumentNullException>(() => { new TwilioAdapter(null, twilioApi); });
         }
 
         [Fact]
@@ -30,7 +31,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 AuthToken = "Test",
             };
 
-            Assert.Throws<Exception>(() => { new TwilioAdapter(options); });
+            var twilioApi = new TwilioApi();
+            Assert.Throws<Exception>(() => { new TwilioAdapter(options, twilioApi); });
         }
 
         [Fact]
@@ -43,7 +45,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 AuthToken = "Test",
             };
 
-            Assert.Throws<Exception>(() => { new TwilioAdapter(options); });
+            var twilioApi = new TwilioApi();
+            Assert.Throws<Exception>(() => { new TwilioAdapter(options, twilioApi); });
         }
 
         [Fact]
@@ -56,7 +59,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 AuthToken = null,
             };
 
-            Assert.Throws<Exception>(() => { new TwilioAdapter(options); });
+            var twilioApi = new TwilioApi();
+            Assert.Throws<Exception>(() => { new TwilioAdapter(options, twilioApi); });
         }
 
         [Fact]
@@ -69,7 +73,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 AuthToken = "Test",
             };
 
-            Assert.NotNull(new TwilioAdapter(options));
+            var twilioApi = new TwilioApi();
+            Assert.NotNull(new TwilioAdapter(options, twilioApi));
         }
 
         [Fact]
@@ -81,8 +86,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 AccountSid = "Test",
                 AuthToken = "Test",
             };
-
-            var adapter = new TwilioAdapter(options);
+            var twilioApi = new TwilioApi();
+            var adapter = new TwilioAdapter(options, twilioApi);
             var activity = JsonConvert.DeserializeObject<Activity>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\files\Activities.json"));
             var activities = new Activity[] { activity };
             activity.Attachments = new List<Attachment> { new Attachment(contentUrl: "http://example.com") };
@@ -102,7 +107,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 TwilioNumber = "Test", AccountSid = "Test", AuthToken = "Test",
             };
 
-            var twilioAdapter = new TwilioAdapter(options);
+            var twilioApi = new TwilioApi();
+            var twilioAdapter = new TwilioAdapter(options, twilioApi);
 
             var activity = new Activity()
             {
@@ -125,7 +131,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 TwilioNumber = "Test", AccountSid = "Test", AuthToken = "Test",
             };
 
-            var twilioAdapter = new TwilioAdapter(options);
+            var twilioApi = new TwilioApi();
+            var twilioAdapter = new TwilioAdapter(options, twilioApi);
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
@@ -141,7 +148,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 TwilioNumber = "Test", AccountSid = "Test", AuthToken = "Test",
             };
 
-            var twilioAdapter = new TwilioAdapter(options);
+            var twilioApi = new TwilioApi();
+            var twilioAdapter = new TwilioAdapter(options, twilioApi);
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
@@ -157,7 +165,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
                 TwilioNumber = "Test", AccountSid = "Test", AuthToken = "Test",
             };
 
-            var twilioAdapter = new TwilioAdapter(options);
+            var twilioApi = new TwilioApi();
+            var twilioAdapter = new TwilioAdapter(options, twilioApi);
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
