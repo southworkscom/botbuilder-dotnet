@@ -7,7 +7,7 @@ using Twilio.Rest.Api.V2010.Account;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
-    public class TwilioAPI : ITwilioApi
+    public class TwilioApi : ITwilioApi
     {
         public void LogIn(string username, string password)
         {
