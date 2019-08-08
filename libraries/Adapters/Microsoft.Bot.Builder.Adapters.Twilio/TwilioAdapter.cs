@@ -16,7 +16,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
     {
         private readonly ITwilioAdapterOptions _options;
 
-        private readonly ITwilioApi _twilioApi;
+        private readonly ITwilioClient _twilioApi;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TwilioAdapter"/> class.
@@ -24,7 +24,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
         /// </summary>
         /// <param name="options">A set of params with the required values for authentication.</param>
         /// <param name="twilioApi">A Twilio API interface.</param>
-        public TwilioAdapter(ITwilioAdapterOptions options, ITwilioApi twilioApi)
+        public TwilioAdapter(ITwilioAdapterOptions options, ITwilioClient twilioApi)
         {
             if (options == null)
             {

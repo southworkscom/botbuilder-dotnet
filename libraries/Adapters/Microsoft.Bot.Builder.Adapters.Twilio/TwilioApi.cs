@@ -7,11 +7,11 @@ using Twilio.Rest.Api.V2010.Account;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
-    public class TwilioClient : ITwilioClient
+    public class TwilioApi : ITwilioClient
     {
         public void LogIn(string username, string password)
         {
-            global::Twilio.TwilioClient.Init(username, password);
+            TwilioClient.Init(username, password);
         }
 
         public async Task<string> GetResourceIdentifier(object messageOptions)
