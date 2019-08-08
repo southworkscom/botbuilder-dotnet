@@ -18,12 +18,15 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
     {
         private readonly ITwilioAdapterOptions _options;
 
+        private readonly ITwilioApi _twilioApi;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TwilioAdapter"/> class.
         /// A Twilio adapter will allow the Bot to connect to Twilio's SMS service.
         /// </summary>
         /// <param name="options">A set of params with the required values for authentication.</param>
-        public TwilioAdapter(ITwilioAdapterOptions options)
+        /// <param name="twilioApi">A Twilio API interface.</param>
+        public TwilioAdapter(ITwilioAdapterOptions options, ITwilioApi twilioApi)
         {
             if (options == null)
             {
@@ -46,8 +49,9 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
             }
 
             _options = options;
+            _twilioApi = twilioApi;
 
-            TwilioClient.Init(_options.AccountSid, _options.AuthToken);
+            _twilioApi.LogIn(_options.AccountSid, _options.AuthToken);
         }
 
         /// <summary>
@@ -66,7 +70,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 {
                     var messageOptions = TwilioHelper.ActivityToTwilio(activity, _options.TwilioNumber);
 
-                    var res = await MessageResource.CreateAsync(messageOptions).ConfigureAwait(false);
+                    var res = await _twilioApi.CreateMessageResourceAsync(messageOptions).ConfigureAwait(false);
 
                     var response = new ResourceResponse()
                     {
