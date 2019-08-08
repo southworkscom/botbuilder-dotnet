@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
-    public interface ITwilioApi
+    public interface ITwilioClient
     {
         void LogIn(string username, string password);
 
