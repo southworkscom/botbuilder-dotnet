@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
@@ -163,6 +164,101 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
             {
                 await twilioAdapter.ProcessAsync(default(HttpRequest), default(HttpResponse), null, default(CancellationToken));
             });
+        }
+
+        [Fact]
+        public async void UpdateActivityAsync_Should_Throw_NotSupportedException()
+        {
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            var adapter = new TwilioAdapter(options);
+            var activity = new Activity();
+            var turnContext = new TurnContext(adapter, activity);
+
+            await Assert.ThrowsAsync<NotSupportedException>(async () => { await adapter.UpdateActivityAsync(turnContext, activity, default); });
+        }
+
+        [Fact]
+        public async void DeleteActivityAsync_Should_Throw_NotSupportedException()
+        {
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            var adapter = new TwilioAdapter(options);
+            var activity = new Activity();
+            var turnContext = new TurnContext(adapter, activity);
+            var conversationReference = new ConversationReference();
+
+            await Assert.ThrowsAsync<NotSupportedException>(async () => { await adapter.DeleteActivityAsync(turnContext, conversationReference, default); });
+        }
+
+        [Fact]
+        public async void ContinueConversationAsync_Should_Fail_With_Null_ConversationReference()
+        {
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            var adapter = new TwilioAdapter(options);
+
+            Task BotsLogic(ITurnContext turnContext, CancellationToken cancellationToken)
+            {
+                return Task.CompletedTask;
+            }
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await adapter.ContinueConversationAsync(null, BotsLogic, default); });
+        }
+
+        [Fact]
+        public async void ContinueConversationAsync_Should_Fail_With_Null_Logic()
+        {
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            var adapter = new TwilioAdapter(options);
+            var conversationReference = new ConversationReference();
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await adapter.ContinueConversationAsync(conversationReference, null, default); });
+        }
+
+        [Fact]
+        public async void ContinueConversationAsync_Should_Succeed()
+        {
+            bool callbackInvoked = false;
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            var adapter = new TwilioAdapter(options);
+            var conversationReference = new ConversationReference();
+
+            Task BotsLogic(ITurnContext turnContext, CancellationToken cancellationToken)
+            {
+                callbackInvoked = true;
+                return Task.CompletedTask;
+            }
+
+            await adapter.ContinueConversationAsync(conversationReference, BotsLogic, default);
+            Assert.True(callbackInvoked);
         }
 
         private class MockTwilioOptions : ITwilioAdapterOptions
