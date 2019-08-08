@@ -46,13 +46,8 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 throw new Exception("AuthToken is a required part of the configuration.");
             }
 
-            if (_twilioApi == null)
-            {
-                throw new Exception("'twilioApi' is required.");
-            }
-
             _options = options;
-            _twilioApi = twilioApi;
+            _twilioApi = twilioApi ?? throw new Exception("'twilioApi' is required.");
 
             _twilioApi.LogIn(_options.AccountSid, _options.AuthToken);
         }
