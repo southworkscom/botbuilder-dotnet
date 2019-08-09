@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -172,6 +174,37 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
             {
                 await twilioAdapter.ProcessAsync(default(HttpRequest), default(HttpResponse), null, default(CancellationToken));
             });
+        }
+
+        [Fact]
+        public async void SendActivitiesAsync_Should_Succeed()
+        {
+            ITwilioAdapterOptions options = new MockTwilioOptions
+            {
+                TwilioNumber = "Test",
+                AccountSid = "Test",
+                AuthToken = "Test",
+            };
+
+            // Setup mocked Activity and get the message option
+            var activity = new Mock<Activity>().SetupAllProperties();
+            activity.Object.Type = "message";
+            activity.Object.Attachments = new List<Attachment> { new Attachment(contentUrl: "http://example.com") };
+            activity.Object.Conversation = new ConversationAccount(id: "MockId");
+            activity.Object.Text = "Hello, Bot!";
+            var messageOption = TwilioHelper.ActivityToTwilio(activity.Object, "123456789");
+
+            // Setup mocked Twilio API client
+            const string resourceIdentifier = "Mocked Resource Identifier";
+            var twilioApi = new Mock<ITwilioClient>();
+            twilioApi.Setup(x => x.GetResourceIdentifier(It.IsAny<object>())).Returns(Task.FromResult(resourceIdentifier));
+
+            // Create a new Twilio Adapter with the mocked classes and get the responses
+            var twilioAdapter = new TwilioAdapter(options, twilioApi.Object);
+            ResourceResponse[] resourceResponses = await twilioAdapter.SendActivitiesAsync(null, new Activity[] { activity.Object }, default).ConfigureAwait(false);
+
+            // Assert the result
+            Assert.True(resourceResponses[0].Id == resourceIdentifier);
         }
 
         private class MockTwilioOptions : ITwilioAdapterOptions
