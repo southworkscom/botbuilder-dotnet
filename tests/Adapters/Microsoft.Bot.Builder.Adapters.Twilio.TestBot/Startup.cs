@@ -21,8 +21,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.TestBot
         {
             Configuration = configuration;
             var options = new SimpleTwilioAdapterOptions(configuration["TwilioNumber"], configuration["AccountSid"], configuration["AuthToken"], configuration["ValidationUrl"]);
-            var twilioApi = new TwilioApi();
-            _adapter = new TwilioAdapter(options, twilioApi);
+            _adapter = new TwilioAdapter(options, new TwilioApi());
         }
 
         public IConfiguration Configuration { get; }
