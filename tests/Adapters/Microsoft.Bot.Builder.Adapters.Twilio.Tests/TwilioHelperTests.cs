@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Moq;
@@ -256,6 +258,100 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
             {
                 TwilioHelper.RequestToActivity(httpRequest.Object, string.Empty, string.Empty);
             });
+        }
+
+        [Fact]
+        public void SetHttpResponse_Should_Return_Updated_HttpResponse()
+        {
+            // Setup mocked ITwilioAdapterOptions
+            var options = new Mock<ITwilioAdapterOptions>().SetupAllProperties();
+            options.Object.AccountSid = "MockTest";
+            options.Object.AuthToken = "MockToken";
+            options.Object.TwilioNumber = "MockNumber";
+
+            // Setup mocked Twilio API client
+            var twilioApi = new Mock<ITwilioClient>();
+
+            // Create a new Twilio Adapter with the mocked classes and get the responses
+            var twilioAdapter = new TwilioAdapter(options.Object, twilioApi.Object);
+            var activity = new Mock<Activity>();
+
+            using (var context = new TurnContext(twilioAdapter, activity.Object))
+            {
+                context.TurnState.Add("httpStatus", HttpStatusCode.OK.ToString("D"));
+                var httpResponse = new Mock<HttpResponse>().SetupAllProperties();
+
+                TwilioHelper.SetHttpResponse(context, httpResponse.Object);
+
+                Assert.Equal((int)HttpStatusCode.OK, httpResponse.Object.StatusCode);
+                Assert.Equal("text/plain", httpResponse.Object.ContentType);
+            }
+        }
+
+        [Fact]
+        public void SetHttpResponse_Should_Throw_Exception_With_Missing_HttpStatus()
+        {
+            // Setup mocked ITwilioAdapterOptions
+            var options = new Mock<ITwilioAdapterOptions>().SetupAllProperties();
+            options.Object.AccountSid = "MockTest";
+            options.Object.AuthToken = "MockToken";
+            options.Object.TwilioNumber = "MockNumber";
+
+            // Setup mocked Twilio API client
+            var twilioApi = new Mock<ITwilioClient>();
+
+            // Create a new Twilio Adapter with the mocked classes and get the responses
+            var twilioAdapter = new TwilioAdapter(options.Object, twilioApi.Object);
+            var activity = new Mock<Activity>();
+
+            using (var context = new TurnContext(twilioAdapter, activity.Object))
+            {
+                var httpResponse = new Mock<HttpResponse>().SetupAllProperties();
+
+                var ex = Assert.Throws<Exception>(() => TwilioHelper.SetHttpResponse(context, httpResponse.Object));
+                Assert.Equal("The TurnContext is missing the HttpStatus", ex.Message);
+            }
+        }
+
+        [Fact]
+        public void SetHttpResponse_Should_Throw_Exception_With_Null_Context()
+        {
+            // Setup mocked ITwilioAdapterOptions
+            var options = new Mock<ITwilioAdapterOptions>().SetupAllProperties();
+            options.Object.AccountSid = "MockTest";
+            options.Object.AuthToken = "MockToken";
+            options.Object.TwilioNumber = "MockNumber";
+
+            // Setup mocked Twilio API client
+            var twilioApi = new Mock<ITwilioClient>();
+
+            var httpResponse = new Mock<HttpResponse>().SetupAllProperties();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => TwilioHelper.SetHttpResponse(null, httpResponse.Object));
+            Assert.Equal("Value cannot be null.\r\nParameter name: context", ex.Message);
+        }
+
+        [Fact]
+        public void SetHttpResponse_Should_Throw_Exception_With_Null_HttpResponse()
+        {
+            // Setup mocked ITwilioAdapterOptions
+            var options = new Mock<ITwilioAdapterOptions>().SetupAllProperties();
+            options.Object.AccountSid = "MockTest";
+            options.Object.AuthToken = "MockToken";
+            options.Object.TwilioNumber = "MockNumber";
+
+            // Setup mocked Twilio API client
+            var twilioApi = new Mock<ITwilioClient>();
+
+            // Create a new Twilio Adapter with the mocked classes and get the responses
+            var twilioAdapter = new TwilioAdapter(options.Object, twilioApi.Object);
+            var activity = new Mock<Activity>();
+
+            using (var context = new TurnContext(twilioAdapter, activity.Object))
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() => TwilioHelper.SetHttpResponse(context, null));
+                Assert.Equal("Value cannot be null.\r\nParameter name: httpResponse", ex.Message);
+            }
         }
     }
 }
