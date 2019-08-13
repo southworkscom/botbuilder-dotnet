@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
-using Twilio.Exceptions;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Security;
 
@@ -101,6 +101,35 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 Type = ActivityTypes.Message,
                 Attachments = int.TryParse(twilioMessage.NumMedia, out var numMediaResult) && numMediaResult > 0 ? GetMessageAttachments(numMediaResult, body) : null,
             };
+        }
+
+        /// <summary>
+        /// Sets the StatusCode and ContentType of a HttpResponse using a TurnContext.
+        /// </summary>
+        /// <param name="context">The TurnContext that contains the HttpStatus.</param>
+        /// <param name="httpResponse">The HttpResponse to set the Status code and ContentType.</param>
+        /// <returns>HttpResponse with updated StatusCode and ContentType.</returns>
+        public static HttpResponse SetHttpResponse(TurnContext context, HttpResponse httpResponse)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (httpResponse == null)
+            {
+                throw new ArgumentNullException(nameof(httpResponse));
+            }
+
+            if (!context.TurnState.Keys.Contains("httpStatus"))
+            {
+                throw new Exception($"The TurnContext is missing the HttpStatus");
+            }
+
+            httpResponse.StatusCode = int.Parse(context.TurnState.Get<string>("httpStatus"), CultureInfo.InvariantCulture);
+            httpResponse.ContentType = "text/plain";
+
+            return httpResponse;
         }
 
         /// <summary>

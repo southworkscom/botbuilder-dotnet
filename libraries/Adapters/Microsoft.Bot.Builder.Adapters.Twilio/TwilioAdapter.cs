@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,8 +118,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
                 context.TurnState.Add("httpStatus", HttpStatusCode.OK.ToString("D"));
                 await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
-                httpResponse.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), CultureInfo.InvariantCulture);
-                httpResponse.ContentType = "text/plain";
+                httpResponse = TwilioHelper.SetHttpResponse(context, httpResponse);
                 var text = context.TurnState.Get<object>("httpBody") != null ? context.TurnState.Get<object>("httpBody").ToString() : string.Empty;
 
                 await httpResponse.WriteAsync(text, cancellationToken).ConfigureAwait(false);
