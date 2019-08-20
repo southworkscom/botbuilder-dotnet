@@ -19,11 +19,6 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
 {
     public class WebexAdapter : BotAdapter
     {
-        /// <summary>
-        /// Name used by Botkit plugin loader.
-        /// </summary>
-        public const string Name = "Webex Adapter";
-
         private readonly IWebexAdapterOptions _config;
 
         private readonly TeamsAPIClient _api;
@@ -34,41 +29,22 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// </summary>
         /// <param name="config">An object containing API credentials, a webhook verification token and other options.</param>
         public WebexAdapter(IWebexAdapterOptions config)
-            : base()
         {
-            _config = config;
+            _config = config ?? throw new ArgumentNullException(nameof(config));
 
-            if (_config.AccessToken != null)
-            {
-                _api = TeamsAPI.CreateVersion1Client(config.AccessToken);
-
-                if (_api == null)
-                {
-                    throw new Exception("Could not create the Webex Teams API client");
-                }
-            }
-            else
+            if (string.IsNullOrWhiteSpace(_config.AccessToken))
             {
                 throw new Exception("AccessToken required to create controller");
             }
 
-            if (_config.PublicAddress != null)
-            {
-                var endpoint = new Uri(_config.PublicAddress);
-
-                if (endpoint.Host != null)
-                {
-                    _config.PublicAddress = endpoint.Host;
-                }
-                else
-                {
-                    throw new Exception("Could not determine hostname of public address");
-                }
-            }
-            else
+            if (string.IsNullOrWhiteSpace(_config.PublicAddress))
             {
                 throw new Exception("PublicAddress parameter required to receive webhooks");
             }
+
+            _config.PublicAddress = new Uri(_config.PublicAddress).Host;
+            _api = TeamsAPI.CreateVersion1Client(_config.AccessToken)
+                   ?? throw new Exception("Could not create the Webex Teams API client");
         }
 
         /// <summary>
@@ -83,7 +59,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task GetIdentityAsync()
         {
-            await _api.GetMeAsync().ContinueWith((task) => { Identity = task.Result.Data; });
+            await _api.GetMeAsync().ContinueWith(task => { Identity = task.Result.Data; }, TaskScheduler.Current).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -92,13 +68,14 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ResetWebhookSubscriptions()
         {
-            await _api.ListWebhooksAsync().ContinueWith(async (task) =>
+            await _api.ListWebhooksAsync().ContinueWith(
+                async task =>
             {
-                for (int i = 0; i < task.Result.Data.ItemCount; i++)
+                for (var i = 0; i < task.Result.Data.ItemCount; i++)
                 {
-                    await _api.DeleteWebhookAsync(task.Result.Data.Items[i]);
+                    await _api.DeleteWebhookAsync(task.Result.Data.Items[i]).ConfigureAwait(false);
                 }
-            });
+            }, TaskScheduler.Current).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -110,7 +87,8 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         {
             var webHookName = _config.WebhookName ?? "Botkit Firehose";
 
-            await _api.ListWebhooksAsync().ContinueWith(async (task) =>
+            await _api.ListWebhooksAsync().ContinueWith(
+                async task =>
             {
                 string hookId = null;
 
@@ -126,13 +104,13 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
 
                 if (hookId != null)
                 {
-                    await _api.UpdateWebhookAsync(hookId, webHookName, new Uri(hookUrl), _config.Secret);
+                    await _api.UpdateWebhookAsync(hookId, webHookName, new Uri(hookUrl), _config.Secret).ConfigureAwait(false);
                 }
                 else
                 {
-                    await _api.CreateWebhookAsync(webHookName, new Uri(hookUrl), EventResource.All, EventType.All, null, _config.Secret);
+                    await _api.CreateWebhookAsync(webHookName, new Uri(hookUrl), EventResource.All, EventType.All, null, _config.Secret).ConfigureAwait(false);
                 }
-            });
+            }, TaskScheduler.Current).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -144,23 +122,25 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override async Task<ResourceResponse[]> SendActivitiesAsync(ITurnContext turnContext, Activity[] activities, CancellationToken cancellationToken)
         {
-            List<ResourceResponse> responses = new List<ResourceResponse>();
-            for (int i = 0; i < activities.Length; i++)
+            var responses = new List<ResourceResponse>();
+            foreach (var activity in activities)
             {
-                var activity = activities[i];
-                if (activity.Type.Equals(ActivityTypes.Message))
+                if (activity.Type != ActivityTypes.Message)
                 {
-                    // transform activity into the webex message format
-                    var personIDorEmail = ((activity.ChannelData as dynamic)?.toPersonEmail != null) ? (activity.ChannelData as dynamic).toPersonEmail : activity.Recipient.Id;
-                    var text = (activity.ChannelData != null) ? (activity.ChannelData as dynamic).markdown : activity.Text;
-                    TeamsResult<Message> webexResponse = await _api.CreateDirectMessageAsync(personIDorEmail, text);
-                    var response = new ResourceResponse(webexResponse.Data.Id);
-                    responses.Add(response);
+                    continue;
                 }
-                else
-                {
-                    // not type message
-                }
+
+                // transform activity into the webex message format
+                var personIdOrEmail = (activity.ChannelData as dynamic)?.toPersonEmail != null
+                                    ? (activity.ChannelData as dynamic).toPersonEmail
+                                    : activity.Recipient.Id;
+
+                var text = activity.ChannelData != null
+                            ? (activity.ChannelData as dynamic).markdown
+                            : activity.Text;
+
+                TeamsResult<Message> webexResponse = await _api.CreateDirectMessageAsync(personIdOrEmail, text);
+                responses.Add(new ResourceResponse(webexResponse.Data.Id));
             }
 
             return responses.ToArray();
@@ -176,7 +156,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         public override async Task<ResourceResponse> UpdateActivityAsync(ITurnContext turnContext, Activity activity, CancellationToken cancellationToken)
         {
             // Webex adapter does not support updateActivity.
-            return await Task.FromException<ResourceResponse>(new NotImplementedException("Webex adapter does not support updateActivity."));
+            return await Task.FromException<ResourceResponse>(new NotImplementedException("Webex adapter does not support updateActivity.")).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -188,9 +168,9 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override async Task DeleteActivityAsync(ITurnContext turnContext, ConversationReference reference, CancellationToken cancellationToken)
         {
-            if (reference.ActivityId != null)
+            if (!string.IsNullOrWhiteSpace(reference.ActivityId))
             {
-                await _api.DeleteMessageAsync(reference.ActivityId, default(CancellationToken));
+                await _api.DeleteMessageAsync(reference.ActivityId, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -199,14 +179,26 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// </summary>
         /// <param name="reference">A <see cref="ConversationReference"/> to be applied to future messages.</param>
         /// <param name="logic">A bot logic function that will perform continuing action.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ContinueConversationAsync(ConversationReference reference, BotCallbackHandler logic)
+        public async Task ContinueConversationAsync(ConversationReference reference, BotCallbackHandler logic, CancellationToken cancellationToken)
         {
+            if (reference == null)
+            {
+                throw new ArgumentNullException(nameof(reference));
+            }
+
+            if (logic == null)
+            {
+                throw new ArgumentNullException(nameof(logic));
+            }
+
             var request = reference.GetContinuationActivity().ApplyConversationReference(reference, true);
 
-            var context = new TurnContext(this, request);
-
-            await RunPipelineAsync(context, logic, default(CancellationToken));
+            using (var context = new TurnContext(this, request))
+            {
+                await RunPipelineAsync(context, logic, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -219,127 +211,167 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken = default(CancellationToken))
         {
-            response.StatusCode = 200;
-            await response.WriteAsync(string.Empty);
-
-            var bodyStream = new StreamReader(request.Body);
-            dynamic payload = JsonConvert.DeserializeObject(bodyStream.ReadToEnd());
-
-            var json = JsonConvert.SerializeObject(payload);
-
-            if (!string.Equals(_config.Secret, string.Empty))
+            if (request == null)
             {
-                var signature = request.Headers["x-spark-signature"];
+                throw new ArgumentNullException(nameof(request));
+            }
 
-                using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(_config.Secret)))
+            if (response == null)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
+            if (bot == null)
+            {
+                throw new ArgumentNullException(nameof(bot));
+            }
+
+            response.StatusCode = 200;
+            await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
+
+            dynamic payload;
+            using (var bodyStream = new StreamReader(request.Body))
+            {
+                payload = JsonConvert.DeserializeObject(bodyStream.ReadToEnd());
+            }
+
+            if (!string.IsNullOrWhiteSpace(_config.Secret))
+            {
+                var json = JsonConvert.SerializeObject(payload);
+
+                if (!ValidateSignature(_config.Secret, request, json))
                 {
-                    var hashArray = hmac.ComputeHash(Encoding.UTF8.GetBytes(json));
-
-                    string hash = BitConverter.ToString(hashArray).Replace("-", string.Empty).ToLower();
-
-                    if (!string.Equals(signature, hash))
-                    {
-                        throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
-                    }
+                    throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
                 }
             }
 
-            Activity activity;
-            if (payload.resource == "messages" && payload["event"] == "created")
+            var activity = payload.resource == "messages" && payload["event"] == "created"
+                ? await DecryptedMessageToActivityAsync(payload)
+                : PayloadToActivity(payload);
+
+            using (var context = new TurnContext(this, activity))
             {
-                Message decryptedMessage = (await _api.GetMessageAsync(payload.data.id.ToString())).GetData();
-                activity = new Activity()
-                {
-                    Id = decryptedMessage.Id,
-                    Timestamp = new DateTime(),
-                    ChannelId = "webex",
-                    Conversation = new ConversationAccount()
-                    {
-                        Id = (decryptedMessage as dynamic).SpaceId,
-                    },
-                    From = new ChannelAccount()
-                    {
-                        Id = decryptedMessage.PersonId,
-                        Name = decryptedMessage.PersonEmail,
-                    },
-                    Recipient = new ChannelAccount()
-                    {
-                        Id = Identity.Id,
-                    },
-                    Text = decryptedMessage.Text,
-                    ChannelData = decryptedMessage,
-                    Type = ActivityTypes.Message,
-                };
+                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+            }
+        }
 
-                // this is the bot speaking
-                if (activity.From.Id == Identity.Id)
+        /// <summary>
+        /// Validates the local secret against the one obtained from the request header.
+        /// </summary>
+        /// <param name="secret">The local stored secret.</param>
+        /// <param name="request">The <see cref="HttpRequest"/> with the signature.</param>
+        /// <param name="json">The serialized payload to be use for comparison.</param>
+        /// <returns>The result of the comparison between the signature in the request and hashed json.</returns>
+        private static bool ValidateSignature(string secret, HttpRequest request, string json)
+        {
+            var signature = request.Headers.ContainsKey("x-spark-signature")
+                ? request.Headers["x-spark-signature"].ToString().ToUpperInvariant()
+                : throw new Exception("HttpRequest is missing \"x-spark-signature\"");
+
+            #pragma warning disable CA5350 // Webex API uses SHA1 as cryptographic algorithm.
+            using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secret)))
+            {
+                var hashArray = hmac.ComputeHash(Encoding.UTF8.GetBytes(json));
+                var hash = BitConverter.ToString(hashArray).Replace("-", string.Empty).ToUpperInvariant();
+
+                return signature == hash;
+            }
+            #pragma warning restore CA5350 // Webex API uses SHA1 as cryptographic algorithm.
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Activity"/> using the body of a request.
+        /// </summary>
+        /// <param name="payload">The payload obtained from the body of the request.</param>
+        /// <returns>An <see cref="Activity"/> object.</returns>
+        private Activity PayloadToActivity(dynamic payload)
+        {
+            var activity = new Activity
+            {
+                Id = payload.id,
+                Timestamp = new DateTime(),
+                ChannelId = "webex",
+                Conversation = new ConversationAccount
                 {
-                    (activity.ChannelData as dynamic).botkitEventType = "self_message";
-                    activity.Type = ActivityTypes.Event;
+                    Id = payload.data.roomId,
+                },
+                From = new ChannelAccount
+                {
+                    Id = payload.actorId,
+                },
+                Recipient = new ChannelAccount
+                {
+                    Id = Identity.Id,
+                },
+                ChannelData = payload,
+                Type = ActivityTypes.Event,
+            };
+
+            (activity.ChannelData as dynamic).botkitEventType = payload.resource + "." + payload["event"];
+
+            return activity;
+        }
+
+        /// <summary>
+        /// Converts a decrypted <see cref="Message"/> into an <see cref="Activity"/>.
+        /// </summary>
+        /// <param name="payload">The payload obtained from the body of the request.</param>
+        /// <returns>An <see cref="Activity"/> object.</returns>
+        private async Task<Activity> DecryptedMessageToActivityAsync(dynamic payload)
+        {
+            Message decryptedMessage = (await _api.GetMessageAsync(payload.data.id.ToString())).GetData();
+            var activity = new Activity
+            {
+                Id = decryptedMessage.Id,
+                Timestamp = new DateTime(),
+                ChannelId = "webex",
+                Conversation = new ConversationAccount
+                {
+                    Id = (decryptedMessage as dynamic).SpaceId,
+                },
+                From = new ChannelAccount
+                {
+                    Id = decryptedMessage.PersonId,
+                    Name = decryptedMessage.PersonEmail,
+                },
+                Recipient = new ChannelAccount
+                {
+                    Id = Identity.Id,
+                },
+                Text = decryptedMessage.Text,
+                ChannelData = decryptedMessage,
+                Type = ActivityTypes.Message,
+            };
+
+            // this is the bot speaking
+            if (activity.From.Id == Identity.Id)
+            {
+                (activity.ChannelData as dynamic).botkitEventType = "self_message";
+                activity.Type = ActivityTypes.Event;
+            }
+
+            if (decryptedMessage.HasHtml)
+            {
+                var pattern = new Regex($"^(<p>)?<spark-mention .*?data-object-id=\"{Identity.Id}\".*?>.*?</spark-mention>");
+                if (!decryptedMessage.Html.Equals(pattern))
+                {
+                    // this should look like ciscospark://us/PEOPLE/<id string>
+                    var match = Regex.Match(Identity.Id, "/ciscospark://.*/(.*)/im");
+                    pattern = new Regex($"^(<p>)?<spark-mention .*?data-object-id=\"{match.Captures[1]}\".*?>.*?</spark-mention>");
                 }
 
-                if (decryptedMessage.HasHtml)
-                {
-                    var pattern = new Regex("^(<p>)?<spark-mention .*?data-object-id=\"" + Identity.Id + "\".*?>.*?</spark-mention>");
-                    if (!decryptedMessage.Html.Equals(pattern))
-                    {
-                        var encodedId = Identity.Id;
+                var action = decryptedMessage.Html.Replace(pattern.ToString(), string.Empty);
 
-                        // this should look like ciscospark://us/PEOPLE/<id string>
-                        Match match = Regex.Match(encodedId, "/ciscospark://.*/(.*)/im");
-                        pattern = new Regex("^(<p>)?<spark-mention .*?data-object-id=\"" + match.Captures[1] + "\".*?>.*?</spark-mention>");
-                    }
-
-                    var action = decryptedMessage.Html.Replace(pattern.ToString(), string.Empty);
-
-                    // strip the remaining HTML tags
-                    action = action.Replace("/<.*?>/img", string.Empty);
-
-                    // strip remaining whitespace
-                    action = action.Trim();
-
-                    // replace the message text with the the HTML version
-                    activity.Text = action;
-                }
-                else
-                {
-                    var pattern = new Regex("^" + Identity.DisplayName + "\\s+");
-                    activity.Text = activity.Text.Replace(pattern.ToString(), string.Empty);
-                }
-
-                var context = new TurnContext(this, activity);
-
-                await RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
+                // Strip the remaining HTML tags and replace the message text with the the HTML version
+                activity.Text = action.Replace("/<.*?>/img", string.Empty).Trim();
             }
             else
             {
-                activity = new Activity()
-                {
-                    Id = payload.id,
-                    Timestamp = new DateTime(),
-                    ChannelId = "webex",
-                    Conversation = new ConversationAccount()
-                    {
-                        Id = payload.data.roomId,
-                    },
-                    From = new ChannelAccount()
-                    {
-                        Id = payload.actorId,
-                    },
-                    Recipient = new ChannelAccount()
-                    {
-                        Id = Identity.Id,
-                    },
-                    ChannelData = payload,
-                    Type = ActivityTypes.Event,
-                };
-
-                (activity.ChannelData as dynamic).botkitEventType = payload.resource + "." + payload["event"];
-
-                var context = new TurnContext(this, activity);
-
-                await RunPipelineAsync(context, bot.OnTurnAsync, default(CancellationToken));
+                var pattern = new Regex("^" + Identity.DisplayName + "\\s+");
+                activity.Text = activity.Text.Replace(pattern.ToString(), string.Empty);
             }
+
+            return activity;
         }
     }
 }
