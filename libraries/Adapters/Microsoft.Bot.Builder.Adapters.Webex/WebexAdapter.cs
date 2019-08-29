@@ -87,7 +87,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<Webhook> RegisterWebhookSubscriptionAsync(string webhookPath, WebhookList webhookList)
         {
-            var webHookName = _config.WebhookName ?? "Botkit Firehose";
+            var webHookName = _config.WebhookName ?? "Webex Firehose";
 
             string hookId = null;
 
@@ -150,7 +150,19 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
                     }
                 }
 
-                var responseId = await _webexApi.CreateMessageAsync(personIdOrEmail, activity.Text).ConfigureAwait(false);
+                var files = new List<Uri>();
+
+                if (activity.Attachments != null)
+                {
+                    foreach (var attachment in activity.Attachments)
+                    {
+                        var file = new Uri(attachment.ContentUrl);
+
+                        files.Add(file);
+                    }
+                }
+
+                var responseId = await _webexApi.CreateMessageAsync(personIdOrEmail, activity.Text, files.Count > 0 ? files : null).ConfigureAwait(false);
                 responses.Add(new ResourceResponse(responseId));
             }
 
