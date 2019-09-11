@@ -28,7 +28,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="name">The optional name.</param>
         /// <param name="channel">The optional channel.</param>
         /// <param name="timestamp">The optional timestamp.</param>
-        /// <returns>The <see cref="ReactionAddedResponse"/> representing the the response to the reaction added.</returns>
+        /// <returns>The <see cref="ReactionAddedResponse"/> representing the response to the reaction added.</returns>
         public virtual async Task<ReactionAddedResponse> AddReactionAsync(string name = null, string channel = null, string timestamp = null)
         {
             return await _api.AddReactionAsync(name, channel, timestamp).ConfigureAwait(false);
@@ -38,19 +38,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Wraps Slack API's APIRequestWithTokenAsync method.
         /// </summary>
         /// <param name="postParameters">The parameters to the POST request.</param>
-        /// <typeparam name="T">The generic type for the return. Must be of type Response.</param>
+        /// <typeparam name="TResult">The generic type for the return. Must be of type Response.</param>
         /// <returns>A <see cref="Task"/> of type T representing the asynchronous operation.</returns>
-        public virtual async Task<T> APIRequestWithTokenAsync<T>(params Tuple<string, string>[] postParameters)
-             where T : Response
+        public virtual async Task<TResult> APIRequestWithTokenAsync<TResult>(params Tuple<string, string>[] postParameters)
+             where TResult : Response
         {
-            if (postParameters != null)
-            {
-                return await _api.APIRequestWithTokenAsync<T>().ConfigureAwait(false);
-            }
-            else
-            {
-                return await _api.APIRequestWithTokenAsync<T>(postParameters).ConfigureAwait(false);
-            }
+            return (postParameters != null) ?
+                await _api.APIRequestWithTokenAsync<TResult>().ConfigureAwait(false) :
+                await _api.APIRequestWithTokenAsync<TResult>(postParameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -206,15 +201,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Wraps Slack API's GetFilesAsync method.
         /// </summary>
         /// <param name="userId">The user id.</param>
-        /// <param name="from">The initial date.</param>
-        /// <param name="to">The final date.</param>
+        /// <param name="dateFrom">The initial date.</param>
+        /// <param name="dateTo">The final date.</param>
         /// <param name="count">The requested count.</param>
         /// <param name="page">The page number.</param>
         /// <param name="types">The type of files to retrieve.</param>
         /// <returns>A <see cref="FileListResponse"/> representing the response.</returns>
-        public virtual async Task<FileListResponse> GetFilesAsync(string userId = null, DateTime? from = null, DateTime? to = null, int? count = null, int? page = null, FileTypes types = FileTypes.all)
+        public virtual async Task<FileListResponse> GetFilesAsync(string userId = null, DateTime? dateFrom = null, DateTime? dateTo = null, int? count = null, int? page = null, FileTypes types = FileTypes.all)
         {
-            return await _api.GetFilesAsync(userId, from, to, count, page, types).ConfigureAwait(false);
+            return await _api.GetFilesAsync(userId, dateFrom, dateTo, count, page, types).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -234,7 +229,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Wraps Slack API's GetGroupsListAsync method.
         /// </summary>
         /// <param name="excludeArchived">Flag setting if archived groups are to be excluded.</param>
-        /// <returns>A <see cref="GroupListResponse"/> representing the asynchronous operation.</returns>
+        /// <returns>A <see cref="GroupListResponse"/> with the list of groups.</returns>
         public virtual async Task<GroupListResponse> GetGroupsListAsync(bool excludeArchived = true)
         {
             return await _api.GetGroupsListAsync(excludeArchived).ConfigureAwait(false);
@@ -432,16 +427,16 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="channelId">The channel id.</param>
         /// <param name="text">The text of the message.</param>
-        /// <param name="targetuser">The target user to the message.</param>
+        /// <param name="targetUser">The target user to the message.</param>
         /// <param name="parse">Change how messages are treated.Defaults to 'none'. See https://api.slack.com/methods/chat.postMessage#formatting. </param>
         /// <param name="linkNames">If to find and link channel names and username.</param>
         /// <param name="attachments">The attachments, if any.</param>
-        /// <param name="as_user">If the message is being sent as user instead of as a bot.</param>
-        /// <param name="thread_ts">Info about the message coming from a thread. CURRENTLY NOT USED.</param>
+        /// <param name="asUser">If the message is being sent as user instead of as a bot.</param>
+        /// <param name="threadTs">Info about the message coming from a thread. CURRENTLY NOT USED.</param>
         /// <returns>A <see cref="PostEphemeralResponse"/> representing the response to the message posting.</returns>
-        public virtual async Task<PostEphemeralResponse> PostEphemeralMessageAsync(string channelId, string text, string targetuser, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool as_user = false, string thread_ts = null)
+        public virtual async Task<PostEphemeralResponse> PostEphemeralMessageAsync(string channelId, string text, string targetUser, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool asUser = false, string threadTs = null)
         {
-            return await _api.PostEphemeralMessageAsync(channelId, text, targetuser, parse, linkNames, attachments, as_user, thread_ts).ConfigureAwait(false);
+            return await _api.PostEphemeralMessageAsync(channelId, text, targetUser, parse, linkNames, attachments, asUser, threadTs).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -450,18 +445,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="channelId">The channel id.</param>
         /// <param name="text">The text of the message.</param>
         /// <param name="botName">The bot name.</param>
-        /// <param name="parse">.</param>
+        /// <param name="parse">Change how messages are treated.Defaults to 'none'. See https://api.slack.com/methods/chat.postMessage#formatting .</param>
         /// <param name="linkNames">If to find and link channel names and username.</param>
         /// <param name="blocks">A JSON-based array of structured blocks, presented as a URL-encoded string.</param>
         /// <param name="attachments">The attachments, if any.</param>
-        /// <param name="unfurl_links">True to enable unfurling of primarily text-based content.</param>
-        /// <param name="icon_url">The url of the icon with the message, if any.</param>
-        /// <param name="icon_emoji">The emoji icon, if any.</param>
-        /// <param name="as_user">If the message is being sent as user instead of as a bot.</param>
+        /// <param name="unfurlLinks">True to enable unfurling of primarily text-based content.</param>
+        /// <param name="iconUrl">The url of the icon with the message, if any.</param>
+        /// <param name="iconEmoji">The emoji icon, if any.</param>
+        /// <param name="asUser">If the message is being sent as user instead of as a bot.</param>
         /// <returns>A <see cref="PostMessageResponse"/> representing the response to the message posting.</returns>
-        public virtual async Task<PostMessageResponse> PostMessageAsync(string channelId, string text, string botName = null, string parse = null, bool linkNames = false, IBlock[] blocks = null, Attachment[] attachments = null, bool unfurl_links = false, string icon_url = null, string icon_emoji = null, bool as_user = false)
+        public virtual async Task<PostMessageResponse> PostMessageAsync(string channelId, string text, string botName = null, string parse = null, bool linkNames = false, IBlock[] blocks = null, Attachment[] attachments = null, bool unfurlLinks = false, string iconUrl = null, string iconEmoji = null, bool asUser = false)
         {
-            return await _api.PostMessageAsync(channelId, text, botName, parse, linkNames, blocks, attachments, unfurl_links, icon_url, icon_emoji, as_user).ConfigureAwait(false);
+            return await _api.PostMessageAsync(channelId, text, botName, parse, linkNames, blocks, attachments, unfurlLinks, iconUrl, iconEmoji, asUser).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -525,14 +520,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="channelId">The channel to delete the message from.</param>
         /// <param name="text">The text to update with.</param>
         /// <param name="botName">The optional bot name.</param>
-        /// <param name="parse">.</param>
+        /// <param name="parse">Change how messages are treated.Defaults to 'none'. See https://api.slack.com/methods/chat.postMessage#formatting. </param>
         /// <param name="linkNames">If to find and link channel names and username.</param>
         /// <param name="attachments">The attachments, if any.</param>
-        /// <param name="as_user">If the message is being sent as user instead of as a bot.</param>
+        /// <param name="asUser">If the message is being sent as user instead of as a bot.</param>
         /// <returns>A <see cref="UpdateResponse"/> representing the response to the operation.</returns>
-        public virtual async Task<UpdateResponse> UpdateAsync(string ts, string channelId, string text, string botName = null, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool as_user = false)
+        public virtual async Task<UpdateResponse> UpdateAsync(string ts, string channelId, string text, string botName = null, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool asUser = false)
         {
-            return await _api.UpdateAsync(ts, channelId, text, botName, parse, linkNames, attachments, as_user).ConfigureAwait(false);
+            return await _api.UpdateAsync(ts, channelId, text, botName, parse, linkNames, attachments, asUser).ConfigureAwait(false);
         }
 
         /// <summary>
