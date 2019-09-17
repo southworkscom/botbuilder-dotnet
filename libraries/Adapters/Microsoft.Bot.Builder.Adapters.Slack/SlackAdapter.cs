@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -345,6 +346,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         }
                         else
                         {
+                            // Convert Slack ts format to DateTime
+                            string[] splitString = slackEvent["event"].ts.ToString().Split('.');
+                            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
+
                             Activity activity = new Activity()
                             {
                                 Id = slackEvent["event"].ts,
@@ -362,7 +367,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                                 {
                                     Id = null,
                                 },
-                                ChannelData = slackEvent["event"],
+                                ChannelData = new NewSlackMessage()
+                                {
+                                    type = slackEvent["event"].type,
+                                    text = slackEvent["event"].text,
+                                    user = slackEvent["event"].user,
+                                    ts = dateTime,
+                                    team = slackEvent["event"].team,
+                                    channel = slackEvent["event"].channel,
+                                },
                                 Text = null,
                                 Type = ActivityTypes.Event,
                             };
@@ -374,10 +387,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                             activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity);
 
                             // Normalize the location of the team id
-                            (activity.ChannelData as dynamic).team = slackEvent.team_id;
+                            activity.GetChannelData<NewSlackMessage>().team = slackEvent.team_id;
 
                             // add the team id to the conversation record
-                            activity.Conversation.Properties["team"] = (activity.ChannelData as dynamic).team;
+                            activity.Conversation.Properties["team"] = activity.GetChannelData<NewSlackMessage>().team;
 
                             // If this is conclusively a message originating from a user, we'll mark it as such
                             if (slackEvent["event"].type == "message" && slackEvent["event"].subtype == null)
@@ -409,6 +422,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         }
                         else
                         {
+                            // Convert Slack ts format to DateTime
+                            string[] splitString = slackEvent["event"].ts.ToString().Split('.');
+                            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
+
                             // this is a slash command
                             Activity activity = new Activity()
                             {
@@ -427,7 +444,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                                 {
                                     Id = null,
                                 },
-                                ChannelData = slackEvent,
+                                ChannelData = new NewSlackMessage()
+                                {
+                                    type = slackEvent["event"].type,
+                                    text = slackEvent["event"].text,
+                                    user = slackEvent["event"].user,
+                                    ts = dateTime,
+                                    team = slackEvent["event"].team,
+                                    channel = slackEvent["event"].channel,
+                                },
                                 Text = slackEvent.text,
                                 Type = ActivityTypes.Event,
                             };
@@ -435,10 +460,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                             activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity);
 
                             // Normalize the location of the team id
-                            (activity.ChannelData as dynamic).team = slackEvent.TeamId;
+                            activity.GetChannelData<NewSlackMessage>().team = slackEvent.TeamId;
 
                             // add the team id to the conversation record
-                            activity.Conversation.Properties["team"] = (activity.ChannelData as dynamic).team;
+                            activity.Conversation.Properties["team"] = activity.GetChannelData<NewSlackMessage>().team;
 
                             // create a conversation reference
                             using (TurnContext context = new TurnContext(this, activity))

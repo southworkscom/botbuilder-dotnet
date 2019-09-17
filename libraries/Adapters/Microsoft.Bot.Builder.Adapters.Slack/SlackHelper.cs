@@ -47,23 +47,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             // if channelData is specified, overwrite any fields in message object
             if (activity.ChannelData != null)
             {
-                try
-                {
-                    // Try a straight up cast
-                    message = activity.ChannelData as NewSlackMessage;
-                }
-                catch (InvalidCastException)
-                {
-                    foreach (var property in message.GetType().GetFields())
-                    {
-                        var name = property.Name;
-                        var value = (activity.ChannelData as dynamic)[name];
-                        if (value != null)
-                        {
-                            message.GetType().GetField(name).SetValue(message, value);
-                        }
-                    }
-                }
+                message = activity.GetChannelData<NewSlackMessage>();
             }
 
             // should this message be sent as an ephemeral message
