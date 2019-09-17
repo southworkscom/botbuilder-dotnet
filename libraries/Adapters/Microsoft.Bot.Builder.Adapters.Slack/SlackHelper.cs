@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -90,6 +91,23 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
                 return hash == retrievedSignature;
             }
+        }
+
+        public static NewSlackMessage GetChannelDataFromSlackEvent(dynamic slackEvent)
+        {
+            // Convert Slack timestamp format to DateTime
+            string[] splitString = slackEvent["event"].ts.ToString().Split('.');
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
+
+            return new NewSlackMessage()
+            {
+                type = slackEvent["event"].type ?? null,
+                text = slackEvent["event"].text ?? null,
+                user = slackEvent["event"].user ?? null,
+                ts = dateTime,
+                team = slackEvent["event"].team ?? null,
+                channel = slackEvent["event"].channel ?? null,
+            };
         }
     }
 }

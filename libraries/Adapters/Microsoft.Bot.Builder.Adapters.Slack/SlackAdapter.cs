@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -346,10 +345,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         }
                         else
                         {
-                            // Convert Slack ts format to DateTime
-                            string[] splitString = slackEvent["event"].ts.ToString().Split('.');
-                            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
-
                             Activity activity = new Activity()
                             {
                                 Id = slackEvent["event"].ts,
@@ -367,15 +362,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                                 {
                                     Id = null,
                                 },
-                                ChannelData = new NewSlackMessage()
-                                {
-                                    type = slackEvent["event"].type,
-                                    text = slackEvent["event"].text,
-                                    user = slackEvent["event"].user,
-                                    ts = dateTime,
-                                    team = slackEvent["event"].team,
-                                    channel = slackEvent["event"].channel,
-                                },
+                                ChannelData = SlackHelper.GetChannelDataFromSlackEvent(slackEvent),
                                 Text = null,
                                 Type = ActivityTypes.Event,
                             };
@@ -422,10 +409,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         }
                         else
                         {
-                            // Convert Slack ts format to DateTime
-                            string[] splitString = slackEvent["event"].ts.ToString().Split('.');
-                            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
-
                             // this is a slash command
                             Activity activity = new Activity()
                             {
@@ -444,15 +427,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                                 {
                                     Id = null,
                                 },
-                                ChannelData = new NewSlackMessage()
-                                {
-                                    type = slackEvent["event"].type,
-                                    text = slackEvent["event"].text,
-                                    user = slackEvent["event"].user,
-                                    ts = dateTime,
-                                    team = slackEvent["event"].team,
-                                    channel = slackEvent["event"].channel,
-                                },
+                                ChannelData = SlackHelper.GetChannelDataFromSlackEvent(slackEvent),
                                 Text = slackEvent.text,
                                 Type = ActivityTypes.Event,
                             };
