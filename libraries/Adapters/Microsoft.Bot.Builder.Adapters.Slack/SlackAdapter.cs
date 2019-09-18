@@ -32,8 +32,9 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Initializes a new instance of the <see cref="SlackAdapter"/> class.
         /// Create a Slack adapter.
         /// </summary>
+        /// <param name="slackClient">An initialized instance of the SlackClientWrapper class.</param>
         /// <param name="options">An object containing API credentials, a webhook verification token and other options.</param>
-        public SlackAdapter(SlackAdapterOptions options)
+        public SlackAdapter(SlackClientWrapper slackClient, SlackAdapterOptions options)
             : base()
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -54,7 +55,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 throw new Exception(warning + Environment.NewLine + "Required: include a verificationToken or clientSigningSecret to verify incoming Events API webhooks");
             }
 
-            _slackClient = new SlackClientWrapper(_options.BotToken);
+            _slackClient = slackClient;
             LoginWithSlack().Wait();
         }
 
@@ -123,7 +124,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public async Task<AccessTokenResponse> ValidateOauthCodeAsync(string code)
         {
             var helpers = new SlackClientHelpers();
-            var results = await helpers.GetAccessTokenAsync(_options.ClientId, _options.ClientSecret, _options.RedirectUri, code).ConfigureAwait(false);
+            var results = await helpers.GetAccessTokenAsync(_options.ClientId, _options.ClientSecret, _options.RedirectUri.AbsolutePath, code).ConfigureAwait(false);
             return results.ok ? results : throw new Exception(results.error);
         }
 
@@ -483,7 +484,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         {
             if (_options.BotToken != null)
             {
-                AuthTestResponse response = await _slackClient.TestAuthAsync().ConfigureAwait(false);
+                AuthTestResponse response = await _slackClient.TestAuthAsync(default(CancellationToken)).ConfigureAwait(false);
                 _identity = response.user_id;
             }
             else
