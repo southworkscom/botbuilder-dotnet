@@ -19,9 +19,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 {
     public class SlackAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
+        private const string PostMessageUrl = "https://slack.com/api/chat.postMessage";
+        private const string PostEphemeralMessageUrl = "https://slack.com/api/chat.postEphemeral";
+        private const string SlackOAuthUrl = "https://slack.com/oauth/authorize?client_id=";
+
         private readonly SlackAdapterOptions _options;
         private readonly SlackClientWrapper _slackClient;
-        private readonly string _slackOAuthUrl = "https://slack.com/oauth/authorize?client_id=";
+
         private string _identity;
 
         /// <summary>
@@ -107,7 +111,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public string GetInstallLink()
         {
             return (!string.IsNullOrEmpty(_options.ClientId) && _options.GetScopes().Length > 0)
-                ? _slackOAuthUrl + _options.ClientId + "&scope=" + string.Join(",", _options.GetScopes())
+                ? SlackOAuthUrl + _options.ClientId + "&scope=" + string.Join(",", _options.GetScopes())
                 : throw new Exception("getInstallLink() cannot be called without clientId and scopes in adapter options.");
         }
 
@@ -130,7 +134,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="activities">An array of outgoing activities to be sent back to the messaging API.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A resource response.</returns>
-        public override Task<ResourceResponse[]> SendActivitiesAsync(ITurnContext turnContext, Activity[] activities, CancellationToken cancellationToken)
+        public override async Task<ResourceResponse[]> SendActivitiesAsync(ITurnContext turnContext, Activity[] activities, CancellationToken cancellationToken)
         {
             var responses = new List<ResourceResponse>();
             for (var i = 0; i < activities.Length; i++)
@@ -151,13 +155,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         data["thread_ts"] = message.ThreadTS;
 
                         byte[] response;
-                        using (WebClient client = new WebClient())
+                        using (var client = new WebClient())
                         {
                             string url = !string.IsNullOrEmpty(message.Ephemeral)
-                                ? "https://slack.com/api/chat.postEphemeral"
-                                : "https://slack.com/api/chat.postMessage";
+                                ? PostEphemeralMessageUrl
+                                : PostMessageUrl;
 
-                            response = client.UploadValues(url, "POST", data);
+                            response = await client.UploadValuesTaskAsync(url, "POST", data).ConfigureAwait(false);
                         }
 
                         responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
@@ -183,7 +187,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 }
             }
 
-            return Task.FromResult<ResourceResponse[]>(responses.ToArray());
+            return responses.ToArray();
         }
 
         /// <summary>
@@ -199,7 +203,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             {
                 NewSlackMessage message = SlackHelper.ActivityToSlack(activity);
                 SlackClientWrapper slack = await GetAPIAsync(activity).ConfigureAwait(false);
-                var results = await slack.UpdateAsync(activity.Timestamp.ToString(), activity.ChannelId, message.text, cancellationToken).ConfigureAwait(false);
+                var results = await slack.UpdateAsync(activity.Timestamp.ToString(), activity.ChannelId, message.text, null, null, false, null, false, cancellationToken).ConfigureAwait(false);
                 if (!results.ok)
                 {
                     throw new Exception($"Error updating activity on Slack:{results}");
@@ -241,14 +245,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="reference">A conversation reference to be applied to future messages.</param>
         /// <param name="logic">A bot logic function that will perform continuing action in the form 'async(context) => { ... }'.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ContinueConversationAsync(ConversationReference reference, BotCallbackHandler logic)
+        public async Task ContinueConversationAsync(ConversationReference reference, BotCallbackHandler logic, CancellationToken cancellationToken)
         {
             var request = reference.GetContinuationActivity().ApplyConversationReference(reference, true); // TODO: check on this
 
-            using (TurnContext context = new TurnContext(this, request))
+            using (var context = new TurnContext(this, request))
             {
-                await RunPipelineAsync(context, logic, default(CancellationToken)).ConfigureAwait(false);
+                await RunPipelineAsync(context, logic, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -265,7 +270,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             // Create an Activity based on the incoming message from Slack.
             // There are a few different types of event that Slack might send.
             string body;
-            using (StreamReader sr = new StreamReader(request.Body))
+            using (var sr = new StreamReader(request.Body))
             {
                 body = sr.ReadToEnd();
             }
@@ -396,7 +401,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         }
 
                         // create a conversation reference
-                        using (TurnContext context = new TurnContext(this, activity))
+                        using (var context = new TurnContext(this, activity))
                         {
                             context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
@@ -453,7 +458,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         activity.Conversation.Properties["team"] = activity.GetChannelData<NewSlackMessage>().team;
 
                         // create a conversation reference
-                        using (TurnContext context = new TurnContext(this, activity))
+                        using (var context = new TurnContext(this, activity))
                         {
                             context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
@@ -484,7 +489,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             else
             {
                 if (string.IsNullOrEmpty(_options.ClientId) || string.IsNullOrEmpty(_options.ClientSecret) ||
-                 string.IsNullOrEmpty(_options.RedirectUri) || _options.GetScopes().Length > 0)
+                _options.RedirectUri != null || _options.GetScopes().Length > 0)
                 {
                     throw new Exception("Missing Slack API credentials! Provide clientId, clientSecret, scopes and redirectUri as part of the SlackAdapter options.");
                 }

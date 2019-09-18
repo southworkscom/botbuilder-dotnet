@@ -45,7 +45,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Gets or Sets the URI users will be redirected to after an oauth flow. In most cases, should be `https://mydomain.com/install/auth`.
         /// </summary>
         /// <value>The Redirect URI.</value>
-        public string RedirectUri { get; set; }
+        public Uri RedirectUri { get; set; }
 
         /// <summary>
         /// A method that returns an array of scope names that are being requested during the oauth process. Must match the scopes defined at api.slack.com.

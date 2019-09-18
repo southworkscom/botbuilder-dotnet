@@ -57,7 +57,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 message.user = activity.Recipient.Id;
             }
 
-            if (!string.IsNullOrWhiteSpace(message.IconUrl) || !string.IsNullOrWhiteSpace(message.icons?.status_emoji) || !string.IsNullOrWhiteSpace(message.username))
+            if (message.IconUrl != null || !string.IsNullOrWhiteSpace(message.icons?.status_emoji) || !string.IsNullOrWhiteSpace(message.username))
             {
                 message.AsUser = false;
             }
