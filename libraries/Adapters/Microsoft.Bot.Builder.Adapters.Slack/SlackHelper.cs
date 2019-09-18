@@ -52,12 +52,12 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             }
 
             // should this message be sent as an ephemeral message
-            if (message.Ephemeral != null)
+            if (!string.IsNullOrEmpty(message.Ephemeral))
             {
                 message.user = activity.Recipient.Id;
             }
 
-            if (message.IconUrl != null || message.icons?.status_emoji != null || message.username != null)
+            if (!string.IsNullOrEmpty(message.IconUrl) || !string.IsNullOrEmpty(message.icons?.status_emoji) || !string.IsNullOrEmpty(message.username))
             {
                 message.AsUser = false;
             }
