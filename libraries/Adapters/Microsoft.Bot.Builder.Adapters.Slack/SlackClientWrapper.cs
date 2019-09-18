@@ -97,7 +97,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="ts">The timestamp of the message.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="DeletedResponse"/> representing the response to deleting the message.</returns>
-        public virtual async Task<DeletedResponse> DeleteMessageAsync(string channelId, DateTime ts, CancellationToken cancellationToken)
+        public virtual async Task<DeletedResponse> DeleteMessageAsync(string channelId, DateTime ts, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await _api.DeleteMessageAsync(channelId, ts).ConfigureAwait(false);
         }
@@ -528,7 +528,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="attachments">The attachments, if any.</param>
         /// <param name="asUser">If the message is being sent as user instead of as a bot.</param>
         /// <returns>A <see cref="UpdateResponse"/> representing the response to the operation.</returns>
-        public virtual async Task<UpdateResponse> UpdateAsync(string ts, string channelId, string text, CancellationToken cancellationToken, string botName = null, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool asUser = false)
+        public virtual async Task<UpdateResponse> UpdateAsync(string ts, string channelId, string text, CancellationToken cancellationToken = default(CancellationToken), string botName = null, string parse = null, bool linkNames = false, Attachment[] attachments = null, bool asUser = false)
         {
             return await _api.UpdateAsync(ts, channelId, text, botName, parse, linkNames, attachments, asUser).ConfigureAwait(false);
         }
