@@ -227,7 +227,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         {
             if (reference.ActivityId != null && reference.Conversation != null)
             {
-                SlackClientWrapper slack = await this.GetAPIAsync(turnContext.Activity).ConfigureAwait(false);
+                SlackClientWrapper slack = await GetAPIAsync(turnContext.Activity).ConfigureAwait(false);
                 var results = await slack.DeleteMessageAsync(reference.ChannelId, turnContext.Activity.Timestamp.Value.DateTime, cancellationToken).ConfigureAwait(false);
             }
             else
@@ -248,7 +248,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             using (TurnContext context = new TurnContext(this, request))
             {
-                await this.RunPipelineAsync(context, logic, default(CancellationToken)).ConfigureAwait(false);
+                await RunPipelineAsync(context, logic, default(CancellationToken)).ConfigureAwait(false);
             }
         }
 
@@ -325,14 +325,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         activity.Conversation.Properties["team"] = slackEvent.team.id;
 
                         // this complains because of extra fields in conversation
-                        activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity).ConfigureAwait(false);
+                        activity.Recipient.Id = await GetBotUserByTeamAsync(activity).ConfigureAwait(false);
 
                         // create a conversation reference
                         using (var context = new TurnContext(this, activity))
                         {
                             context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-                            await this.RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
                             // send http response back
                             response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
@@ -380,7 +380,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         activity.Conversation.Properties["thread_ts"] = slackEvent["event"].thread_ts;
 
                         // this complains because of extra fields in conversation
-                        activity.Recipient.Id = await this.GetBotUserByTeamAsync(activity).ConfigureAwait(false);
+                        activity.Recipient.Id = await GetBotUserByTeamAsync(activity).ConfigureAwait(false);
 
                         // Normalize the location of the team id
                         activity.GetChannelData<NewSlackMessage>().team = slackEvent.team_id;
@@ -400,7 +400,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         {
                             context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-                            await this.RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
                             // send http response back
                             response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
@@ -457,7 +457,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                         {
                             context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-                            await this.RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
                             // send http response back
                             response.StatusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
