@@ -33,24 +33,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public SlackAdapter(SlackClientWrapper slackClient)
             : base()
         {
-            if (string.IsNullOrWhiteSpace(slackClient.Options.VerificationToken) && string.IsNullOrWhiteSpace(slackClient.Options.ClientSigningSecret))
-            {
-                var warning =
-                    "****************************************************************************************" +
-                    "* WARNING: Your bot is operating without recommended security mechanisms in place.     *" +
-                    "* Initialize your adapter with a clientSigningSecret parameter to enable               *" +
-                    "* verification that all incoming webhooks originate with Slack:                        *" +
-                    "*                                                                                      *" +
-                    "* var adapter = new SlackAdapter({clientSigningSecret: <my secret from slack>});       *" +
-                    "*                                                                                      *" +
-                    "****************************************************************************************" +
-                    ">> Slack docs: https://api.slack.com/docs/verifying-requests-from-slack";
-
-                throw new Exception(warning + Environment.NewLine + "Required: include a verificationToken or clientSigningSecret to verify incoming Events API webhooks");
-            }
-
             _slackClient = slackClient ?? throw new ArgumentNullException(nameof(slackClient));
-            _slackClient.LoginWithSlack(default(CancellationToken)).Wait();
+            _slackClient.LoginWithSlackAsync(default(CancellationToken)).Wait();
         }
 
         /// <summary>
@@ -216,7 +200,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 return;
             }
 
-            if (!SlackHelper.VerifySignature(_slackClient.Options.ClientSigningSecret, request, body))
+            if (!_slackClient.VerifySignature(_slackClient.Options.ClientSigningSecret, request, body))
             {
                 response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }

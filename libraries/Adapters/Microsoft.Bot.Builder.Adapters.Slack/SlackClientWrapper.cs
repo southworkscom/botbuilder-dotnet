@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using SlackAPI;
 using SlackAPI.RPCMessages;
@@ -24,6 +27,22 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="botToken">The bot token from the Slack account.</param>
         public SlackClientWrapper(SlackAdapterOptions options)
         {
+            if (string.IsNullOrWhiteSpace(options.VerificationToken) && string.IsNullOrWhiteSpace(options.ClientSigningSecret))
+            {
+                var warning =
+                    "****************************************************************************************" +
+                    "* WARNING: Your bot is operating without recommended security mechanisms in place.     *" +
+                    "* Initialize your adapter with a clientSigningSecret parameter to enable               *" +
+                    "* verification that all incoming webhooks originate with Slack:                        *" +
+                    "*                                                                                      *" +
+                    "* var adapter = new SlackAdapter({clientSigningSecret: <my secret from slack>});       *" +
+                    "*                                                                                      *" +
+                    "****************************************************************************************" +
+                    ">> Slack docs: https://api.slack.com/docs/verifying-requests-from-slack";
+
+                throw new Exception(warning + Environment.NewLine + "Required: include a verificationToken or clientSigningSecret to verify incoming Events API webhooks");
+            }
+
             Options = options ?? throw new ArgumentNullException(nameof(options));
             _api = new SlackTaskClient(options.BotToken);
         }
@@ -619,7 +638,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A Task representing the asynchronous operation.</returns>
-        public async Task LoginWithSlack(CancellationToken cancellationToken)
+        public async Task LoginWithSlackAsync(CancellationToken cancellationToken)
         {
             if (Options.BotToken != null)
             {
@@ -658,6 +677,34 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             // multi-team mode
             var userId = await Options.GetBotUserByTeam(activity.Conversation.Properties["team"].ToString()).ConfigureAwait(false);
             return !string.IsNullOrWhiteSpace(userId) ? userId : throw new Exception("Missing credentials for team.");
+        }
+
+        /// <summary>
+        /// Validates the local secret against the one obtained from the request header.
+        /// </summary>
+        /// <param name="secret">The local stored secret.</param>
+        /// <param name="request">The <see cref="HttpRequest"/> with the signature.</param>
+        /// <param name="body">The raw body of the request.</param>
+        /// <returns>The result of the comparison between the signature in the request and hashed secret.</returns>
+        public bool VerifySignature(string secret, HttpRequest request, string body)
+        {
+            string baseString;
+
+            var timestamp = request.Headers["X-Slack-Request-Timestamp"];
+
+            object[] signature = { "v0", timestamp.ToString(), body };
+            baseString = string.Join(":", signature);
+
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
+            {
+                var hashArray = hmac.ComputeHash(Encoding.UTF8.GetBytes(baseString));
+
+                var hash = string.Concat("v0=", BitConverter.ToString(hashArray).Replace("-", string.Empty)).ToUpperInvariant();
+
+                var retrievedSignature = request.Headers["X-Slack-Signature"].ToString().ToUpperInvariant();
+
+                return hash == retrievedSignature;
+            }
         }
     }
 }
