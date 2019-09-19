@@ -39,7 +39,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
 
-            if (string.IsNullOrEmpty(_options.VerificationToken) && string.IsNullOrEmpty(_options.ClientSigningSecret))
+            if (string.IsNullOrWhiteSpace(_options.VerificationToken) && string.IsNullOrWhiteSpace(_options.ClientSigningSecret))
             {
                 string warning =
                     "****************************************************************************************" +
@@ -78,7 +78,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             }
 
             var token = await _options.GetTokenForTeam(activity.Conversation.Properties["team"].ToString()).ConfigureAwait(false);
-            return string.IsNullOrEmpty(token) ? new SlackClientWrapper(token) : throw new Exception("Missing credentials for team.");
+            return string.IsNullOrWhiteSpace(token) ? new SlackClientWrapper(token) : throw new Exception("Missing credentials for team.");
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <returns>The identity of the bot's user.</returns>
         public async Task<string> GetBotUserByTeamAsync(Activity activity)
         {
-            if (!string.IsNullOrEmpty(_identity))
+            if (!string.IsNullOrWhiteSpace(_identity))
             {
                 return _identity;
             }
@@ -102,7 +102,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             // multi-team mode
             var userId = await _options.GetBotUserByTeam(activity.Conversation.Properties["team"].ToString()).ConfigureAwait(false);
-            return !string.IsNullOrEmpty(userId) ? userId : throw new Exception("Missing credentials for team.");
+            return !string.IsNullOrWhiteSpace(userId) ? userId : throw new Exception("Missing credentials for team.");
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <returns>A url pointing to the first step in Slack's oauth flow.</returns>
         public string GetInstallLink()
         {
-            return (!string.IsNullOrEmpty(_options.ClientId) && _options.GetScopes().Length > 0)
+            return (!string.IsNullOrWhiteSpace(_options.ClientId) && _options.GetScopes().Length > 0)
                 ? SlackOAuthUrl + _options.ClientId + "&scope=" + string.Join(",", _options.GetScopes())
                 : throw new Exception("getInstallLink() cannot be called without clientId and scopes in adapter options.");
         }
@@ -145,45 +145,38 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 {
                     NewSlackMessage message = SlackHelper.ActivityToSlack(activity);
 
-                    try
+                    SlackResponse responseInString;
+
+                    var data = new NameValueCollection();
+                    data["token"] = _options.BotToken;
+                    data["channel"] = message.channel;
+                    data["text"] = message.text;
+                    data["thread_ts"] = message.ThreadTS;
+
+                    byte[] response;
+                    using (var client = new WebClient())
                     {
-                        SlackResponse responseInString;
+                        string url = !string.IsNullOrWhiteSpace(message.Ephemeral)
+                            ? PostEphemeralMessageUrl
+                            : PostMessageUrl;
 
-                        var data = new NameValueCollection();
-                        data["token"] = _options.BotToken;
-                        data["channel"] = message.channel;
-                        data["text"] = message.text;
-                        data["thread_ts"] = message.ThreadTS;
-
-                        byte[] response;
-                        using (var client = new WebClient())
-                        {
-                            string url = !string.IsNullOrEmpty(message.Ephemeral)
-                                ? PostEphemeralMessageUrl
-                                : PostMessageUrl;
-
-                            response = await client.UploadValuesTaskAsync(url, "POST", data).ConfigureAwait(false);
-                        }
-
-                        responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
-
-                        if (responseInString.Ok)
-                        {
-                            ActivityResourceResponse resourceResponse = new ActivityResourceResponse()
-                            {
-                                Id = responseInString.TS,
-                                ActivityId = responseInString.TS,
-                                Conversation = new ConversationAccount()
-                                {
-                                    Id = responseInString.Channel,
-                                },
-                            };
-                            responses.Add(resourceResponse as ResourceResponse);
-                        }
+                        response = await client.UploadValuesTaskAsync(url, "POST", data).ConfigureAwait(false);
                     }
-                    catch
+
+                    responseInString = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
+
+                    if (responseInString.Ok)
                     {
-                        throw;
+                        ActivityResourceResponse resourceResponse = new ActivityResourceResponse()
+                        {
+                            Id = responseInString.TS,
+                            ActivityId = responseInString.TS,
+                            Conversation = new ConversationAccount()
+                            {
+                                Id = responseInString.Channel,
+                            },
+                        };
+                        responses.Add(resourceResponse as ResourceResponse);
                     }
                 }
             }
@@ -297,7 +290,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 {
                     // handle interactive_message callbacks and block_actions
                     slackEvent = JsonConvert.ToString(slackEvent.payload);
-                    if (!string.IsNullOrEmpty(_options.VerificationToken) && slackEvent.token != _options.VerificationToken)
+                    if (!string.IsNullOrWhiteSpace(_options.VerificationToken) && slackEvent.token != _options.VerificationToken)
                     {
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
                         response.ContentType = "text/plain";
@@ -351,7 +344,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 else if (slackEvent.type == "event_callback")
                 {
                     // this is an event api post
-                    if (!string.IsNullOrEmpty(_options.VerificationToken) && slackEvent.token != _options.VerificationToken)
+                    if (!string.IsNullOrWhiteSpace(_options.VerificationToken) && slackEvent.token != _options.VerificationToken)
                     {
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
                         response.ContentType = "text/plain";
@@ -418,7 +411,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 }
                 else if (slackEvent.Command != null)
                 {
-                    if (!string.IsNullOrEmpty(_options.VerificationToken) && slackEvent.Token != _options.VerificationToken)
+                    if (!string.IsNullOrWhiteSpace(_options.VerificationToken) && slackEvent.Token != _options.VerificationToken)
                     {
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
                         response.ContentType = "text/plain";
@@ -489,7 +482,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             }
             else
             {
-                if (string.IsNullOrEmpty(_options.ClientId) || string.IsNullOrEmpty(_options.ClientSecret) ||
+                if (string.IsNullOrWhiteSpace(_options.ClientId) || string.IsNullOrWhiteSpace(_options.ClientSecret) ||
                 _options.RedirectUri != null || _options.GetScopes().Length > 0)
                 {
                     throw new Exception("Missing Slack API credentials! Provide clientId, clientSecret, scopes and redirectUri as part of the SlackAdapter options.");

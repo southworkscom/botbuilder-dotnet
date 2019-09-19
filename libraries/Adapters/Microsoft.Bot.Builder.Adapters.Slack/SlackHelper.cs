@@ -40,7 +40,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             message.channel = activity.Conversation.Id;
 
-            if (!string.IsNullOrEmpty(activity.Conversation.Properties["thread_ts"].ToString()))
+            if (!string.IsNullOrWhiteSpace(activity.Conversation.Properties["thread_ts"].ToString()))
             {
                 message.ThreadTS = activity.Conversation.Properties["thread_ts"].ToString();
             }
