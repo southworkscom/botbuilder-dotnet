@@ -200,9 +200,12 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 return;
             }
 
-            if (!_slackClient.VerifySignature(_slackClient.Options.ClientSigningSecret, request, body))
+            if (!_slackClient.VerifySignature(request, body))
             {
                 response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                response.ContentType = "text/plain";
+                string text = $"Rejected due to mismatched header signature";
+                await response.WriteAsync(text, cancellationToken).ConfigureAwait(false);
             }
             else
             {

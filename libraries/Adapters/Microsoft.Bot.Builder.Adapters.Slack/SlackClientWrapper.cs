@@ -682,11 +682,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <summary>
         /// Validates the local secret against the one obtained from the request header.
         /// </summary>
-        /// <param name="secret">The local stored secret.</param>
         /// <param name="request">The <see cref="HttpRequest"/> with the signature.</param>
         /// <param name="body">The raw body of the request.</param>
         /// <returns>The result of the comparison between the signature in the request and hashed secret.</returns>
-        public bool VerifySignature(string secret, HttpRequest request, string body)
+        public bool VerifySignature(HttpRequest request, string body)
         {
             string baseString;
 
@@ -695,7 +694,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             object[] signature = { "v0", timestamp.ToString(), body };
             baseString = string.Join(":", signature);
 
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(Options.ClientSigningSecret)))
             {
                 var hashArray = hmac.ComputeHash(Encoding.UTF8.GetBytes(baseString));
 
