@@ -3,6 +3,7 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,9 +37,16 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Controllers
         [HttpPost]
         public async Task PostAsync()
         {
-            // Delegate the processing of the HTTP POST to the adapter.
-            // The adapter will invoke the bot.
-            await this.adapter.ProcessAsync(this.Request, this.Response, this.bot);
+            try
+            {
+                // Delegate the processing of the HTTP POST to the adapter.
+                // The adapter will invoke the bot.
+                await this.adapter.ProcessAsync(this.Request, this.Response, this.bot, new System.Threading.CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
