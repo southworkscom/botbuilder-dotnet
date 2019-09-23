@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
@@ -196,88 +197,80 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
             string body;
-            SlackBody slackBody;
+            SlackBody slackBody = null;
 
             using (var sr = new StreamReader(request.Body))
             {
                 body = sr.ReadToEnd();
             }
 
-            try
+            if (body.Contains("command=%2F"))
             {
-                slackBody = JsonConvert.DeserializeObject<SlackBody>(body.Replace("%2F", "/"));
+                var commandBody = SlackHelper.QueryStringToDictionary(body);
+
+                slackBody = JsonConvert.DeserializeObject<SlackBody>(JsonConvert.SerializeObject(commandBody));
             }
-            catch
+            else
             {
-                try
-                {
-                    // TODO: find a better way to check if the event is a /command
-                    var commandBody = SlackHelper.QueryStringToDictionary(body);
+                slackBody = JsonConvert.DeserializeObject<SlackBody>(body);
+            }
 
-                    slackBody = JsonConvert.DeserializeObject<SlackBody>(JsonConvert.SerializeObject(commandBody));
+            if (slackBody.Type == "url_verification")
+            {
+                var text = slackBody.Challenge;
 
-                    if (slackBody.Type == "url_verification")
-                    {
-                        var text = slackBody.Challenge;
+                await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+                return;
+            }
 
-                        await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                        return;
-                    }
+            if (!_slackClient.VerifySignature(request, body))
+            {
+                var text = $"Rejected due to mismatched header signature";
 
-                    if (!_slackClient.VerifySignature(request, body))
-                    {
-                        var text = $"Rejected due to mismatched header signature";
+                await SlackHelper.WriteAsync(response, HttpStatusCode.Unauthorized, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+                return; // Exception?
+            }
 
-                        await SlackHelper.WriteAsync(response, HttpStatusCode.Unauthorized, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                        return; // Exception?
-                    }
+            if (!string.IsNullOrWhiteSpace(_slackClient.Options.VerificationToken) && slackBody.Token != _slackClient.Options.VerificationToken)
+            {
+                var text = $"Rejected due to mismatched verificationToken:{slackBody}";
 
-                    if (!string.IsNullOrWhiteSpace(_slackClient.Options.VerificationToken) && slackBody.Token != _slackClient.Options.VerificationToken)
-                    {
-                        var text = $"Rejected due to mismatched verificationToken:{slackBody}";
+                await SlackHelper.WriteAsync(response, HttpStatusCode.Forbidden, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+                return;
+            }
 
-                        await SlackHelper.WriteAsync(response, HttpStatusCode.Forbidden, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                        return;
-                    }
+            var activity = new Activity();
 
-                    var activity = new Activity();
+            if (slackBody.Payload != null)
+            {
+                // handle interactive_message callbacks and block_actions
+                activity = SlackHelper.PayloadToActivity(slackBody.Payload);
+            }
+            else if (slackBody.Type == "event_callback")
+            {
+                // this is an event api post
+                activity = await SlackHelper.EventToActivityAsync(slackBody.Event, _slackClient, cancellationToken).ConfigureAwait(false);
+            }
+            else if (slackBody.Command != null)
+            {
+                activity = await SlackHelper.CommandToActivityAsync(slackBody, _slackClient, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                throw new Exception($"Unknown Slack event type {slackBody.Type}");
+            }
 
-                    if (slackBody.Payload != null)
-                    {
-                        // handle interactive_message callbacks and block_actions
-                        activity = SlackHelper.PayloadToActivity(slackBody.Payload);
-                    }
-                    else if (slackBody.Type == "event_callback")
-                    {
-                        // this is an event api post
-                        activity = await SlackHelper.EventToActivityAsync(slackBody.Event, _slackClient, cancellationToken).ConfigureAwait(false);
-                    }
-                    else if (slackBody.Command != null)
-                    {
-                        activity = await SlackHelper.CommandToActivityAsync(slackBody, _slackClient, cancellationToken).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        throw new Exception($"Unknown Slack event type {slackBody.Type}");
-                    }
+            using (var context = new TurnContext(this, activity))
+            {
+                context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-                    using (var context = new TurnContext(this, activity))
-                    {
-                        context.TurnState.Add("httpStatus", ((int)HttpStatusCode.OK).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
-                        await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                // send http response back
+                var statusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
+                var text = (context.TurnState.Get<object>("httpBody") != null) ? context.TurnState.Get<object>("httpBody").ToString() : string.Empty;
 
-                        // send http response back
-                        var statusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
-                        var text = (context.TurnState.Get<object>("httpBody") != null) ? context.TurnState.Get<object>("httpBody").ToString() : string.Empty;
-
-                        await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
+                await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
             }
         }
     }

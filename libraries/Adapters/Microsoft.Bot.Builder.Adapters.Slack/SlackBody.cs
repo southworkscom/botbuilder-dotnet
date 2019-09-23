@@ -35,6 +35,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         [JsonProperty(PropertyName = "trigger_id")]
         public string TriggerId { get; set; }
 
+        [JsonProperty(PropertyName = "channel_id")]
+        public string ChannelId { get; set; }
+
+        [JsonProperty(PropertyName = "user_id")]
+        public string UserId { get; set; }
+
+        [JsonProperty(PropertyName = "text")]
+        public string Text { get; set; }
+
         [JsonProperty(PropertyName = "command")]
         public string Command { get; set; }
 

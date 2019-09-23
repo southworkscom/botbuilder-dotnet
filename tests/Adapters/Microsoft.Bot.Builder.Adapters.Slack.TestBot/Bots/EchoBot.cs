@@ -27,6 +27,17 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         }
 
         /// <summary>
+        /// OnMessageActivityAsync method that returns an async Task.
+        /// </summary>
+        /// <param name="turnContext">turnContext of ITurnContext{T}, where T is an IActivity.</param>
+        /// <param name="cancellationToken">cancellationToken propagates notifications that operations should be canceled.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
+        {
+            await turnContext.SendActivityAsync(MessageFactory.Text($"You sent: /test"), cancellationToken);
+        }
+
+        /// <summary>
         /// OnMembersAddedAsync method that returns an async Task.
         /// </summary>
         /// <param name="membersAdded">membersAdded of IList{T}, where T is ChannelAccount.</param>
