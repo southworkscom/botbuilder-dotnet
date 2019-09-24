@@ -227,7 +227,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             return activity;
         }
 
-        public static async Task<Activity> CommandToActivityAsync(SlackBody slack, SlackClientWrapper client, CancellationToken cancellationToken)
+        public static async Task<Activity> CommandToActivityAsync(SlackRequestBody slack, SlackClientWrapper client, CancellationToken cancellationToken)
         {
             var activity = new Activity()
             {
@@ -286,6 +286,30 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             }
 
             return values;
+        }
+
+        /// <summary>
+        /// Deserializes the request's body as a <see cref="SlackRequestBody"/> object.
+        /// </summary>
+        /// <param name="requestBody">The query string to convert.</param>
+        /// <returns>A dictionary with the query values.</returns>
+        public static SlackRequestBody DeserializeBody(string requestBody)
+        {
+            SlackRequestBody slackBody = null;
+
+            // Check if it's a command event
+            if (requestBody.Contains("command=%2F"))
+            {
+                var commandBody = SlackHelper.QueryStringToDictionary(requestBody);
+
+                slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(JsonConvert.SerializeObject(commandBody));
+            }
+            else
+            {
+                slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(requestBody);
+            }
+
+            return slackBody;
         }
     }
 }

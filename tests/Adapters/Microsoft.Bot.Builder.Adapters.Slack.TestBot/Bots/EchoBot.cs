@@ -34,7 +34,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
-            await turnContext.SendActivityAsync(MessageFactory.Text($"You sent: /test"), cancellationToken);
+            // await turnContext.SendActivityAsync(MessageFactory.Text($"You sent: /test"), cancellationToken);
+            System.Diagnostics.Debug.WriteLine($"You sent: /test");
         }
 
         /// <summary>

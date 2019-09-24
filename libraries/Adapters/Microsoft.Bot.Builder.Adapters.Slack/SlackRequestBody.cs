@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
-    public class SlackBody
+    public class SlackRequestBody
     {
         [JsonProperty(PropertyName = "challenge")]
         public string Challenge { get; set; }

@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
@@ -197,29 +195,20 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
             string body;
-            SlackBody slackBody = null;
 
             using (var sr = new StreamReader(request.Body))
             {
                 body = sr.ReadToEnd();
             }
 
-            if (body.Contains("command=%2F"))
-            {
-                var commandBody = SlackHelper.QueryStringToDictionary(body);
-
-                slackBody = JsonConvert.DeserializeObject<SlackBody>(JsonConvert.SerializeObject(commandBody));
-            }
-            else
-            {
-                slackBody = JsonConvert.DeserializeObject<SlackBody>(body);
-            }
+            var slackBody = SlackHelper.DeserializeBody(body);
 
             if (slackBody.Type == "url_verification")
             {
                 var text = slackBody.Challenge;
 
                 await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+
                 return;
             }
 
@@ -228,7 +217,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 var text = $"Rejected due to mismatched header signature";
 
                 await SlackHelper.WriteAsync(response, HttpStatusCode.Unauthorized, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                return; // Exception?
+
+                throw new Exception(text);
             }
 
             if (!string.IsNullOrWhiteSpace(_slackClient.Options.VerificationToken) && slackBody.Token != _slackClient.Options.VerificationToken)
@@ -236,7 +226,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 var text = $"Rejected due to mismatched verificationToken:{slackBody}";
 
                 await SlackHelper.WriteAsync(response, HttpStatusCode.Forbidden, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                return;
+
+                throw new Exception(text);
             }
 
             var activity = new Activity();
