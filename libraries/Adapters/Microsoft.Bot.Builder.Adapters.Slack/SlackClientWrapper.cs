@@ -541,9 +541,9 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="asUser">If the message is being sent as user instead of as a bot.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="PostMessageResponse"/> representing the response to the message posting.</returns>
-        public virtual async Task<PostMessageResponse> PostMessageAsync(string channelId, string text, string botName = null, string parse = null, bool linkNames = false, IBlock[] blocks = null, Attachment[] attachments = null, bool unfurlLinks = false, string iconUrl = null, string iconEmoji = null, bool asUser = false, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<PostMessageResponse> PostMessageAsync(string channelId, string text, string botName = null, string parse = null, bool linkNames = false, IBlock[] blocks = null, Attachment[] attachments = null, bool unfurlLinks = false, Uri iconUrl = null, string iconEmoji = null, bool asUser = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await _api.PostMessageAsync(channelId, text, botName, parse, linkNames, blocks, attachments, unfurlLinks, iconUrl, iconEmoji, asUser).ConfigureAwait(false);
+            return await _api.PostMessageAsync(channelId, text, botName, parse, linkNames, blocks, attachments, unfurlLinks, iconUrl.AbsolutePath, iconEmoji, asUser).ConfigureAwait(false);
         }
 
         /// <summary>
