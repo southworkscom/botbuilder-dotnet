@@ -4,9 +4,12 @@
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
+using SlackAPI;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
 {
@@ -23,7 +26,9 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
+            // await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
+            var interactiveMessage = MessageFactory.Attachment(CreateInteractiveMessage(Directory.GetCurrentDirectory() + @"\Resources\adaptive_card.json"));
+            await turnContext.SendActivityAsync(activityCard, cancellationToken);
         }
 
         /// <summary>
@@ -53,6 +58,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text($"Hello and Welcome!"), cancellationToken);
                 }
             }
+        }
+
+        private static Block CreateInteractiveMessage(string filePath)
+        {
+            var interactiveMessageJson = System.IO.File.ReadAllText(filePath);
+            var adaptiveCardAttachment = JsonConvert.DeserializeObject<Block>(interactiveMessageJson);
+
+            return adaptiveCardAttachment;
         }
     }
 }
