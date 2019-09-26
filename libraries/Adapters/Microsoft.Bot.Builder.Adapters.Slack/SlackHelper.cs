@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SlackAPI;
 
 #if SIGNASSEMBLY
@@ -40,10 +41,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             if (activity.Timestamp != null)
             {
-                message.ts = activity.Timestamp.Value.DateTime;
+                message.TS = activity.Timestamp.Value.DateTime.ToString(CultureInfo.InvariantCulture);
             }
 
-            message.text = activity.Text;
+            message.Text = activity.Text;
 
             if (activity.Attachments != null)
             {
@@ -63,14 +64,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                     // attachments.Add(newAttachment);
                 }
 
-                // message.attachments = attachments;
+                message.Attachments = attachments;
                 if (activity.Attachments.Count > 0)
                 {
-                    message.blocks = (List<Block>)activity.Attachments[0].Content;
+                    message.Blocks = (List<Block>)activity.Attachments[0].Content;
                 }
             }
 
-            message.channel = activity.Conversation.Id;
+            message.Channel = activity.Conversation.Id;
 
             if (!string.IsNullOrWhiteSpace(activity.Conversation.Properties["thread_ts"]?.ToString()))
             {
@@ -86,44 +87,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             // should this message be sent as an ephemeral message
             if (!string.IsNullOrWhiteSpace(message.Ephemeral))
             {
-                message.user = activity.Recipient.Id;
+                message.User = activity.Recipient.Id;
             }
 
-            if (message.IconUrl != null || !string.IsNullOrWhiteSpace(message.icons?.status_emoji) || !string.IsNullOrWhiteSpace(message.username))
+            if (message.IconUrl != null || !string.IsNullOrWhiteSpace(message.Icons?.status_emoji) || !string.IsNullOrWhiteSpace(message.Username))
             {
                 message.AsUser = false;
             }
 
             return message;
-        }
-
-        /// <summary>
-        /// Converts the 'Event' subobject of the Slack payload into a NewSlackMessage.
-        /// </summary>
-        /// <param name="slackEvent">A dynamic payload from the request body sent by Slack.</param>
-        /// <returns>A NewSlackMessage with the resulting properties.</returns>
-        public static NewSlackMessage GetMessageFromSlackEvent(dynamic slackEvent)
-        {
-            if (slackEvent == null)
-            {
-                return null;
-            }
-
-            var eventProperty = slackEvent["event"];
-
-            // Convert Slack timestamp format to DateTime
-            string[] splitString = eventProperty.ts.ToString().Split('.');
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime().AddSeconds(Convert.ToDouble(splitString[0], CultureInfo.InvariantCulture));
-
-            return new NewSlackMessage()
-            {
-                type = eventProperty.type ?? null,
-                text = eventProperty.text ?? null,
-                user = eventProperty.user ?? null,
-                ts = dateTime,
-                team = eventProperty.team ?? null,
-                channel = eventProperty.channel ?? null,
-            };
         }
 
         /// <summary>
@@ -193,8 +165,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 Type = ActivityTypes.Event,
             };
 
-            activity.Conversation.Properties["thread_ts"] = slack.ThreadTs;
-            activity.Conversation.Properties["team"] = slack.Team.id;
+            if (slack.ThreadTs != null)
+            {
+                activity.Conversation.Properties["thread_ts"] = slack.ThreadTs;
+            }
 
             if (slack.Actions != null && (slack.Type == "block_actions" || slack.Type == "interactive_message"))
             {
@@ -241,7 +215,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 Type = ActivityTypes.Event,
             };
 
-            activity.Conversation.Properties["thread_ts"] = slack.ThreadTS;
+            if (slack.ThreadTS != null)
+            {
+                activity.Conversation.Properties["thread_ts"] = slack.ThreadTS;
+            }
 
             if (activity.Conversation.Id == null)
             {
@@ -374,7 +351,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 };
             }
 
-            return JsonConvert.DeserializeObject<SlackRequestBody>(requestBody);
+            return JsonConvert.DeserializeObject<SlackRequestBody>(requestBody, new UnixDateTimeConverter());
         }
     }
 }

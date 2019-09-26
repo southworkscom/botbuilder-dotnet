@@ -714,14 +714,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             var data = new NameValueCollection
             {
                 ["token"] = Options.BotToken,
-                ["channel"] = message.channel,
-                ["text"] = message.text,
+                ["channel"] = message.Channel,
+                ["text"] = message.Text,
                 ["thread_ts"] = message.ThreadTS,
             };
 
-            if (message.blocks != null)
+            if (message.Blocks != null)
             {
-                data["blocks"] = JsonConvert.SerializeObject(message.blocks, new JsonSerializerSettings()
+                data["blocks"] = JsonConvert.SerializeObject(message.Blocks, new JsonSerializerSettings()
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                 });

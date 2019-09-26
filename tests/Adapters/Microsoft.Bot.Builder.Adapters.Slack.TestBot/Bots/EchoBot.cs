@@ -48,6 +48,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
                     await turnContext.SendActivityAsync(interactiveMessage, cancellationToken);
                 }
             }
+
+            if (turnContext.Activity.TryGetChannelData(out SlackEvent _))
+            {
+                if (turnContext.Activity.GetChannelData<SlackEvent>().SubType == "file_share")
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: I received an attachment"), cancellationToken);
+                }
+                else if (turnContext.Activity.GetChannelData<SlackEvent>().Message?.Attachments != null)
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: I received a link share"), cancellationToken);
+                }
+            }
         }
 
         /// <summary>

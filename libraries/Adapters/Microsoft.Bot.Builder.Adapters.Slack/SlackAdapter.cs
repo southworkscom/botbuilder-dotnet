@@ -16,8 +16,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 {
     public class SlackAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
-        private const string SlackOAuthUrl = "https://slack.com/oauth/authorize?client_id=";
-
         private readonly SlackClientWrapper _slackClient;
 
         /// <summary>
@@ -29,8 +27,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             : base()
         {
             _slackClient = slackClient ?? throw new ArgumentNullException(nameof(slackClient));
-
-            _slackClient.LoginWithSlackAsync(default).Wait();
         }
 
         /// <summary>
@@ -113,7 +109,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             }
 
             var message = SlackHelper.ActivityToSlack(activity);
-            var results = await _slackClient.UpdateAsync(activity.Timestamp.ToString(), activity.ChannelId, message.text, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var results = await _slackClient.UpdateAsync(activity.Timestamp.ToString(), activity.ChannelId, message.Text, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (!results.ok)
             {
                 throw new Exception($"Error updating activity on Slack:{results}");
