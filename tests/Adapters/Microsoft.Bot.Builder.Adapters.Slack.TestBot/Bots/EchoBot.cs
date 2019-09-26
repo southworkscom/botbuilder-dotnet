@@ -38,11 +38,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
-            SlackRequestBody channelData = null;
-
-            turnContext.Activity.TryGetChannelData(out channelData);
-
-            if (turnContext.Activity.TryGetChannelData<SlackRequestBody>() != null)
+            if (turnContext.Activity.TryGetChannelData(out SlackRequestBody _))
             {
                 if (turnContext.Activity.GetChannelData<SlackRequestBody>().Command == "/test")
                 {
