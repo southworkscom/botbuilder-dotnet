@@ -48,7 +48,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public string Command { get; set; }
 
         [JsonProperty(PropertyName = "payload")]
-        public SlackEvent Payload { get; set; }
+        public SlackPayload Payload { get; set; }
 
         [JsonProperty(PropertyName = "event")]
         public SlackEvent Event { get; set; }

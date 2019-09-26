@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using SlackAPI;
 
 #if SIGNASSEMBLY
 [assembly: InternalsVisibleTo("Microsoft.Bot.Builder.Adapters.Twilio.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5fc90e7027f67871e773a8fde8938c81dd402ba65b9201d60593e96c492651e889cc13f1415ebb53fac1131ae0bd333c5ee6021672d9718ea31a8aebd0da0072f25d87dba6fc90ffd598ed4da35e44c398c454307e8e33b8426143daec9f596836f97c8f74750e5975c64e2189f45def46b2a2b1247adc3652bf5c308055da9")]
@@ -50,15 +51,23 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
                 foreach (var att in activity.Attachments)
                 {
-                    var newAttachment = new SlackAPI.Attachment()
-                    {
-                        author_name = att.Name,
-                        thumb_url = att.ThumbnailUrl,
-                    };
-                    attachments.Add(newAttachment);
+                    // var newAttachment = new SlackAPI.Attachment()
+                    // {
+                    //    author_name = att.Name,
+                    //    thumb_url = att.ThumbnailUrl,
+                    //    blocks = (Block[])att.Content,
+                    // };
+                    // attachments.Add(newAttachment);
+                    // var blocks = att.Content;
+
+                    // attachments.Add(newAttachment);
                 }
 
-                message.attachments = attachments;
+                // message.attachments = attachments;
+                if (activity.Attachments.Count > 0)
+                {
+                    message.blocks = (List<Block>)activity.Attachments[0].Content;
+                }
             }
 
             message.channel = activity.Conversation.Id;
@@ -156,7 +165,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="slack">The payload of the slack event.</param>
         /// <returns>An activity containing the event data.</returns>
-        public static Activity PayloadToActivity(SlackEvent slack)
+        public static Activity PayloadToActivity(SlackPayload slack)
         {
             if (slack == null)
             {
@@ -169,11 +178,11 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 ChannelId = "slack",
                 Conversation = new ConversationAccount()
                 {
-                    Id = slack.ChannelId,
+                    Id = slack.Channel.id,
                 },
                 From = new ChannelAccount()
                 {
-                    Id = slack.BotId ?? slack.UserId,
+                    Id = slack.Message.BotId ?? slack.User.id,
                 },
                 Recipient = new ChannelAccount()
                 {
@@ -184,13 +193,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 Type = ActivityTypes.Event,
             };
 
-            activity.Conversation.Properties["thread_ts"] = slack.ThreadTS;
-            activity.Conversation.Properties["team"] = slack.Team;
+            activity.Conversation.Properties["thread_ts"] = slack.ThreadTs;
+            activity.Conversation.Properties["team"] = slack.Team.id;
 
-            if ((slack.Type == "block_actions" || slack.Type == "interactive_message") && slack.Actions != null)
+            if (slack.Actions != null && (slack.Type == "block_actions" || slack.Type == "interactive_message"))
             {
                 activity.Type = ActivityTypes.Message;
-                activity.Text = slack.Actions[0];
+                activity.Text = slack.Actions[0].Value;
             }
 
             return activity;
@@ -348,14 +357,24 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
             {
                 var commandBody = QueryStringToDictionary(requestBody);
 
-                slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(JsonConvert.SerializeObject(commandBody));
-            }
-            else
-            {
-                slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(requestBody);
+                return JsonConvert.DeserializeObject<SlackRequestBody>(JsonConvert.SerializeObject(commandBody));
             }
 
-            return slackBody;
+            if (requestBody.Contains("payload"))
+            {
+                // Decode and remove "payload=" from the body
+                var decodedBody = System.Uri.UnescapeDataString(requestBody).Remove(0, 8);
+
+                var payload = JsonConvert.DeserializeObject<SlackPayload>(decodedBody);
+
+                return new SlackRequestBody
+                {
+                    Payload = payload,
+                    Token = payload.Token,
+                };
+            }
+
+            return JsonConvert.DeserializeObject<SlackRequestBody>(requestBody);
         }
     }
 }

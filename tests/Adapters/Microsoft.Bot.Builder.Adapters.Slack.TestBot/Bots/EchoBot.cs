@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using SlackAPI;
+using Attachment = Microsoft.Bot.Schema.Attachment;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
 {
@@ -26,9 +27,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            // await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
-            var interactiveMessage = MessageFactory.Attachment(CreateInteractiveMessage(Directory.GetCurrentDirectory() + @"\Resources\adaptive_card.json"));
-            await turnContext.SendActivityAsync(activityCard, cancellationToken);
+            await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
         }
 
         /// <summary>
@@ -39,7 +38,20 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
-            System.Diagnostics.Debug.WriteLine($"You sent: /test");
+            SlackRequestBody channelData = null;
+
+            turnContext.Activity.TryGetChannelData(out channelData);
+
+            if (turnContext.Activity.TryGetChannelData<SlackRequestBody>() != null)
+            {
+                if (turnContext.Activity.GetChannelData<SlackRequestBody>().Command == "/test")
+                {
+                    var interactiveMessage = MessageFactory.Attachment(
+                        CreateInteractiveMessage(
+                            Directory.GetCurrentDirectory() + @"\Resources\InteractiveMessage.json"));
+                    await turnContext.SendActivityAsync(interactiveMessage, cancellationToken);
+                }
+            }
         }
 
         /// <summary>
@@ -60,12 +72,25 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
             }
         }
 
-        private static Block CreateInteractiveMessage(string filePath)
+        private static Attachment CreateInteractiveMessage(string filePath)
         {
             var interactiveMessageJson = System.IO.File.ReadAllText(filePath);
-            var adaptiveCardAttachment = JsonConvert.DeserializeObject<Block>(interactiveMessageJson);
+            var adaptiveCardAttachment = JsonConvert.DeserializeObject<Block[]>(interactiveMessageJson);
 
-            return adaptiveCardAttachment;
+            var blockList = new List<Block>();
+
+            foreach (var block in adaptiveCardAttachment)
+            {
+                blockList.Add(block);
+            }
+
+            var attachment = new Attachment
+            {
+                Content = blockList,
+                ContentType = "application/json",
+            };
+
+            return attachment;
         }
     }
 }

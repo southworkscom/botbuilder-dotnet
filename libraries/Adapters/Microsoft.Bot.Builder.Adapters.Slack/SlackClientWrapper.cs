@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -717,6 +718,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 ["text"] = message.text,
                 ["thread_ts"] = message.ThreadTS,
             };
+
+            if (message.blocks != null)
+            {
+                data["blocks"] = JsonConvert.SerializeObject(message.blocks, new JsonSerializerSettings()
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                });
+            }
 
             byte[] response;
             using (var client = new WebClient())
