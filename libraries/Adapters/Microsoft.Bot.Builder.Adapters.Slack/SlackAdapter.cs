@@ -27,7 +27,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// The configuration keys are:
         /// VerificationToken: A token for validating the origin of incoming webhooks.
         /// BotToken: A token for a bot to work on a single workspace.
-        /// ClientSigningSecret: The token used to validate that incoming webhooks are originated with Slack.
+        /// ClientSigningSecret: The token used to validate that incoming webhooks are originated from Slack.
         /// </remarks>
         public SlackAdapter(IConfiguration configuration)
             : this(new SlackClientWrapper(new SlackAdapterOptions(configuration["VerificationToken"], configuration["BotToken"], configuration["ClientSigningSecret"])))

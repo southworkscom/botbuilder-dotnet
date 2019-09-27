@@ -95,13 +95,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <value>The blocks that could come with the message.</value>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "it needs to be set in ActivityToSlack method")]
-        public List<Block> Blocks { get; set; }
+        public List<Block> Blocks { get; set; } = new List<Block>();
 
         /// <summary>
         /// Gets or sets the attachments that could come with the message.
         /// </summary>
         /// <value>The attachments that could come with the message.</value>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "it needs to be set in ActivityToSlack method")]
-        public List<Attachment> Attachments { get; set; }
+        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
     }
 }

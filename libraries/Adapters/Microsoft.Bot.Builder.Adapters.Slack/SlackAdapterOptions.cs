@@ -17,7 +17,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="verificationToken">A token for validating the origin of incoming webhooks.</param>
         /// <param name="botToken">A token for a bot to work on a single workspace.</param>
-        /// <param name="clientSigningSecret">The token used to validate that incoming webhooks are originated with Slack.</param>
+        /// <param name="clientSigningSecret">The token used to validate that incoming webhooks are originated from Slack.</param>
         public SlackAdapterOptions(string verificationToken, string botToken, string clientSigningSecret)
         {
             VerificationToken = verificationToken;
@@ -32,7 +32,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public string VerificationToken { get; set; }
 
         /// <summary>
-        /// Gets or Sets a token used to validate that incoming webhooks are originated with Slack.
+        /// Gets or Sets a token used to validate that incoming webhooks are originated from Slack.
         /// </summary>
         /// <value>The Client Signing Secret.</value>
         public string ClientSigningSecret { get; set; }
