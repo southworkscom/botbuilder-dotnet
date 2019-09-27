@@ -771,7 +771,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             Assert.True(callback);
         }
 
-        [Fact(Skip = "Until we can test Interactive Messages")]
+        [Fact]
         public async Task ProcessAsyncShouldSucceedOnInteractiveMessage()
         {
             var callback = false;
