@@ -661,7 +661,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
-            var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\InteractiveMessageBody.json");
+            var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\InteractiveMessageBody.txt");
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload.ToString()));
 
             var httpRequest = new Mock<HttpRequest>();
