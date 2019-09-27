@@ -1,4 +1,4 @@
-﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -11,12 +11,29 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
     public class SlackAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
         private readonly SlackClientWrapper _slackClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SlackAdapter"/> class using configuration settings.
+        /// </summary>
+        /// <param name="configuration">An <see cref="IConfiguration"/> instance.</param>
+        /// <remarks>
+        /// The configuration keys are:
+        /// AccessToken: An access token for the bot.
+        /// PublicAddress: The root URL of the bot application.
+        /// Secret: The secret used to validate incoming webhooks.
+        /// WebhookName: A name for the webhook subscription.
+        /// </remarks>
+        public SlackAdapter(IConfiguration configuration)
+            : this(new SlackClientWrapper(new SlackAdapterOptions(configuration["VerificationToken"], configuration["BotToken"], configuration["SigningSecret"])))
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SlackAdapter"/> class.
