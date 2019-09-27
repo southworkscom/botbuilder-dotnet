@@ -265,11 +265,11 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
                 await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
-                // send http response back
-                var statusCode = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
+                var code = Convert.ToInt32(context.TurnState.Get<string>("httpStatus"), System.Globalization.CultureInfo.InvariantCulture);
+                var statusCode = (HttpStatusCode)code;
                 var text = (context.TurnState.Get<object>("httpBody") != null) ? context.TurnState.Get<object>("httpBody").ToString() : string.Empty;
 
-                await SlackHelper.WriteAsync(response, HttpStatusCode.OK, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+                await SlackHelper.WriteAsync(response, statusCode, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
             }
         }
     }
