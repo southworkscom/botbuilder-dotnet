@@ -52,22 +52,23 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
                 foreach (var att in activity.Attachments)
                 {
-                    // var newAttachment = new SlackAPI.Attachment()
-                    // {
-                    //    author_name = att.Name,
-                    //    thumb_url = att.ThumbnailUrl,
-                    //    blocks = (Block[])att.Content,
-                    // };
-                    // attachments.Add(newAttachment);
-                    // var blocks = att.Content;
-
-                    // attachments.Add(newAttachment);
+                    if (att.Name == "blocks")
+                    {
+                        message.Blocks = (List<Block>)att.Content;
+                    }
+                    else
+                    {
+                        var newAttachment = new SlackAPI.Attachment()
+                        {
+                            author_name = att.Name, thumb_url = att.ThumbnailUrl,
+                        };
+                        attachments.Add(newAttachment);
+                    }
                 }
 
-                message.Attachments = attachments;
-                if (activity.Attachments.Count > 0)
+                if (attachments.Count > 0)
                 {
-                    message.Blocks = (List<Block>)activity.Attachments[0].Content;
+                    message.Attachments = attachments;
                 }
             }
 

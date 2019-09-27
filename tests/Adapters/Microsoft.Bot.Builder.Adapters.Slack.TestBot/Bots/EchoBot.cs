@@ -96,6 +96,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot.Bots
             {
                 Content = blockList,
                 ContentType = "application/json",
+                Name = "blocks",
             };
 
             return attachment;
