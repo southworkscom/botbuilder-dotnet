@@ -1,4 +1,4 @@
-﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -18,21 +18,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 {
     public class SlackAdapterTests
     {
+        private readonly SlackAdapterOptions _testOptions = new SlackAdapterOptions("VerificationToken", "ClientSigningSecret", "BotToken");
+
         [Fact]
         public void ConstructorShouldFailWithNullClient()
         {
-            Assert.Throws<ArgumentNullException>(() => new SlackAdapter(null));
+            Assert.Throws<ArgumentNullException>(() => new SlackAdapter((SlackClientWrapper)null));
         }
 
         [Fact]
         public void ConstructorSucceeds()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             Assert.NotNull(new SlackAdapter(slackApi.Object));
@@ -41,12 +38,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldFailWithNullActivityTimestamp()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -67,12 +59,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldFailWithNullContext()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -88,12 +75,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldFailWithNullActivity()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -110,12 +92,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldFailWithNullActivityConversation()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -138,12 +115,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldSucceed()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), null, It.IsAny<bool>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new UpdateResponse { ok = true }));
 
@@ -170,12 +142,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task UpdateActivityAsyncShouldFailWithResponseError()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), null, It.IsAny<bool>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new UpdateResponse { ok = false }));
 
@@ -201,12 +168,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task DeleteActivityAsyncShouldFailWithNullReference()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -223,12 +185,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task DeleteActivityAsyncShouldFailWithNullTurnContext()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -244,12 +201,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task DeleteActivityAsyncShouldFailWithNullChannelId()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -271,12 +223,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task DeleteActivityAsyncShouldFailWithNullTimestamp()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -300,12 +247,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         {
             var deletedMessages = 0;
 
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.DeleteMessageAsync(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).Callback(() => { deletedMessages++; });
 
@@ -330,12 +272,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task SendActivitiesAsyncShouldThrowExceptionWithNullContext()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -359,12 +296,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task SendActivitiesAsyncShouldThrowExceptionWithNullActivity()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -389,18 +321,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task SendActivitiesAsyncShouldSucceed()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
             var slackResponse = new SlackResponse
             {
                 Ok = true,
                 Ts = "mockedTS",
             };
 
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.PostMessageAsync(It.IsAny<NewSlackMessage>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(slackResponse));
 
@@ -428,12 +355,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ContinueConversationAsyncShouldFailWithNullReference()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -449,12 +371,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ContinueConversationAsyncShouldFailWithNullBot()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -467,12 +384,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         {
             var callbackInvoked = false;
 
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -491,12 +403,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async void ProcessAsyncShouldFailWithNullHttpRequest()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -512,12 +419,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async void ProcessAsyncShouldFailWithNullHttpResponse()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -533,12 +435,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async void ProcessAsyncShouldFailWithNullBot()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -556,12 +453,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         public async Task ProcessAsyncShouldSucceedOnUrlVerification()
         {
             string actual = null;
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "VerificationToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
 
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
@@ -595,12 +488,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ProcessAsyncShouldFailWithSignatureMismatch()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "testToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(false);
 
@@ -633,12 +521,9 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ProcessAsyncShouldFailOnVerificationTokenMismatch()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "wrongToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
+            _testOptions.VerificationToken = "testToken";
 
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 
@@ -662,12 +547,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ProcessAsyncShouldFailWithUnknownEventType()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "testToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 
@@ -689,12 +569,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         {
             var callback = false;
 
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "testToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 
@@ -736,12 +611,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         public async Task ProcessAsyncShouldSucceedOnSlashCommand()
         {
             var callback = false;
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "testToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
 
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 
@@ -783,12 +654,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         public async Task ProcessAsyncShouldSucceedOnInteractiveMessage()
         {
             var callback = false;
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "testToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
 
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
             slackApi.Setup(x => x.TestAuthAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("mockedUserId"));
             slackApi.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 

@@ -1,4 +1,4 @@
-﻿// Copyright(c) Microsoft Corporation.All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -19,6 +19,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
     public class SlackHelperTests
     {
         public const string ImageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtB3AwMUeNoq4gUBGe6Ocj8kyh3bXa9ZbV7u1fVKQoyKFHdkqU";
+
+        private readonly SlackAdapterOptions _testOptions = new SlackAdapterOptions("VerificationToken", "ClientSigningSecret", "BotToken");
 
         [Fact]
         public void ActivityToSlackShouldReturnNullWithNullActivity()
@@ -123,12 +125,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task EventToActivityAsyncShouldReturnNull()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var activity = await SlackHelper.EventToActivityAsync(null, slackApi.Object, new CancellationToken()).ConfigureAwait(false);
 
@@ -138,12 +135,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task EventToActivityAsyncShouldReturnActivity()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageBody.json");
             var slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(payload);
@@ -156,12 +148,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task EventToActivityAsyncShouldReturnActivityWithTeamId()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageBody.json");
             var slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(payload);
@@ -175,12 +162,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task EventToActivityAsyncShouldReturnActivityWithItemChannel()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageBody.json");
             var slackBody = JsonConvert.DeserializeObject<SlackRequestBody>(payload);
@@ -196,12 +178,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task CommandToActivityAsyncShouldReturnNull()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var activity = await SlackHelper.CommandToActivityAsync(null, slackApi.Object, new CancellationToken()).ConfigureAwait(false);
 
@@ -211,12 +188,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task CommandToActivityAsyncShouldReturnActivity()
         {
-            var options = new Mock<SlackAdapterOptions>();
-            options.Object.VerificationToken = "TestToken";
-            options.Object.ClientSigningSecret = "ClientSigningSecret";
-            options.Object.BotToken = "BotToken";
-
-            var slackApi = new Mock<SlackClientWrapper>(options.Object);
+            var slackApi = new Mock<SlackClientWrapper>(_testOptions);
 
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\SlashCommandBody.txt");
             var commandBody = SlackHelper.QueryStringToDictionary(payload);
