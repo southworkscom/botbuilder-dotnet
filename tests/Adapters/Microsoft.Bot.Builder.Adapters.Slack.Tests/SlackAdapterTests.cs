@@ -98,12 +98,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
-            var turnContext = new TurnContext(slackAdapter, new Activity());
-
-            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            using (var turnContext = new TurnContext(slackAdapter, new Activity()))
             {
-                await slackAdapter.UpdateActivityAsync(turnContext, null, default);
-            });
+                await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+                {
+                    await slackAdapter.UpdateActivityAsync(turnContext, null, default);
+                });
+            }
         }
 
         [Fact]
@@ -125,12 +126,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
                 Conversation = null,
             };
 
-            var turnContext = new TurnContext(slackAdapter, activity);
-
-            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            using (var turnContext = new TurnContext(slackAdapter, activity))
             {
-                await slackAdapter.UpdateActivityAsync(turnContext, activity, default);
-            });
+                await Assert.ThrowsAsync<ArgumentException>(async () =>
+                {
+                    await slackAdapter.UpdateActivityAsync(turnContext, activity, default);
+                });
+            }
         }
 
         [Fact]
@@ -155,9 +157,12 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             };
             activity.Object.Text = "Hello, Bot!";
 
-            var turnContext = new TurnContext(slackAdapter, activity.Object);
+            ResourceResponse response;
 
-            var response = await slackAdapter.UpdateActivityAsync(turnContext, activity.Object, default);
+            using (var turnContext = new TurnContext(slackAdapter, activity.Object))
+            {
+                response = await slackAdapter.UpdateActivityAsync(turnContext, activity.Object, default);
+            }
 
             Assert.Equal(activity.Object.Id, response.Id);
         }
@@ -184,12 +189,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             };
             activity.Object.Text = "Hello, Bot!";
 
-            var turnContext = new TurnContext(slackAdapter, activity.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () =>
+            using (var turnContext = new TurnContext(slackAdapter, activity.Object))
             {
-                await slackAdapter.UpdateActivityAsync(turnContext, activity.Object, default);
-            });
+                await Assert.ThrowsAsync<Exception>(async () =>
+                {
+                    await slackAdapter.UpdateActivityAsync(turnContext, activity.Object, default);
+                });
+            }
         }
 
         [Fact]
@@ -205,12 +211,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
-            var context = new TurnContext(slackAdapter, new Activity());
-
-            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            using (var context = new TurnContext(slackAdapter, new Activity()))
             {
-                await slackAdapter.DeleteActivityAsync(context, null, default);
-            });
+                await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+                {
+                    await slackAdapter.DeleteActivityAsync(context, null, default);
+                });
+            }
         }
 
         [Fact]
@@ -247,17 +254,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
-            var context = new TurnContext(slackAdapter, new Activity());
-
-            var reference = new ConversationReference
+            using (var context = new TurnContext(slackAdapter, new Activity()))
             {
-                ChannelId = null,
-            };
+                var reference = new ConversationReference
+                {
+                    ChannelId = null,
+                };
 
-            await Assert.ThrowsAsync<ArgumentException>(async () =>
-            {
-                await slackAdapter.DeleteActivityAsync(context, reference, default);
-            });
+                await Assert.ThrowsAsync<ArgumentException>(async () =>
+                {
+                    await slackAdapter.DeleteActivityAsync(context, reference, default);
+                });
+            }
         }
 
         [Fact]
@@ -273,17 +281,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
-            var context = new TurnContext(slackAdapter, new Activity());
-
-            var reference = new ConversationReference
+            using (var context = new TurnContext(slackAdapter, new Activity()))
             {
-                ChannelId = "testChannelId",
-            };
+                var reference = new ConversationReference
+                {
+                    ChannelId = "testChannelId",
+                };
 
-            await Assert.ThrowsAsync<ArgumentException>(async () =>
-            {
-                await slackAdapter.DeleteActivityAsync(context, reference, default);
-            });
+                await Assert.ThrowsAsync<ArgumentException>(async () =>
+                {
+                    await slackAdapter.DeleteActivityAsync(context, reference, default);
+                });
+            }
         }
 
         [Fact]
@@ -305,14 +314,15 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             var activity = new Mock<Activity>();
             activity.Object.Timestamp = new DateTimeOffset();
 
-            var context = new TurnContext(slackAdapter, activity.Object);
-
-            var reference = new ConversationReference
+            using (var context = new TurnContext(slackAdapter, activity.Object))
             {
-                ChannelId = "channelId",
-            };
+                var reference = new ConversationReference
+                {
+                    ChannelId = "channelId",
+                };
 
-            await slackAdapter.DeleteActivityAsync(context, reference, default);
+                await slackAdapter.DeleteActivityAsync(context, reference, default);
+            }
 
             Assert.Equal(1, deletedMessages);
         }
@@ -370,9 +380,10 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
                 },
             };
 
-            var turnContext = new TurnContext(slackAdapter, activity);
-
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await slackAdapter.SendActivitiesAsync(turnContext, null, default); });
+            using (var turnContext = new TurnContext(slackAdapter, activity))
+            {
+                await Assert.ThrowsAsync<ArgumentNullException>(async () => { await slackAdapter.SendActivitiesAsync(turnContext, null, default); });
+            }
         }
 
         [Fact]
@@ -386,7 +397,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             var slackResponse = new SlackResponse
             {
                 Ok = true,
-                TS = "mockedTS",
+                Ts = "mockedTS",
             };
 
             var slackApi = new Mock<SlackClientWrapper>(options.Object);
@@ -411,7 +422,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
 
             var responses = await slackAdapter.SendActivitiesAsync(turnContext, activities, default);
 
-            Assert.Equal(slackResponse.TS, responses[0].Id);
+            Assert.Equal(slackResponse.Ts, responses[0].Id);
         }
 
         [Fact]
@@ -512,7 +523,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             var slackAdapter = new SlackAdapter(slackApi.Object);
 
             var httpRequest = new Mock<HttpRequest>();
-            var bot = new Mock<IBot>();
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
@@ -585,8 +595,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public async Task ProcessAsyncShouldFailWithSignatureMismatch()
         {
-            string actual = null;
-
             var options = new Mock<SlackAdapterOptions>();
             options.Object.VerificationToken = "testToken";
             options.Object.ClientSigningSecret = "ClientSigningSecret";
@@ -615,7 +623,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             {
                 if (length > 0)
                 {
-                    actual = Encoding.UTF8.GetString(data);
+                    var actual = Encoding.UTF8.GetString(data);
                 }
             });
 

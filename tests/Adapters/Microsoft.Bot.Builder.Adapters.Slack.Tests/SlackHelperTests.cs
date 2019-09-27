@@ -49,7 +49,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         [Fact]
         public void ActivityToSlackShouldReturnMessageFromChannelData()
         {
-            var messageText = "Hello from message";
+            const string messageText = "Hello from message";
 
             var activity = new Activity
             {
@@ -59,7 +59,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
                 ChannelData = new NewSlackMessage
                 {
                     Text = messageText,
-                    Ephemeral = "testEphimeral",
+                    Ephemeral = "testEphemeral",
                     IconUrl = new Uri(ImageUrl),
                 },
                 Conversation = new ConversationAccount(id: "testId"),
@@ -72,9 +72,9 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
         }
 
         [Fact]
-        public void ActivityToSlackShouldReturnMessageWithThreadTS()
+        public void ActivityToSlackShouldReturnMessageWithThreadTs()
         {
-            var serializeConversation = "{\"id\":\"testId\",\"thread_ts\":\"0001-01-01T00:00:00+00:00\"}";
+            const string serializeConversation = "{\"id\":\"testId\",\"thread_ts\":\"0001-01-01T00:00:00+00:00\"}";
 
             var activity = new Activity
             {
@@ -86,7 +86,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.Tests
             var message = SlackHelper.ActivityToSlack(activity);
 
             Assert.Equal(activity.Conversation.Id, message.Channel);
-            Assert.Equal(activity.Conversation.Properties["thread_ts"], message.ThreadTS);
+            Assert.Equal(activity.Conversation.Properties["thread_ts"], message.ThreadTs);
         }
 
         [Fact]

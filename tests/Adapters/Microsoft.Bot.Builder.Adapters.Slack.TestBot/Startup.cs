@@ -43,7 +43,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot
             // services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>();
 
             // Create the Bot Framework Adapter.
-            services.AddSingleton<SlackAdapter>(_adapter);
+            services.AddSingleton(_adapter);
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, EchoBot>();

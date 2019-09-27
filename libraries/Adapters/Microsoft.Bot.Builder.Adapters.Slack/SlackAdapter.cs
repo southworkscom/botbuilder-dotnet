@@ -24,7 +24,6 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </summary>
         /// <param name="slackClient">An initialized instance of the SlackClientWrapper class.</param>
         public SlackAdapter(SlackClientWrapper slackClient)
-            : base()
         {
             _slackClient = slackClient ?? throw new ArgumentNullException(nameof(slackClient));
         }
@@ -50,10 +49,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             var responses = new List<ResourceResponse>();
 
-            for (var i = 0; i < activities.Length; i++)
+            foreach (var activity in activities)
             {
-                var activity = activities[i];
-
                 if (activity.Type == ActivityTypes.Message)
                 {
                     var message = SlackHelper.ActivityToSlack(activity);
@@ -64,14 +61,14 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                     {
                         var resourceResponse = new ActivityResourceResponse()
                         {
-                            Id = slackResponse.TS,
-                            ActivityId = slackResponse.TS,
+                            Id = slackResponse.Ts,
+                            ActivityId = slackResponse.Ts,
                             Conversation = new ConversationAccount()
                             {
                                 Id = slackResponse.Channel,
                             },
                         };
-                        responses.Add(resourceResponse as ResourceResponse);
+                        responses.Add(resourceResponse);
                     }
                 }
             }
@@ -150,7 +147,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 throw new ArgumentException(nameof(turnContext.Activity.Timestamp));
             }
 
-            var results = await _slackClient.DeleteMessageAsync(reference.ChannelId, turnContext.Activity.Timestamp.Value.DateTime, cancellationToken).ConfigureAwait(false);
+            await _slackClient.DeleteMessageAsync(reference.ChannelId, turnContext.Activity.Timestamp.Value.DateTime, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -225,7 +222,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
             if (!_slackClient.VerifySignature(request, body))
             {
-                var text = $"Rejected due to mismatched header signature";
+                const string text = "Rejected due to mismatched header signature";
 
                 await SlackHelper.WriteAsync(response, HttpStatusCode.Unauthorized, text, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
 

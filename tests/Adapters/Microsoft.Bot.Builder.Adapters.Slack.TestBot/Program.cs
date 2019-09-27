@@ -5,9 +5,8 @@
 
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Bot.Builder.Adapters.Slack.TestBot;
 
-namespace Microsoft.Bot.Sample.Slack
+namespace Microsoft.Bot.Builder.Adapters.Slack.TestBot
 {
     public class Program
     {
