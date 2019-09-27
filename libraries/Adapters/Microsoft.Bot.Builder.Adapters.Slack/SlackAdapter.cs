@@ -25,13 +25,12 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// <param name="configuration">An <see cref="IConfiguration"/> instance.</param>
         /// <remarks>
         /// The configuration keys are:
-        /// AccessToken: An access token for the bot.
-        /// PublicAddress: The root URL of the bot application.
-        /// Secret: The secret used to validate incoming webhooks.
-        /// WebhookName: A name for the webhook subscription.
+        /// VerificationToken: A token for validating the origin of incoming webhooks.
+        /// BotToken: A token for a bot to work on a single workspace.
+        /// ClientSigningSecret: The token used to validate that incoming webhooks are originated with Slack.
         /// </remarks>
         public SlackAdapter(IConfiguration configuration)
-            : this(new SlackClientWrapper(new SlackAdapterOptions(configuration["VerificationToken"], configuration["BotToken"], configuration["SigningSecret"])))
+            : this(new SlackClientWrapper(new SlackAdapterOptions(configuration["VerificationToken"], configuration["BotToken"], configuration["ClientSigningSecret"])))
         {
         }
 
