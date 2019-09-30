@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
-using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
@@ -20,53 +17,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
     {
         public const string NAME = "Facebook Adapter";
 
-        private readonly IFacebookAdapterOptions options;
+        private readonly FacebookAdapterOptions _options;
 
-        public FacebookAdapter(IFacebookAdapterOptions options)
+        public FacebookAdapter(FacebookAdapterOptions options)
         {
-            this.options = options;
-            this.options.ApiHost = "graph.facebook.com";
-            this.options.ApiVersion = "v3.2";
+            _options = options;
+            _options.ApiHost = "graph.facebook.com";
+            _options.ApiVersion = "v3.2";
 
-            if (string.IsNullOrEmpty(this.options.AccessToken) && this.options.GetAccessTokenForPageAsync != default(Func<string, Task<string>>))
+            if (string.IsNullOrEmpty(_options.AccessToken) && _options.GetAccessTokenForPageAsync != default(Func<string, Task<string>>))
             {
                 throw new Exception("Adapter must receive either an access_token or a getAccessTokenForPage function.");
             }
 
-            if (string.IsNullOrEmpty(this.options.AppSecret))
+            if (string.IsNullOrEmpty(_options.AppSecret))
             {
                 throw new Exception("Provide an app_secret in order to validate incoming webhooks and better secure api requests");
             }
         }
-
-        /*
-        /// <summary>
-        /// Botkit-only: Initialization function called automatically when used with Botkit.
-        /// Amends the webhook_uri with an additional behavior for responding to Facebook's webhook verification request.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task Init(Botkit botkit)
-        {
-            await botkit.HttpClient.GetAsync(botkit.Config.WebhookUri).ContinueWith(async (task) =>
-            {
-                var response = (task as Task<HttpResponseMessage>).Result;
-                if (response.RequestMessage.Properties["hub.mode"].ToString() == "subscribe")
-                {
-                    if (response.RequestMessage.Properties["hub.verify_token"].ToString() == this.options.VerifyToken)
-                    {
-                        response.StatusCode = HttpStatusCode.OK;
-                        response.Content = new StringContent(response.RequestMessage.Properties["hub.challenge"].ToString());
-                        // send?
-                    }
-                    else
-                    {
-                        response.StatusCode = HttpStatusCode.OK;
-                        response.Content = new StringContent("Ok");
-                        // send?
-                    }
-                }
-            });
-        }*/
 
         /// <summary>
         /// Get a Facebook API client with the correct credentials based on the page identified in the incoming activity.
@@ -76,9 +44,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A Facebook API client.</returns>
         public async Task<FacebookAPI> GetAPIAsync(Activity activity)
         {
-            if (!string.IsNullOrEmpty(this.options.AccessToken))
+            if (!string.IsNullOrEmpty(_options.AccessToken))
             {
-                return new FacebookAPI(this.options.AccessToken, this.options.AppSecret, this.options.ApiHost, this.options.ApiVersion);
+                return new FacebookAPI(_options.AccessToken, _options.AppSecret, _options.ApiHost, _options.ApiVersion);
             }
             else
             {
@@ -91,14 +59,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                         pageId = activity.From.Id;
                     }
 
-                    string token = await this.options.GetAccessTokenForPageAsync(pageId);
+                    string token = await _options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
 
                     if (string.IsNullOrEmpty(token))
                     {
                         // error: missing credentials
                     }
 
-                    return new FacebookAPI(token, this.options.AppSecret, this.options.ApiHost, this.options.ApiVersion);
+                    return new FacebookAPI(token, _options.AppSecret, _options.ApiHost, _options.ApiVersion);
                 }
                 else
                 {
@@ -116,32 +84,25 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override async Task<ResourceResponse[]> SendActivitiesAsync(ITurnContext context, Activity[] activities, CancellationToken cancellationToken)
         {
-            List<ResourceResponse> responses = new List<ResourceResponse>();
+            var responses = new List<ResourceResponse>();
             for (var i = 0; i < activities.Length; i++)
             {
                 var activity = activities[i];
                 if (activity.Type == ActivityTypes.Message)
                 {
-                    var message = this.ActivityToFacebook(activity);
+                    var message = ActivityToFacebook(activity);
 
-                    try
+                    var api = await GetAPIAsync(context.Activity).ConfigureAwait(false);
+                    var res = await api.CallAPIAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+
+                    if (res != null)
                     {
-                        var api = await this.GetAPIAsync(context.Activity);
-                        HttpResponseMessage res = await api.CallAPIAsync("/me/messages", message);
-
-                        if (res != null)
+                        var response = new ResourceResponse()
                         {
-                            var response = new ResourceResponse()
-                            {
-                                // Id = res.Content (res as dynamic).message_id,
-                            };
+                            // Id = res.Content (res as dynamic).message_id,
+                        };
 
-                            responses.Add(response);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // error: Error sending activity to Facebook
+                        responses.Add(response);
                     }
                 }
                 else
@@ -163,7 +124,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public override async Task<ResourceResponse> UpdateActivityAsync(ITurnContext turnContext, Activity activity, CancellationToken cancellationToken)
         {
             // Facebook adapter does not support updateActivity.
-            return await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support updateActivity."));
+            return await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support updateActivity.")).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -176,7 +137,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public override async Task DeleteActivityAsync(ITurnContext turnContext, ConversationReference reference, CancellationToken cancellationToken)
         {
             // Facebook adapter does not support deleteActivity.
-            await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support deleteActivity."));
+            await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support deleteActivity.")).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -191,7 +152,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             using (var context = new TurnContext(this, request))
             {
-                await this.RunPipelineAsync(context, logic, default(CancellationToken));
+                await RunPipelineAsync(context, logic, default(CancellationToken)).ConfigureAwait(false);
             }
         }
 
@@ -203,9 +164,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="bot">A bot logic function.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
-            if (await this.VerifySignatureAsync(request, response))
+            if (await VerifySignatureAsync(request, response, cancellationToken).ConfigureAwait(false))
             {
                 var facebookEvent = request.Body;
                 if ((facebookEvent as dynamic).entry)
@@ -227,7 +188,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                         for (var j = 0; j < payload.Length; j++)
                         {
-                            await this.ProcessSingleMessageAsync(payload[j], bot.OnTurnAsync);
+                            await ProcessSingleMessageAsync(payload[j], bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
                         }
 
                         // handle standby messages (this bot is not the active receiver)
@@ -241,7 +202,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                                 // indicate that this message was received in standby mode rather than normal mode.
                                 (message as dynamic).standby = true;
-                                await this.ProcessSingleMessageAsync(message, bot.OnTurnAsync);
+                                await ProcessSingleMessageAsync(message, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
                             }
                         }
                     }
@@ -249,8 +210,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     // send code 200
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
-                    string text = string.Empty;
-                    await response.WriteAsync(text);
+                    var text = string.Empty;
+                    await response.WriteAsync(text).ConfigureAwait(false);
                 }
             }
         }
@@ -262,7 +223,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>The resulting message.</returns>
         private FacebookMessage ActivityToFacebook(Activity activity)
         {
-            FacebookMessage facebookMessage = new FacebookMessage(activity.Conversation.Id, new Message(), "RESPONSE");
+            var facebookMessage = new FacebookMessage(activity.Conversation.Id, new Message(), "RESPONSE");
 
             facebookMessage.Message.Text = activity.Text;
 
@@ -298,8 +259,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// </summary>
         /// <param name="message">The message to be processed.</param>
         /// <param name="logic">The callback logic to call upon the message.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        private async Task ProcessSingleMessageAsync(FacebookMessage message, BotCallbackHandler logic)
+        private async Task ProcessSingleMessageAsync(FacebookMessage message, BotCallbackHandler logic, CancellationToken cancellationToken)
         {
             if (message.SenderId == null)
             {
@@ -350,7 +312,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             using (var context = new TurnContext(this, activity))
             {
-                await this.RunPipelineAsync(context, logic, default(CancellationToken));
+                await RunPipelineAsync(context, logic, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -359,22 +321,27 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// </summary>
         /// <param name="request">An Http request object.</param>
         /// <param name="response">An Http response object.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        private async Task<bool> VerifySignatureAsync(HttpRequest request, HttpResponse response)
+        private async Task<bool> VerifySignatureAsync(HttpRequest request, HttpResponse response, CancellationToken cancellationToken)
         {
             var expected = request.Headers["x-hub-signature"];
-            var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(this.options.AppSecret));
 
-            var bodyStream = new StreamReader(request.Body);
-
-            var calculated = "sha1=" + hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()));
+            string calculated = null;
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_options.AppSecret)))
+            {
+                using (var bodyStream = new StreamReader(request.Body))
+                {
+                    calculated = "sha1=" + hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()));
+                }
+            }
 
             if (expected != calculated)
             {
                 response.StatusCode = 401;
                 response.ContentType = "text/plain";
-                string text = string.Empty;
-                await response.WriteAsync(text);
+                var text = string.Empty;
+                await response.WriteAsync(text, cancellationToken).ConfigureAwait(false);
                 return false;
             }
             else

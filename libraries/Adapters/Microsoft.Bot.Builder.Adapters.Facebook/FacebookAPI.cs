@@ -5,16 +5,17 @@ using System;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
     public class FacebookAPI
     {
-        private string token;
-        private string secret;
-        private string apiHost;
-        private string apiVersion;
+        private string _token;
+        private string _secret;
+        private string _apiHost;
+        private string _apiVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FacebookAPI"/> class.
@@ -25,10 +26,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="apiVersion">Optional api version used when constructing api calls, defaults to v3.2.</param>
         public FacebookAPI(string token, string secret, string apiHost = "graph.facebook.com", string apiVersion = "v3.2")
         {
-            this.token = token;
-            this.secret = secret;
-            this.apiHost = apiHost;
-            this.apiVersion = apiVersion;
+            _token = token;
+            _secret = secret;
+            _apiHost = apiHost;
+            _apiVersion = apiVersion;
         }
 
         /// <summary>
@@ -37,10 +38,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="path">Path to the API endpoint, for example `/me/messages`.</param>
         /// <param name="payload">An object to be sent as parameters to the API call..</param>
         /// <param name="method">HTTP method, for example POST, GET, DELETE or PUT.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A task representing the async operation.</returns>
-        public async Task<HttpResponseMessage> CallAPIAsync(string path, FacebookMessage payload, HttpMethod method = null)
+        public async Task<HttpResponseMessage> CallAPIAsync(string path, FacebookMessage payload, HttpMethod method = null, CancellationToken cancellationToken = default)
         {
-            var proof = this.GetAppSecretProof(this.token, this.secret);
+            var proof = GetAppSecretProof(_token, _secret);
 
             if (method == null)
             {
@@ -48,14 +50,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             }
 
             // send the request
-            HttpRequestMessage request = new HttpRequestMessage();
-            request.RequestUri = new Uri("https://" + this.apiHost + "/" + this.apiVersion + path + "?access_token=" + this.token + "&appsecret_proof=" + proof);
-            request.Method = method;
-            /* content type json? */
+            using (var request = new HttpRequestMessage())
+            {
+                request.RequestUri = new Uri("https://" + _apiHost + "/" + _apiVersion + path + "?access_token=" + _token + "&appsecret_proof=" + proof);
+                request.Method = method;
 
-            HttpClient client = new HttpClient();
+                /* content type json? */
 
-            return await client.SendAsync(request);
+                using (var client = new HttpClient())
+                {
+                    return await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                }
+            }
         }
 
         /// <summary>
@@ -66,8 +72,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>The app secret proof.</returns>
         private string GetAppSecretProof(string accessToken, string appSecret)
         {
-            var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(appSecret));
-            return hmac.ComputeHash(Encoding.UTF8.GetBytes(accessToken)).ToString();
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(appSecret)))
+            {
+                return hmac.ComputeHash(Encoding.UTF8.GetBytes(accessToken)).ToString();
+            }
         }
     }
 }
