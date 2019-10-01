@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Schema;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
@@ -57,6 +58,45 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 using (var client = new HttpClient())
                 {
                     return await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get a Facebook API client with the correct credentials based on the page identified in the incoming activity.
+        /// This is used by many internal functions to get access to the Facebook API, and is exposed as `bot.api` on any BotWorker instances passed into Botkit handler functions.
+        /// </summary>
+        /// <param name="activity">An incoming message activity.</param>
+        /// <returns>A Facebook API client.</returns>
+        public async Task<FacebookClientWrapper> GetAPIAsync(Activity activity)
+        {
+            if (!string.IsNullOrWhiteSpace(Options.AccessToken))
+            {
+                return new FacebookClientWrapper(new FacebookAdapterOptions(Options.VerifyToken, Options.AppSecret, Options.AccessToken));
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(activity.Recipient?.Id))
+                {
+                    var pageId = activity.Recipient.Id;
+
+                    if ((activity.ChannelData as dynamic)?.message != null && (activity.ChannelData as dynamic)?.message.is_echo)
+                    {
+                        pageId = activity.From.Id;
+                    }
+
+                    var token = await Options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
+
+                    if (string.IsNullOrWhiteSpace(token))
+                    {
+                        // error: missing credentials
+                    }
+
+                    return new FacebookClientWrapper(new FacebookAdapterOptions(Options.VerifyToken, Options.AppSecret, token));
+                }
+                else
+                {
+                    throw new Exception($"Unable to create API based on activity:{activity}");
                 }
             }
         }

@@ -45,45 +45,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         }
 
         /// <summary>
-        /// Get a Facebook API client with the correct credentials based on the page identified in the incoming activity.
-        /// This is used by many internal functions to get access to the Facebook API, and is exposed as `bot.api` on any BotWorker instances passed into Botkit handler functions.
-        /// </summary>
-        /// <param name="activity">An incoming message activity.</param>
-        /// <returns>A Facebook API client.</returns>
-        public async Task<FacebookClientWrapper> GetAPIAsync(Activity activity)
-        {
-            if (!string.IsNullOrWhiteSpace(_facebookClient.Options.AccessToken))
-            {
-                return new FacebookClientWrapper(new FacebookAdapterOptions(_facebookClient.Options.VerifyToken, _facebookClient.Options.AppSecret, _facebookClient.Options.AccessToken));
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(activity.Recipient?.Id))
-                {
-                    var pageId = activity.Recipient.Id;
-
-                    if ((activity.ChannelData as dynamic)?.message != null && (activity.ChannelData as dynamic)?.message.is_echo)
-                    {
-                        pageId = activity.From.Id;
-                    }
-
-                    string token = await _facebookClient.Options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
-
-                    if (string.IsNullOrWhiteSpace(token))
-                    {
-                        // error: missing credentials
-                    }
-
-                    return new FacebookClientWrapper(new FacebookAdapterOptions(_facebookClient.Options.VerifyToken, _facebookClient.Options.AppSecret, token));
-                }
-                else
-                {
-                    throw new Exception($"Unable to create API based on activity:{activity}");
-                }
-            }
-        }
-
-        /// <summary>
         /// Standard BotBuilder adapter method to send a message from the bot to the messaging API.
         /// </summary>
         /// <param name="context">A TurnContext representing the current incoming message and environment.</param>
@@ -100,7 +61,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 {
                     var message = ActivityToFacebook(activity);
 
-                    var api = await GetAPIAsync(context.Activity).ConfigureAwait(false);
+                    var api = await _facebookClient.GetAPIAsync(context.Activity).ConfigureAwait(false);
                     var res = await api.CallAPIAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
 
                     if (res != null)
