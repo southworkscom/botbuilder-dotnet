@@ -1,8 +1,8 @@
 ﻿# EchoBot using Facebook Adapter
 
-Bot Framework v4 echo bot sample.
+Bot Framework v4 echo bot using facebook Adapter sample.
 
-This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple bot that accepts input from the user and echoes it back.
+This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple echo bot that connects with Facebook to respond to messages.
 
 ## Prerequisites
 
@@ -53,15 +53,13 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
     A) In the Access Tokens section, select a Facebook Page or create a new one. This is the page where the bot will be tested later.
 
-    B) After selecting the page, the permissions should be edited
+    B) After selecting the page, the permissions should be edited, select the "Tutorial Page" option and continue.
 
     C) A Page Access Token is generated. Copy it, it will be needed to connect the adapter.
 
 4 - Get the app credentials. Go to Settings, Basic and copy the App Secret.
 
-5 - In the bot's code, add the FacebookAdapter. 
-
-    A)Set the tokens in the file appsettings.json: 
+5 - Set the tokens in the file appsettings.json: 
     
     - VerifyToken (create one. It will be used to validate received messages)
     - AppSecret (the one obtained in step 4)
