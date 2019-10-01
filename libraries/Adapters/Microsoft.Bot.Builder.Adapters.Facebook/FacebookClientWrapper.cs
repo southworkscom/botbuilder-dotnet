@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -72,35 +73,36 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A Facebook API client.</returns>
         public async Task<FacebookClientWrapper> GetAPIAsync(Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             if (!string.IsNullOrWhiteSpace(Options.AccessToken))
             {
                 return new FacebookClientWrapper(new FacebookAdapterOptions(Options.VerifyToken, Options.AppSecret, Options.AccessToken));
             }
-            else
+
+            if (string.IsNullOrWhiteSpace(activity.Recipient?.Id))
             {
-                if (!string.IsNullOrWhiteSpace(activity.Recipient?.Id))
-                {
-                    var pageId = activity.Recipient.Id;
-
-                    if ((activity.ChannelData as dynamic)?.message != null && (activity.ChannelData as dynamic)?.message.is_echo)
-                    {
-                        pageId = activity.From.Id;
-                    }
-
-                    var token = await Options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
-
-                    if (string.IsNullOrWhiteSpace(token))
-                    {
-                        // error: missing credentials
-                    }
-
-                    return new FacebookClientWrapper(new FacebookAdapterOptions(Options.VerifyToken, Options.AppSecret, token));
-                }
-                else
-                {
-                    throw new Exception($"Unable to create API based on activity:{activity}");
-                }
+                throw new Exception($"Unable to create API based on activity:{activity}");
             }
+
+            var pageId = activity.Recipient.Id;
+
+            if ((activity.ChannelData as dynamic)?.message != null && (activity.ChannelData as dynamic)?.message.is_echo)
+            {
+                pageId = activity.From.Id;
+            }
+
+            var token = await Options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                throw new ArgumentException(nameof(token));
+            }
+
+            return new FacebookClientWrapper(new FacebookAdapterOptions(Options.VerifyToken, Options.AppSecret, token));
         }
 
         /// <summary>
@@ -112,6 +114,21 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<bool> VerifySignatureAsync(HttpRequest request, HttpResponse response, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (response == null)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
+            if (cancellationToken == null)
+            {
+                throw new ArgumentNullException(nameof(cancellationToken));
+            }
+
             var expected = request.Headers["x-hub-signature"];
 
             string calculated = null;
@@ -125,15 +142,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             if (expected != calculated)
             {
-                response.StatusCode = 401;
+                response.StatusCode = Convert.ToInt32(HttpStatusCode.Unauthorized, System.Globalization.CultureInfo.InvariantCulture);
                 response.ContentType = "text/plain";
                 await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
                 return false;
             }
-            else
-            {
-                return true;
-            }
+
+            return true;
         }
 
         /// <summary>
