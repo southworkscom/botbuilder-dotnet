@@ -63,7 +63,7 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
     A)Set the tokens in the file appsettings.json: 
     
-    - VerifyToken (create one. It will be used to validate         received messages)
+    - VerifyToken (create one. It will be used to validate received messages)
     - AppSecret (the one obtained in step 4)
     - AccessToken (the one obtained in step 3.c)
 
@@ -74,7 +74,7 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
     A) Complete the Callback URL with the ngrok https URL adding   '/api/messages'. 
         Fill in the Verify Token with the one setted on your bot.
-        Subscribe to the following events: messages,              messaging_postbacks, messaging_optins, messaging_deliveries
+        Subscribe to the following events: messages, messaging_postbacks, messaging_optins, messaging_deliveries
 
     B) Click Verify and Save button.
 
