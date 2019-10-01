@@ -218,7 +218,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     // send code 200
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
-                    await response.WriteAsync(string.Empty).ConfigureAwait(false);
+                    await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
