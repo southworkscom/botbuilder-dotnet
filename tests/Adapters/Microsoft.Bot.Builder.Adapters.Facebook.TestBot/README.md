@@ -17,9 +17,9 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
 1 - Clone the repository
 
-    ```bash
+   ```bash
     git clone https://github.com/Microsoft/botbuilder-dotnet.git
-    ```
+   ```
 
  2 - In a terminal, navigate to `test/Adapters/Microsoft.Bot.Builder.Adapters.Facebook.TestBot`
 
@@ -45,50 +45,50 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
 ### Connect the bot with Facebook
 
-	1 - Create a Facebook Account for Developers (https://developers.facebook.com/).
+1 - Create a Facebook Account for Developers (https://developers.facebook.com/).
 
-    2 - Create a new App. Give a name to the app and click Create App ID button.
+2 - Create a new App. Give a name to the app and click Create App ID button.
 
-    3 - In the Dashboard go to Add a Product and select Messenger by clicking on Set Up button
+3 - In the Dashboard go to Add a Product and select Messenger by clicking on Set Up button
 
-        a) In the Access Tokens section, select a Facebook Page or create a new one. This is the page where the bot will be tested later.
+    A) In the Access Tokens section, select a Facebook Page or create a new one. This is the page where the bot will be tested later.
 
-        b) After selecting the page, the permissions should be edited
+    B) After selecting the page, the permissions should be edited
 
-        c) A Page Access Token is generated. Copy it, it will be needed to connect the adapter.
+    C) A Page Access Token is generated. Copy it, it will be needed to connect the adapter.
 
-    4 - Get the app credentials. Go to Settings, Basic and copy the App Secret.
+4 - Get the app credentials. Go to Settings, Basic and copy the App Secret.
 
-    5 - In the bot's code, add the FacebookAdapter. 
+5 - In the bot's code, add the FacebookAdapter. 
 
-        a)Set the tokens in the file appsettings.json: 
-        
-        - VerifyToken (create one. It will be used to validate         received messages)
-        - AppSecret (the one obtained in step 4)
-        - AccessToken (the one obtained in step 3.c)
-
-    6 - Using a tunneling tool like [Ngrok](https://ngrok.com/download), expose the bot's endpoint.
+    A)Set the tokens in the file appsettings.json: 
     
-    7 - Go back to the Facebook for Developers page and click on Messenger, Settings.
-        In the Webhooks section, click on Subscribe To Events button.
+    - VerifyToken (create one. It will be used to validate         received messages)
+    - AppSecret (the one obtained in step 4)
+    - AccessToken (the one obtained in step 3.c)
 
-        a) Complete the Callback URL with the ngrok https URL adding   '/api/messages'. 
-           Fill in the Verify Token with the one setted on your bot.
-           Subscribe to the following events: messages,              messaging_postbacks, messaging_optins, messaging_deliveries
+6 - Using a tunneling tool like [Ngrok](https://ngrok.com/download), expose the bot's endpoint.
 
-        b) Click Verify and Save button.
+7 - Go back to the Facebook for Developers page and click on Messenger, Settings.
+    In the Webhooks section, click on Subscribe To Events button.
 
-    8 - Subscribe the webhook to the Page.
+    A) Complete the Callback URL with the ngrok https URL adding   '/api/messages'. 
+        Fill in the Verify Token with the one setted on your bot.
+        Subscribe to the following events: messages,              messaging_postbacks, messaging_optins, messaging_deliveries
 
-    9 - Go to the Page and click Add a Button.
+    B) Click Verify and Save button.
 
-        a) Select a Send Message button.
+8 - Subscribe the webhook to the Page.
 
-        b) Select Messenger.
+9 - Go to the Page and click Add a Button.
 
-        c) And click Finish button.
-    
-    10 - Finally, click on the button created and test your bot!
+    A) Select a Send Message button.
+
+    B) Select Messenger.
+
+    C) And click Finish button.
+
+10 - Finally, click on the button created and test your bot!
 
 ## Deploy the bot to Azure
 
