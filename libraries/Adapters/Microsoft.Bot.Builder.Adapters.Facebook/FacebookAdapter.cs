@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -135,7 +132,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
-            if (await VerifySignatureAsync(request, response, cancellationToken).ConfigureAwait(false))
+            if (await _facebookClient.VerifySignatureAsync(request, response, cancellationToken).ConfigureAwait(false))
             {
                 var facebookEvent = request.Body;
                 if ((facebookEvent as dynamic).entry)
@@ -281,39 +278,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             using (var context = new TurnContext(this, activity))
             {
                 await RunPipelineAsync(context, logic, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// Verifies the SHA1 signature of the raw request payload before bodyParser parses it will abort parsing if signature is invalid, and pass a generic error to response.
-        /// </summary>
-        /// <param name="request">An Http request object.</param>
-        /// <param name="response">An Http response object.</param>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        private async Task<bool> VerifySignatureAsync(HttpRequest request, HttpResponse response, CancellationToken cancellationToken)
-        {
-            var expected = request.Headers["x-hub-signature"];
-
-            string calculated = null;
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_facebookClient.Options.AppSecret)))
-            {
-                using (var bodyStream = new StreamReader(request.Body))
-                {
-                    calculated = $"sha1={hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()))}";
-                }
-            }
-
-            if (expected != calculated)
-            {
-                response.StatusCode = 401;
-                response.ContentType = "text/plain";
-                await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
-                return false;
-            }
-            else
-            {
-                return true;
             }
         }
     }

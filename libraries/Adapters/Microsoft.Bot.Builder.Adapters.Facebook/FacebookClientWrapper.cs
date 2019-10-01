@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
@@ -98,6 +100,39 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 {
                     throw new Exception($"Unable to create API based on activity:{activity}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Verifies the SHA1 signature of the raw request payload before bodyParser parses it will abort parsing if signature is invalid, and pass a generic error to response.
+        /// </summary>
+        /// <param name="request">An Http request object.</param>
+        /// <param name="response">An Http response object.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task<bool> VerifySignatureAsync(HttpRequest request, HttpResponse response, CancellationToken cancellationToken)
+        {
+            var expected = request.Headers["x-hub-signature"];
+
+            string calculated = null;
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(Options.AppSecret)))
+            {
+                using (var bodyStream = new StreamReader(request.Body))
+                {
+                    calculated = $"sha1={hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()))}";
+                }
+            }
+
+            if (expected != calculated)
+            {
+                response.StatusCode = 401;
+                response.ContentType = "text/plain";
+                await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
 
