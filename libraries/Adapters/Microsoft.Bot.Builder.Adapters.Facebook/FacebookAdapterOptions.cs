@@ -9,6 +9,23 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
     public class FacebookAdapterOptions
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="FacebookAdapterOptions"/> class.
+        /// </summary>
+        /// <param name="apiHost">A token for validating the origin of incoming webhooks.</param>
+        /// <param name="apiVersion">A token for a bot to work on a single workspace.</param>
+        /// <param name="verifyToken">The token used to validate that incoming webhooks are originated from Slack.</param>
+        /// <param name="appSecret">The app secret.</param>
+        /// <param name="accessToken">The access token.</param>
+        public FacebookAdapterOptions(string verifyToken, string appSecret, string accessToken, string apiHost = "graph.facebook.com", string apiVersion = "v3.2")
+        {
+            VerifyToken = verifyToken;
+            AppSecret = appSecret;
+            AccessToken = accessToken;
+            ApiHost = apiHost;
+            ApiVersion = apiVersion;
+        }
+
+        /// <summary>
         /// Gets or sets the alternate root url used to contruct calls to Facebook's API.  Defaults to 'graph.facebook.com' but can be changed (for mocking, proxy, etc).
         /// </summary>
         /// <value>The API host.</value>

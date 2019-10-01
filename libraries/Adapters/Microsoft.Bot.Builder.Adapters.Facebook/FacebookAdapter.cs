@@ -9,31 +9,39 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
-    public class FacebookAdapter : BotAdapter
+    public class FacebookAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
-        public const string NAME = "Facebook Adapter";
+        private readonly FacebookClientWrapper _facebookClient;
 
-        private readonly FacebookAdapterOptions _options;
-
-        public FacebookAdapter(FacebookAdapterOptions options)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacebookAdapter"/> class using configuration settings.
+        /// </summary>
+        /// <param name="configuration">An <see cref="IConfiguration"/> instance.</param>
+        /// <remarks>
+        /// The configuration keys are:
+        /// VerifyToken: The token to respond to the initial verification request.
+        /// AppSecret: The secret used to validate incoming webhooks.
+        /// AccessToken: An access token for the bot.
+        /// </remarks>
+        public FacebookAdapter(IConfiguration configuration)
+            : this(new FacebookClientWrapper(new FacebookAdapterOptions(configuration["VerifyToken"], configuration["AppSecret"], configuration["AccessToken"])))
         {
-            _options = options;
-            _options.ApiHost = "graph.facebook.com";
-            _options.ApiVersion = "v3.2";
+        }
 
-            if (string.IsNullOrEmpty(_options.AccessToken) && _options.GetAccessTokenForPageAsync != default(Func<string, Task<string>>))
-            {
-                throw new Exception("Adapter must receive either an access_token or a getAccessTokenForPage function.");
-            }
-
-            if (string.IsNullOrEmpty(_options.AppSecret))
-            {
-                throw new Exception("Provide an app_secret in order to validate incoming webhooks and better secure api requests");
-            }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacebookAdapter"/> class.
+        /// Creates a Webex adapter.
+        /// </summary>
+        /// <param name="facebookClient">A Webex API interface.</param>
+        public FacebookAdapter(FacebookClientWrapper facebookClient)
+        {
+            _facebookClient = facebookClient ?? throw new ArgumentNullException(nameof(facebookClient));
         }
 
         /// <summary>
@@ -42,15 +50,15 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// </summary>
         /// <param name="activity">An incoming message activity.</param>
         /// <returns>A Facebook API client.</returns>
-        public async Task<FacebookAPI> GetAPIAsync(Activity activity)
+        public async Task<FacebookClientWrapper> GetAPIAsync(Activity activity)
         {
-            if (!string.IsNullOrEmpty(_options.AccessToken))
+            if (!string.IsNullOrWhiteSpace(_facebookClient.Options.AccessToken))
             {
-                return new FacebookAPI(_options.AccessToken, _options.AppSecret, _options.ApiHost, _options.ApiVersion);
+                return new FacebookClientWrapper(new FacebookAdapterOptions(_facebookClient.Options.VerifyToken, _facebookClient.Options.AppSecret, _facebookClient.Options.AccessToken));
             }
             else
             {
-                if (!string.IsNullOrEmpty(activity.Recipient?.Id))
+                if (!string.IsNullOrWhiteSpace(activity.Recipient?.Id))
                 {
                     var pageId = activity.Recipient.Id;
 
@@ -59,14 +67,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                         pageId = activity.From.Id;
                     }
 
-                    string token = await _options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
+                    string token = await _facebookClient.Options.GetAccessTokenForPageAsync(pageId).ConfigureAwait(false);
 
-                    if (string.IsNullOrEmpty(token))
+                    if (string.IsNullOrWhiteSpace(token))
                     {
                         // error: missing credentials
                     }
 
-                    return new FacebookAPI(token, _options.AppSecret, _options.ApiHost, _options.ApiVersion);
+                    return new FacebookClientWrapper(new FacebookAdapterOptions(_facebookClient.Options.VerifyToken, _facebookClient.Options.AppSecret, token));
                 }
                 else
                 {
@@ -121,10 +129,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="activity">The updated activity in the form '{id: `id of activity to update`, ...}'.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A resource response with the Id of the updated activity.</returns>
-        public override async Task<ResourceResponse> UpdateActivityAsync(ITurnContext turnContext, Activity activity, CancellationToken cancellationToken)
+        public override Task<ResourceResponse> UpdateActivityAsync(ITurnContext turnContext, Activity activity, CancellationToken cancellationToken)
         {
             // Facebook adapter does not support updateActivity.
-            return await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support updateActivity.")).ConfigureAwait(false);
+            return Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support updateActivity."));
         }
 
         /// <summary>
@@ -134,10 +142,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="reference">An object in the form "{activityId: `id of message to delete`, conversation: { id: `id of channel`}}".</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public override async Task DeleteActivityAsync(ITurnContext turnContext, ConversationReference reference, CancellationToken cancellationToken)
+        public override Task DeleteActivityAsync(ITurnContext turnContext, ConversationReference reference, CancellationToken cancellationToken)
         {
             // Facebook adapter does not support deleteActivity.
-            await Task.FromException<ResourceResponse>(new NotImplementedException("Facebook adapter does not support deleteActivity.")).ConfigureAwait(false);
+            return Task.FromException(new NotImplementedException("Facebook adapter does not support deleteActivity."));
         }
 
         /// <summary>
@@ -210,8 +218,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     // send code 200
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
-                    var text = string.Empty;
-                    await response.WriteAsync(text).ConfigureAwait(false);
+                    await response.WriteAsync(string.Empty).ConfigureAwait(false);
                 }
             }
         }
@@ -328,11 +335,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             var expected = request.Headers["x-hub-signature"];
 
             string calculated = null;
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_options.AppSecret)))
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_facebookClient.Options.AppSecret)))
             {
                 using (var bodyStream = new StreamReader(request.Body))
                 {
-                    calculated = "sha1=" + hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()));
+                    calculated = $"sha1={hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyStream.ReadToEnd()))}";
                 }
             }
 
@@ -340,8 +347,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 response.StatusCode = 401;
                 response.ContentType = "text/plain";
-                var text = string.Empty;
-                await response.WriteAsync(text, cancellationToken).ConfigureAwait(false);
+                await response.WriteAsync(string.Empty, cancellationToken).ConfigureAwait(false);
                 return false;
             }
             else

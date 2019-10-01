@@ -10,27 +10,24 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
-    public class FacebookAPI
+    public class FacebookClientWrapper
     {
-        private string _token;
-        private string _secret;
-        private string _apiHost;
-        private string _apiVersion;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacebookClientWrapper"/> class.
+        /// </summary>
+        /// <param name="options">An object containing API credentials, a webhook verification token and other options.</param>
+        public FacebookClientWrapper(FacebookAdapterOptions options)
+        {
+            Options = options ?? throw new ArgumentNullException(nameof(options));
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FacebookAPI"/> class.
+        /// Gets the FacebookAdapterOptions.
         /// </summary>
-        /// <param name="token">A page access token.</param>
-        /// <param name="secret">An app secret.</param>
-        /// <param name="apiHost">Optional root hostname for constructing api calls, defaults to graph.facebook.com.</param>
-        /// <param name="apiVersion">Optional api version used when constructing api calls, defaults to v3.2.</param>
-        public FacebookAPI(string token, string secret, string apiHost = "graph.facebook.com", string apiVersion = "v3.2")
-        {
-            _token = token;
-            _secret = secret;
-            _apiHost = apiHost;
-            _apiVersion = apiVersion;
-        }
+        /// <value>
+        /// An object containing API credentials, a webhook verification token and other options.
+        /// </value>
+        public FacebookAdapterOptions Options { get; private set; }
 
         /// <summary>
         /// Call one of the Facebook APIs.
@@ -42,7 +39,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A task representing the async operation.</returns>
         public async Task<HttpResponseMessage> CallAPIAsync(string path, FacebookMessage payload, HttpMethod method = null, CancellationToken cancellationToken = default)
         {
-            var proof = GetAppSecretProof(_token, _secret);
+            var proof = GetAppSecretProof(Options.AccessToken, Options.AppSecret);
 
             if (method == null)
             {
@@ -52,7 +49,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             // send the request
             using (var request = new HttpRequestMessage())
             {
-                request.RequestUri = new Uri("https://" + _apiHost + "/" + _apiVersion + path + "?access_token=" + _token + "&appsecret_proof=" + proof);
+                request.RequestUri = new Uri($"https://{Options.ApiHost}/{Options.ApiVersion + path}?access_token={Options.AccessToken}&appsecret_proof={proof}");
                 request.Method = method;
 
                 /* content type json? */
