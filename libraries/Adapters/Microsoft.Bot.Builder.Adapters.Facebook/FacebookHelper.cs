@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
@@ -16,6 +15,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>The resulting message.</returns>
         public static FacebookMessage ActivityToFacebook(Activity activity)
         {
+            if (activity == null)
+            {
+                return null;
+            }
+
             var facebookMessage = new FacebookMessage(activity.Conversation.Id, new Message(), "RESPONSE");
 
             facebookMessage.Message.Text = activity.Text;
@@ -23,19 +27,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             // map these fields to their appropriate place
             if (activity.ChannelData != null)
             {
-                facebookMessage.MessagingType = (activity.ChannelData as dynamic).messaging_type != null ? (activity.ChannelData as dynamic).messaging_type : null;
+                facebookMessage.MessagingType = (activity.ChannelData as dynamic).messaging_type ?? null;
 
-                facebookMessage.Tag = (activity.ChannelData as dynamic).tag != null ? (activity.ChannelData as dynamic).tag : null;
+                facebookMessage.Tag = (activity.ChannelData as dynamic).tag ?? null;
 
-                facebookMessage.Message.StickerId = (activity.ChannelData as dynamic).sticker_id != null ? (activity.ChannelData as dynamic).sticker_id : null;
+                facebookMessage.Message.StickerId = (activity.ChannelData as dynamic).sticker_id ?? null;
 
-                facebookMessage.Message.Attachment = (activity.ChannelData as dynamic).attachment != null ? (activity.ChannelData as dynamic).sticker_id : null;
+                facebookMessage.Message.Attachment = (activity.ChannelData as dynamic).attachment ?? null;
 
-                facebookMessage.PersonaId = (activity.ChannelData as dynamic).persona_id != null ? (activity.ChannelData as dynamic).persona_id : null;
+                facebookMessage.PersonaId = (activity.ChannelData as dynamic).persona_id ?? null;
 
-                facebookMessage.NotificationType = (activity.ChannelData as dynamic).notification_type != null ? (activity.ChannelData as dynamic).notification_type : null;
+                facebookMessage.NotificationType = (activity.ChannelData as dynamic).notification_type ?? null;
 
-                facebookMessage.SenderAction = (activity.ChannelData as dynamic).sender_action != null ? (activity.ChannelData as dynamic).sender_action : null;
+                facebookMessage.SenderAction = (activity.ChannelData as dynamic).sender_action ?? null;
 
                 // make sure the quick reply has a type
                 if ((activity.ChannelData as dynamic).quick_replies != null)
@@ -51,9 +55,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// Handles each individual message inside a webhook payload (webhook may deliver more than one message at a time).
         /// </summary>
         /// <param name="message">The message to be processed.</param>
-        /// <returns>A Activity with the result.</returns>
+        /// <returns>An Activity with the result.</returns>
         public static Activity ProcessSingleMessage(FacebookMessage message)
         {
+            if (message == null)
+            {
+                return null;
+            }
+
             if (message.SenderId == null)
             {
                 message.SenderId = (message as dynamic).optin?.user_ref;
