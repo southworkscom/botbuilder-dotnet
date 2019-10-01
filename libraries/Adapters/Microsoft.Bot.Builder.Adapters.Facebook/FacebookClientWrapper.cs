@@ -124,11 +124,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 throw new ArgumentNullException(nameof(response));
             }
 
-            if (cancellationToken == null)
-            {
-                throw new ArgumentNullException(nameof(cancellationToken));
-            }
-
             var expected = request.Headers["x-hub-signature"];
 
             string calculated = null;
