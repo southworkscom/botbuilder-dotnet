@@ -15,14 +15,17 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
 ## To try this sample
 
-- In a terminal, navigate to `Microsoft.Bot.Builder.Facebook.Sample`
+1 - Clone the repository
 
     ```bash
-    # change into project folder
-    cd # Microsoft.Bot.Builder.Facebook.Sample
+    git clone https://github.com/Microsoft/botbuilder-dotnet.git
     ```
 
-- Run the bot from a terminal or from Visual Studio, choose option A or B.
+ 2 - In a terminal, navigate to `test/Adapters/Microsoft.Bot.Builder.Adapters.Facebook.TestBot`
+
+ 3 - Connect the bot with Facebook by following the instructions below.
+
+4 - Run the bot from a terminal or from Visual Studio, choose option A or B.
 
   A) From a terminal
 
@@ -35,21 +38,57 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 
   - Launch Visual Studio
   - File -> Open -> Project/Solution
-  - Navigate to `Microsoft.Bot.Builder.Facebook.Sample` folder
-  - Select `Microsoft.Bot.Builder.Facebook.Sample.csproj` file
-  - Press `F5` to run the project
+  - Navigate to `test/Adapters/Microsoft.Bot.Builder.Adapters.Facebook.TestBot` folder
+  - Select `Microsoft.Bot.Builder.Adapters.Facebook.TestBot.csproj` file
+  - Press <kbd>F5</kbd> to run the project
 
-## Testing the bot using Bot Framework Emulator
 
-[Bot Framework Emulator](https://github.com/microsoft/botframework-emulator) is a desktop application that allows bot developers to test and debug their bots on localhost or running remotely through a tunnel.
+### Connect the bot with Facebook
 
-- Install the Bot Framework Emulator version 4.3.0 or greater from [here](https://github.com/Microsoft/BotFramework-Emulator/releases)
+	1 - Create a Facebook Account for Developers (https://developers.facebook.com/).
 
-### Connect to the bot using Bot Framework Emulator
+    2 - Create a new App. Give a name to the app and click Create App ID button.
 
-- Launch Bot Framework Emulator
-- File -> Open Bot
-- Enter a Bot URL of `http://localhost:3978/api/messages`
+    3 - In the Dashboard go to Add a Product and select Messenger by clicking on Set Up button
+
+        a) In the Access Tokens section, select a Facebook Page or create a new one. This is the page where the bot will be tested later.
+
+        b) After selecting the page, the permissions should be edited
+
+        c) A Page Access Token is generated. Copy it, it will be needed to connect the adapter.
+
+    4 - Get the app credentials. Go to Settings, Basic and copy the App Secret.
+
+    5 - In the bot's code, add the FacebookAdapter. 
+
+        a)Set the tokens in the file appsettings.json: 
+        
+        - VerifyToken (create one. It will be used to validate         received messages)
+        - AppSecret (the one obtained in step 4)
+        - AccessToken (the one obtained in step 3.c)
+
+    6 - Using a tunneling tool like [Ngrok](https://ngrok.com/download), expose the bot's endpoint.
+    
+    7 - Go back to the Facebook for Developers page and click on Messenger, Settings.
+        In the Webhooks section, click on Subscribe To Events button.
+
+        a) Complete the Callback URL with the ngrok https URL adding   '/api/messages'. 
+           Fill in the Verify Token with the one setted on your bot.
+           Subscribe to the following events: messages,              messaging_postbacks, messaging_optins, messaging_deliveries
+
+        b) Click Verify and Save button.
+
+    8 - Subscribe the webhook to the Page.
+
+    9 - Go to the Page and click Add a Button.
+
+        a) Select a Send Message button.
+
+        b) Select Messenger.
+
+        c) And click Finish button.
+    
+    10 - Finally, click on the button created and test your bot!
 
 ## Deploy the bot to Azure
 
