@@ -6,7 +6,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Microsoft.Bot.Builder.Facebook.Sample
+namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot
 {
     public class Program
     {
