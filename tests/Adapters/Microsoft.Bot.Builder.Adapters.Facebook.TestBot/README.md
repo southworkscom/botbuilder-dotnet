@@ -1,4 +1,4 @@
-﻿# Microsoft.Bot.Builder.Facebook.Sample
+﻿# EchoBot using Facebook Adapter
 
 Bot Framework v4 echo bot sample.
 
