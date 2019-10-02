@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
@@ -133,6 +135,21 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
+            if (request.Query["hub.mode"] == "subscribe")
+            {
+                await _facebookClient.VerifyWebhookAsync(request, response, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            string body;
+
+            using (var sr = new StreamReader(request.Body))
+            {
+                body = sr.ReadToEnd();
+            }
+
+            var facebookBody = JsonConvert.SerializeObject(body);
+
             if (!_facebookClient.VerifySignature(request))
             {
                 await FacebookHelper.WriteAsync(response, HttpStatusCode.Unauthorized, string.Empty, Encoding.UTF8, cancellationToken).ConfigureAwait(false);

@@ -138,5 +138,40 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 return hmac.ComputeHash(Encoding.UTF8.GetBytes(_options.AccessToken)).ToString();
             }
         }
+
+        /// <summary>
+        /// Verifies the VerifyToken from the message and if it matches the one configured, it sends back the challenge.
+        /// </summary>
+        /// <param name="request">An Http request object.</param>
+        /// <param name="response">An Http response object.</param>
+        /// <param name="cancellationToken">A cancellation token for the task.</param>
+        /// <returns>A task representing the async operation.</returns>
+        public virtual async Task VerifyWebhookAsync(HttpRequest request, HttpResponse response, CancellationToken cancellationToken)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (response == null)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
+            var challenge = string.Empty;
+            HttpStatusCode statusCode;
+
+            if (request.Query["hub.verify_token"].Equals(_options.VerifyToken))
+            {
+                challenge = request.Query["hub.challenge"];
+                statusCode = HttpStatusCode.OK;
+            }
+            else
+            {
+                statusCode = HttpStatusCode.Unauthorized;
+            }
+
+            await FacebookHelper.WriteAsync(response, statusCode, challenge, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+        }
     }
 }
