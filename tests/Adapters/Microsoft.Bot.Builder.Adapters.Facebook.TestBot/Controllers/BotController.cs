@@ -23,48 +23,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Controllers
 
         public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
         {
-            try
-            {
-                _adapter = adapter;
-                _bot = bot;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            _adapter = adapter;
+            _bot = bot;
         }
 
         [HttpPost]
         public async Task PostAsync()
         {
-            try
-            {
-                // Delegate the processing of the HTTP POST to the adapter.
-                // The adapter will invoke the bot.
-                await _adapter.ProcessAsync(Request, Response, _bot);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            // Delegate the processing of the HTTP POST to the adapter.
+            // The adapter will invoke the bot.
+            await _adapter.ProcessAsync(Request, Response, _bot);
         }
 
         [HttpGet]
         public async Task GetAsync()
         {
-            try
-            {
-                // Delegate the processing of the HTTP POST to the adapter.
-                // The adapter will invoke the bot.
-                await _adapter.ProcessAsync(Request, Response, _bot);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            // Delegate the processing of the HTTP POST to the adapter.
+            // The adapter will invoke the bot.
+            await _adapter.ProcessAsync(Request, Response, _bot);
         }
     }
 }

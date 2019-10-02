@@ -141,6 +141,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 return;
             }
 
+            await FacebookHelper.WriteAsync(response, HttpStatusCode.OK, string.Empty, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+
             string body;
 
             using (var sr = new StreamReader(request.Body))
@@ -150,7 +152,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             var facebookBody = JsonConvert.SerializeObject(body);
 
-            if (!_facebookClient.VerifySignature(request))
+            if (!_facebookClient.VerifySignature(request, body))
             {
                 await FacebookHelper.WriteAsync(response, HttpStatusCode.Unauthorized, string.Empty, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
                 throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
