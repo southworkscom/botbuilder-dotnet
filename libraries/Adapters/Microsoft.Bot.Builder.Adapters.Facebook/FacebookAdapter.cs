@@ -12,12 +12,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
     public class FacebookAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
+        private const string HubModeSubscribe = "subscribe";
+
         private readonly FacebookClientWrapper _facebookClient;
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
-            if (request.Query["hub.mode"] == "subscribe")
+            if (request.Query["hub.mode"] == HubModeSubscribe)
             {
                 await _facebookClient.VerifyWebhookAsync(request, response, cancellationToken).ConfigureAwait(false);
                 return;
@@ -143,16 +144,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             await FacebookHelper.WriteAsync(response, HttpStatusCode.OK, string.Empty, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
 
-            string body;
+            string stringifyBody;
 
             using (var sr = new StreamReader(request.Body))
             {
-                body = sr.ReadToEnd();
+                stringifyBody = sr.ReadToEnd();
             }
 
-            var facebookBody = JsonConvert.SerializeObject(body);
-
-            if (!_facebookClient.VerifySignature(request, body))
+            if (!_facebookClient.VerifySignature(request, stringifyBody))
             {
                 await FacebookHelper.WriteAsync(response, HttpStatusCode.Unauthorized, string.Empty, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
                 throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
