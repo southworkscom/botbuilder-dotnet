@@ -132,12 +132,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         {
             var attachmentsList = new List<Attachment>();
 
-            for (var i = 0; i < message.Attachments.Count; i++)
+            foreach (var facebookAttachment in message.Attachments)
             {
                 var attachment = new Attachment
                 {
-                    ContentUrl = message.Attachments[i].Payload.Url.ToString(),
-                    ContentType = message.Attachments[i].Type,
+                    ContentUrl = facebookAttachment.Payload.Url.ToString(),
+                    ContentType = facebookAttachment.Type,
                 };
 
                 attachmentsList.Add(attachment);
