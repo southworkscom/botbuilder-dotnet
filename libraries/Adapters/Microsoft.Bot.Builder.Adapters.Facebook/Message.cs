@@ -24,9 +24,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public string StickerId { get; set; }
 
         /// <summary>
-        /// Gets or sets the attachment.
+        /// Gets or sets a list of attachments.
         /// </summary>
-        /// <value>Attachment.</value>
+        /// <value>Attachments.</value>
         [JsonProperty(PropertyName = "attachments")]
         public List<FacebookAttachment> Attachments { get; set; }
 

@@ -112,7 +112,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     activity.Type = ActivityTypes.Event;
                 }
 
-                // copy fields like attachments, sticker, quick_reply, nlp, etc. // TODO Check
+                // copy fields like attachments, sticker, quick_reply, nlp, etc.
                 activity.ChannelData = message.Message;
                 if (message.Message.Attachments != null && message.Message.Attachments.Count > 0)
                 {
