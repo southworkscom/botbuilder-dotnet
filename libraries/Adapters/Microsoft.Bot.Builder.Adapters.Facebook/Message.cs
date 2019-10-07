@@ -27,8 +27,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// Gets or sets the attachment.
         /// </summary>
         /// <value>Attachment.</value>
-        [JsonProperty(PropertyName = "attachment")]
-        public FacebookAttachment Attachment { get; set; }
+        [JsonProperty(PropertyName = "attachments")]
+        public List<FacebookAttachment> Attachments { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata.
