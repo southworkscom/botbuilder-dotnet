@@ -27,8 +27,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                 foreach (var attachment in turnContext.Activity.Attachments)
                 {
                     var image = new Attachment(
-                        "image/png",
-                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtB3AwMUeNoq4gUBGe6Ocj8kyh3bXa9ZbV7u1fVKQoyKFHdkqU");
+                       attachment.ContentType,
+                       attachment.ContentUrl);
 
                     activity.Attachments.Add(image);
                 }

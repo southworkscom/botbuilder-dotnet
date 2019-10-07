@@ -31,6 +31,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public List<FacebookAttachment> Attachments { get; set; }
 
         /// <summary>
+        /// Gets or sets the attachment.
+        /// </summary>
+        /// <value>Attachment.</value>
+        [JsonProperty(PropertyName = "attachment")]
+        public FacebookAttachment Attachment { get; set; }
+
+        /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
         /// <value>Custom string that is delivered as a message echo. 1000 character limit.</value>

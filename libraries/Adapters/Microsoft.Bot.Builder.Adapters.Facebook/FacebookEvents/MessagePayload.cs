@@ -20,7 +20,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         /// </summary>
         /// <value>The Id of the sticker.</value>
         [JsonProperty(PropertyName = "sticker_id")]
-        public long StickerId { get; set; }
+        public long? StickerId { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the attachment is reusable or not. Default false.

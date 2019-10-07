@@ -70,14 +70,36 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                 var api = await _facebookClient.GetApiAsync(context.Activity).ConfigureAwait(false);
 
-                var res = await api.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
-
-                var response = new ResourceResponse()
+                if (message.Message.Attachments != null)
                 {
-                    Id = res,
-                };
+                    var attachmentsList = message.Message.Attachments;
+                    message.Message.Attachments = null;
+                    message.Message.Text = null;
 
-                responses.Add(response);
+                    foreach (var item in attachmentsList)
+                    {
+                        message.Message.Attachment = item;
+                        var res = await api.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+
+                        var response = new ResourceResponse()
+                        {
+                            Id = res,
+                        };
+
+                        responses.Add(response);
+                    }
+                }
+                else
+                {
+                    var res = await api.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+
+                    var response = new ResourceResponse()
+                    {
+                        Id = res,
+                    };
+
+                    responses.Add(response);
+                }
             }
 
             return responses.ToArray();

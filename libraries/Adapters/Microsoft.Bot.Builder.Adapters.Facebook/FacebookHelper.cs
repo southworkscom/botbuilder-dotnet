@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -40,6 +41,22 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 {
                     facebookMessage.Message.QuickReplies = activity.GetChannelData<FacebookMessage>().Message.QuickReplies; // TODO: Add the content_type depending of what shape quick_replies has
                 }
+            }
+
+            if (activity.Attachments != null && activity.Attachments.Count > 0)
+            {
+                var listAttachments = new List<FacebookAttachment>();
+                foreach (var attachment in activity.Attachments)
+                {
+                    var attach = new FacebookAttachment
+                    {
+                        Type = attachment.ContentType,
+                        Payload = new MessagePayload { Url = new Uri(attachment.ContentUrl), },
+                    };
+                    listAttachments.Add(attach);
+                }
+
+                facebookMessage.Message.Attachments = listAttachments;
             }
 
             return facebookMessage;
@@ -97,6 +114,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                 // copy fields like attachments, sticker, quick_reply, nlp, etc. // TODO Check
                 activity.ChannelData = message.Message;
+                if (message.Message.Attachments != null && message.Message.Attachments.Count > 0)
+                {
+                    activity.Attachments = HandleMessageAttachments(message.Message);
+                }
             }
             else if (message.PostBack != null)
             {
@@ -105,6 +126,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             }
 
             return activity;
+        }
+
+        public static List<Attachment> HandleMessageAttachments(Message message)
+        {
+            var attachmentsList = new List<Attachment>();
+
+            for (var i = 0; i < message.Attachments.Count; i++)
+            {
+                var attachment = new Attachment
+                {
+                    ContentUrl = message.Attachments[i].Payload.Url.ToString(),
+                    ContentType = message.Attachments[i].Type,
+                };
+
+                attachmentsList.Add(attachment);
+            }
+
+            return attachmentsList;
         }
 
         /// <summary>
