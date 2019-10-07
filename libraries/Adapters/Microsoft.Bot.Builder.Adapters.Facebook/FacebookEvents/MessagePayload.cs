@@ -28,5 +28,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         /// <value>Indicates the reusable condition.</value>
         [JsonProperty(PropertyName = "is_reusable")]
         public bool IsReusable { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Id of the attachment (for reusable attachments).
+        /// </summary>
+        /// <value>The id of the saved attachment.</value>
+        [JsonProperty(PropertyName = "attachment_id")]
+        public string AttachmentId { get; set; }
     }
 }
