@@ -45,18 +45,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             if (activity.Attachments != null && activity.Attachments.Count > 0)
             {
-                var listAttachments = new List<FacebookAttachment>();
-                foreach (var attachment in activity.Attachments)
+                if (activity.Attachments.Count > 1)
                 {
-                    var attach = new FacebookAttachment
-                    {
-                        Type = attachment.ContentType,
-                        Payload = new MessagePayload { Url = new Uri(attachment.ContentUrl), },
-                    };
-                    listAttachments.Add(attach);
+                    throw new Exception("Facebook message can only contain one attachment");
                 }
 
-                facebookMessage.Message.Attachments = listAttachments;
+                var attach = new FacebookAttachment
+                {
+                    Type = activity.Attachments[0].ContentType,
+                    Payload = new MessagePayload { Url = new Uri(activity.Attachments[0].ContentUrl), },
+                };
+
+                facebookMessage.Message.Attachment = attach;
             }
 
             return facebookMessage;
@@ -112,8 +112,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     activity.Type = ActivityTypes.Event;
                 }
 
-                // copy fields like attachments, sticker, quick_reply, nlp, etc.
                 activity.ChannelData = message.Message;
+
+                // copy fields like attachments, sticker, quick_reply, nlp, etc.
                 if (message.Message.Attachments != null && message.Message.Attachments.Count > 0)
                 {
                     activity.Attachments = HandleMessageAttachments(message.Message);
@@ -136,7 +137,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var attachment = new Attachment
                 {
-                    ContentUrl = facebookAttachment.Payload.Url.ToString(),
+                    ContentUrl = facebookAttachment.Payload.Url.AbsolutePath,
                     ContentType = facebookAttachment.Type,
                 };
 
