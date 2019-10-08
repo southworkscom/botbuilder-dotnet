@@ -23,17 +23,17 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
         {
             if (turnContext.Activity.Attachments != null)
             {
-                var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
                 foreach (var attachment in turnContext.Activity.Attachments)
                 {
+                    var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
+
                     var image = new Attachment(
                        attachment.ContentType,
                        attachment.ContentUrl);
 
                     activity.Attachments.Add(image);
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
-
-                await turnContext.SendActivityAsync(activity, cancellationToken);
             }
             else
             {
