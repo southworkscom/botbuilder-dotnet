@@ -16,7 +16,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
     {
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            await SendWelcomeMessageAsync(turnContext, cancellationToken);
+            var activity = MessageFactory.Text("Hello and Welcome!");
+            await turnContext.SendActivityAsync(activity, cancellationToken);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -29,7 +30,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
                     var image = new Attachment(
                        attachment.ContentType,
-                       attachment.ContentUrl);
+                       content: attachment.Content);
 
                     activity.Attachments.Add(image);
                     await turnContext.SendActivityAsync(activity, cancellationToken);
@@ -37,46 +38,40 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
             }
             else
             {
-                var activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
-                await turnContext.SendActivityAsync(activity, cancellationToken);
-            }
-        }
-
-        protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
-        {
-            Activity activity = null;
-            if (turnContext.Activity.Value != null)
-            {
-                var inputs = (Dictionary<string, string>)turnContext.Activity.Value;
-                var name = inputs["Name"];
-
-                activity = MessageFactory.Text($"How are you doing {name}?");
-                await turnContext.SendActivityAsync(activity, cancellationToken);
-            }
-        }
-
-        private static async Task SendWelcomeMessageAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            foreach (var member in turnContext.Activity.MembersAdded)
-            {
-                if (member.Id != turnContext.Activity.Recipient.Id)
+                if (turnContext.Activity.Text.Contains("template"))
                 {
-                    var activity = MessageFactory.Attachment(CreateAdaptiveCardAttachment(Directory.GetCurrentDirectory() + @"\Resources\adaptive_card.json"));
-
+                    var activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\TemplatePayload.json"));
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+                else
+                {
+                    var activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
             }
         }
 
-        private static Attachment CreateAdaptiveCardAttachment(string filePath)
+        protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
-            var adaptiveCardJson = File.ReadAllText(filePath);
-            var adaptiveCardAttachment = new Attachment()
+            if (turnContext.Activity.Value != null)
             {
-                ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(adaptiveCardJson),
+                var inputs = (Dictionary<string, string>)turnContext.Activity.Value;
+                var name = inputs["Name"];
+
+                var activity = MessageFactory.Text($"How are you doing {name}?");
+                await turnContext.SendActivityAsync(activity, cancellationToken);
+            }
+        }
+
+        private static Attachment CreateTemplateAttachment(string filePath)
+        {
+            var templateAttachmentJson = File.ReadAllText(filePath);
+            var templateAttachment = new Attachment()
+            {
+                ContentType = "template",
+                Content = JsonConvert.DeserializeObject(templateAttachmentJson),
             };
-            return adaptiveCardAttachment;
+            return templateAttachment;
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
@@ -50,11 +51,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     throw new Exception("Facebook message can only contain one attachment");
                 }
 
-                var url = new Uri(activity.Attachments[0].ContentUrl);
+                var payload = JsonConvert.DeserializeObject<MessagePayload>(JsonConvert.SerializeObject(activity.Attachments[0].Content));
+
                 var attach = new FacebookAttachment
                 {
                     Type = activity.Attachments[0].ContentType,
-                    Payload = new MessagePayload { Url = url },
+                    Payload = payload,
                 };
 
                 facebookMessage.Message.Attachment = attach;
@@ -137,7 +139,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var attachment = new Attachment
                 {
-                    ContentUrl = facebookAttachment.Payload.Url.ToString(),
+                    Content = facebookAttachment.Payload,
                     ContentType = facebookAttachment.Type,
                 };
 

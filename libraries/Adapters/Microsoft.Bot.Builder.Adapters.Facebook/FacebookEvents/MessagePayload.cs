@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
@@ -35,5 +36,31 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         /// <value>The id of the saved attachment.</value>
         [JsonProperty(PropertyName = "attachment_id")]
         public string AttachmentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the template attached.
+        /// </summary>
+        /// <value>The type of template attached.</value>
+        [JsonProperty(PropertyName = "template_type")]
+        public string TemplateType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the text of the template.
+        /// </summary>
+        /// <value>The text of the template.</value>
+        [JsonProperty(PropertyName = "text")]
+        public string Text { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of buttons of the template.
+        /// </summary>
+        /// <value>The list of buttons of the template.</value>
+        [JsonProperty(PropertyName = "buttons")]
+        public List<TemplateButton> Buttons { get; set; }
+
+        public bool ShouldSerializeIsReusable()
+        {
+            return IsReusable;
+        }
     }
 }
