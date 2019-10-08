@@ -68,9 +68,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                 var message = FacebookHelper.ActivityToFacebook(activity);
 
-                var api = await _facebookClient.GetApiAsync(context.Activity).ConfigureAwait(false);
-
-                var res = await api.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+                var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
 
                 var response = new ResourceResponse()
                 {
