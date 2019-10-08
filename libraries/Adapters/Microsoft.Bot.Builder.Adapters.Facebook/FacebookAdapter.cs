@@ -68,6 +68,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                 var message = FacebookHelper.ActivityToFacebook(activity);
 
+                if (message.Message.Attachment != null)
+                {
+                    message.Message.Attachments = null;
+                    message.Message.Text = null;
+                }
+
                 var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
 
                 var response = new ResourceResponse()
