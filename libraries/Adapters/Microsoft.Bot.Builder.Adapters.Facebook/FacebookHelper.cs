@@ -50,10 +50,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     throw new Exception("Facebook message can only contain one attachment");
                 }
 
+                var url = new Uri(activity.Attachments[0].ContentUrl);
                 var attach = new FacebookAttachment
                 {
                     Type = activity.Attachments[0].ContentType,
-                    Payload = new MessagePayload { Url = new Uri(activity.Attachments[0].ContentUrl), },
+                    Payload = new MessagePayload { Url = url },
                 };
 
                 facebookMessage.Message.Attachment = attach;
@@ -112,9 +113,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     activity.Type = ActivityTypes.Event;
                 }
 
-                activity.ChannelData = message.Message;
-
                 // copy fields like attachments, sticker, quick_reply, nlp, etc.
+                activity.ChannelData = message.Message;
                 if (message.Message.Attachments != null && message.Message.Attachments.Count > 0)
                 {
                     activity.Attachments = HandleMessageAttachments(message.Message);
@@ -137,7 +137,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var attachment = new Attachment
                 {
-                    ContentUrl = facebookAttachment.Payload.Url.AbsolutePath,
+                    ContentUrl = facebookAttachment.Payload.Url.ToString(),
                     ContentType = facebookAttachment.Type,
                 };
 
