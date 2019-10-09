@@ -19,22 +19,37 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         private readonly FacebookAdapterOptions _testOptions = new FacebookAdapterOptions("Test", "Test", "Test");
 
         [Fact]
-        public void ConstructorShouldFailWithNullClient()
-        {
-            Assert.Throws<ArgumentNullException>(() => { new FacebookAdapter((FacebookClientWrapper)null); });
-        }
-
-        [Fact]
         public void ConstructorWithArgumentsShouldSucceed()
         {
             Assert.NotNull(new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object));
         }
 
         [Fact]
+        public void ConstructorShouldFailWithNullClient()
+        {
+            Assert.Throws<ArgumentNullException>(() => { new FacebookAdapter((FacebookClientWrapper)null); });
+        }
+
+        [Fact]
+        public async void ContinueConversationAsyncShouldSucceed()
+        {
+            var callbackInvoked = false;
+            var facebookAdapter = new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object);
+            var conversationReference = new ConversationReference();
+            Task BotsLogic(ITurnContext turnContext, CancellationToken cancellationToken)
+            {
+                callbackInvoked = true;
+                return Task.CompletedTask;
+            }
+
+            await facebookAdapter.ContinueConversationAsync(conversationReference, BotsLogic);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
         public async void ContinueConversationAsyncShouldFailWithNullConversationReference()
         {
             var facebookAdapter = new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object);
-
             Task BotsLogic(ITurnContext turnContext, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
@@ -53,53 +68,58 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void ContinueConversationAsyncShouldSucceed()
+        public async Task DeleteActivityAsyncShouldThrowNotImplementedException()
         {
-            var callbackInvoked = false;
-
-            var facebookAdapter = new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object);
+            var facebookAdapter = new FacebookAdapter(new FacebookClientWrapper(_testOptions));
+            var activity = new Activity();
             var conversationReference = new ConversationReference();
-            Task BotsLogic(ITurnContext turnContext, CancellationToken cancellationToken)
+            using (var turnContext = new TurnContext(facebookAdapter, activity))
             {
-                callbackInvoked = true;
-                return Task.CompletedTask;
+                await Assert.ThrowsAsync<NotImplementedException>(() => facebookAdapter.DeleteActivityAsync(turnContext, conversationReference, default));
             }
-
-            await facebookAdapter.ContinueConversationAsync(conversationReference, BotsLogic);
-            Assert.True(callbackInvoked);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task DeleteActivityAsyncShouldThrowNotImplementedException()
+        public async void ProcessAsyncShouldSucceed()
         {
-            var adapter = new FacebookAdapter(new FacebookClientWrapper(_testOptions));
+            var callback = false;
+            var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Payload.json");
+            var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
+            var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+            var httpRequest = new Mock<HttpRequest>();
+            var httpResponse = new Mock<HttpResponse>();
+            var bot = new Mock<IBot>();
 
-            var activity = new Activity();
-            var turnContext = new TurnContext(adapter, activity);
+            facebookClientWrapper.Setup(api => api.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
 
-            var conversationReference = new ConversationReference();
+            httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
+            httpRequest.SetupGet(req => req.Body).Returns(stream);
 
-            await Assert.ThrowsAsync<NotImplementedException>(() => adapter.DeleteActivityAsync(turnContext, conversationReference, default));
+            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
+            {
+                callback = true;
+            });
+
+            await facebookAdapter.ProcessAsync(httpRequest.Object, httpResponse.Object, bot.Object, default(CancellationToken));
+
+            Assert.True(callback);
         }
 
         [Fact]
         public async void ProcessAsyncShouldThrowExceptionWithInvalidBody()
         {
-            var clientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
-            clientWrapper.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
-
-            var facebookAdapter = new FacebookAdapter(clientWrapper.Object);
-
+            var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
+            var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("wrong-formatted-json"));
-
             var httpRequest = new Mock<HttpRequest>();
-            httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
-            httpRequest.SetupGet(req => req.Body).Returns(stream);
             var httpResponse = new Mock<HttpResponse>();
             var bot = new Mock<IBot>();
-            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
-            {
-            });
+
+            facebookClientWrapper.Setup(api => api.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
+
+            httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
+            httpRequest.SetupGet(req => req.Body).Returns(stream);
 
             await Assert.ThrowsAsync<Exception>(async () =>
             {
@@ -108,56 +128,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void ProcessAsyncShouldSucceed()
-        {
-            var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Payload.json");
-
-            var clientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
-            clientWrapper.Setup(x => x.VerifySignature(It.IsAny<HttpRequest>(), It.IsAny<string>())).Returns(true);
-
-            var facebookAdapter = new FacebookAdapter(clientWrapper.Object);
-
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
-
-            var httpRequest = new Mock<HttpRequest>();
-            httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
-            httpRequest.SetupGet(req => req.Body).Returns(stream);
-            var httpResponse = new Mock<HttpResponse>();
-            var bot = new Mock<IBot>();
-            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
-            {
-            });
-
-            await facebookAdapter.ProcessAsync(httpRequest.Object, httpResponse.Object, bot.Object, default(CancellationToken));
-        }
-
-        [Fact]
-        public async void SendActivitiesAsyncShouldFailWithActivityTypeNotMessage()
-        {
-            var facebookAdapter = new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object);
-            var activity = new Activity
-            {
-                Type = ActivityTypes.Event,
-            };
-
-            Activity[] activities = { activity };
-
-            var turnContext = new TurnContext(facebookAdapter, activity);
-
-            await Assert.ThrowsAsync<Exception>(async () =>
-            {
-                await facebookAdapter.SendActivitiesAsync(turnContext, activities, default);
-            });
-        }
-
-        [Fact]
         public async void SendActivitiesAsyncShouldSucceedWithActivityTypeMessage()
         {
-            var clientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
-            clientWrapper.Setup(x => x.GetApiAsync(It.IsAny<Activity>())).Returns(Task.FromResult(new FacebookClientWrapper(_testOptions)));
-            clientWrapper.Setup(x => x.SendMessageAsync(It.IsAny<string>(), It.IsAny<FacebookMessage>(), It.IsAny<HttpMethod>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(string.Empty));
-
-            var facebookAdapter = new FacebookAdapter(clientWrapper.Object);
+            const string testResponse = "Test Response";
+            var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
+            var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
             var activity = new Activity
             {
                 Type = ActivityTypes.Message,
@@ -168,22 +143,48 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
                 },
                 ChannelData = new FacebookMessage("recipientId", new Message(), "messagingtype"),
             };
-
             Activity[] activities = { activity };
+            ResourceResponse[] responses = null;
 
-            var turnContext = new TurnContext(facebookAdapter, activity);
+            facebookClientWrapper.Setup(api => api.SendMessageAsync(It.IsAny<string>(), It.IsAny<FacebookMessage>(), It.IsAny<HttpMethod>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(testResponse));
 
-            await facebookAdapter.SendActivitiesAsync(turnContext, activities, default);
+            using (var turnContext = new TurnContext(facebookAdapter, activity))
+            {
+                responses = await facebookAdapter.SendActivitiesAsync(turnContext, activities, default);
+            }
+
+            Assert.Equal(testResponse, responses[0].Id);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task UpdateActivityAsyncShouldThrowNotImplementedException()
+        public async void SendActivitiesAsyncShouldFailWithActivityTypeNotMessage()
         {
-            var adapter = new FacebookAdapter(new FacebookClientWrapper(_testOptions));
+            var facebookAdapter = new FacebookAdapter(new Mock<FacebookClientWrapper>(_testOptions).Object);
+            var activity = new Activity
+            {
+                Type = ActivityTypes.Event,
+            };
+            Activity[] activities = { activity };
 
+            using (var turnContext = new TurnContext(facebookAdapter, activity))
+            {
+                await Assert.ThrowsAsync<Exception>(async () =>
+                {
+                    await facebookAdapter.SendActivitiesAsync(turnContext, activities, default);
+                });
+            }
+        }
+
+        [Fact]
+        public async Task UpdateActivityAsyncShouldThrowNotImplementedException()
+        {
+            var facebookAdapter = new FacebookAdapter(new FacebookClientWrapper(_testOptions));
             var activity = new Activity();
-            var turnContext = new TurnContext(adapter, activity);
-            await Assert.ThrowsAsync<NotImplementedException>(() => adapter.UpdateActivityAsync(turnContext, activity, default));
+
+            using (var turnContext = new TurnContext(facebookAdapter, activity))
+            {
+                await Assert.ThrowsAsync<NotImplementedException>(() => facebookAdapter.UpdateActivityAsync(turnContext, activity, default));
+            }
         }
     }
 }
