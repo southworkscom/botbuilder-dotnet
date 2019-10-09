@@ -25,5 +25,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         /// <value>The title of the button.</value>
         [JsonProperty(PropertyName = "title")]
         public string Title { get; set; }
+
+        /// <summary>
+        /// Gets or sets the string sent to webhook.
+        /// </summary>
+        /// <value>The string sent to webhook.</value>
+        [JsonProperty(PropertyName = "payload")]
+        public string Payload { get; set; }
     }
 }

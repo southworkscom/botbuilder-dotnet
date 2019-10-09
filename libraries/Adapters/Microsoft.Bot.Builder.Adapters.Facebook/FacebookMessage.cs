@@ -11,11 +11,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
     /// </summary>
     public class FacebookMessage
     {
-        public FacebookMessage(string recipientId, Message message, string messagingtype, string tag = null, string notificationType = null, string personalId = null, string senderAction = null, string senderId = null)
+        public FacebookMessage(string recipientId, Message message, string messagingType, string tag = null, string notificationType = null, string personalId = null, string senderAction = null, string senderId = null)
         {
             Recipient.Id = recipientId;
             Message = message;
-            MessagingType = messagingtype;
+            MessagingType = messagingType;
             Tag = tag;
             NotificationType = notificationType;
             PersonaId = personalId;
@@ -85,7 +85,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         [JsonProperty(PropertyName = "standby")]
         public bool Standby { get; set; }
 
-        [JsonProperty(PropertyName = "post_back")]
+        [JsonProperty(PropertyName = "postback")]
         public FacebookPostBack PostBack { get; set; }
 
         [JsonProperty(PropertyName = "optin")]

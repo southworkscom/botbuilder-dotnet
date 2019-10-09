@@ -51,7 +51,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     throw new Exception("Facebook message can only contain one attachment");
                 }
 
-                var payload = JsonConvert.DeserializeObject<MessagePayload>(JsonConvert.SerializeObject(activity.Attachments[0].Content));
+                var payload = JsonConvert.DeserializeObject<MessagePayload>(JsonConvert.SerializeObject(
+                    activity.Attachments[0].Content,
+                    Formatting.None,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                    }));
 
                 var attach = new FacebookAttachment
                 {

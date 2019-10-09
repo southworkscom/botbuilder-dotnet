@@ -38,16 +38,25 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
             }
             else
             {
-                if (turnContext.Activity.Text.Contains("template"))
+                IActivity activity;
+
+                switch (turnContext.Activity.Text)
                 {
-                    var activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\TemplatePayload.json"));
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                    case "template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\TemplatePayload.json"));
+                        break;
+                    case "Hello button":
+                        activity = MessageFactory.Text("Hello Human!");
+                        break;
+                    case "Goodbye button":
+                        activity = MessageFactory.Text("Goodbye Human!");
+                        break;
+                    default:
+                        activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
+                        break;
                 }
-                else
-                {
-                    var activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
-                }
+
+                await turnContext.SendActivityAsync(activity, cancellationToken);
             }
         }
 
