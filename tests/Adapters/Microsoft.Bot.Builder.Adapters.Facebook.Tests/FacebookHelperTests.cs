@@ -25,7 +25,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Activities.json");
             var activity = JsonConvert.DeserializeObject<Activity>(uri);
-
             activity.Attachments = new List<Attachment> { new Attachment(contentUrl: "http://example.com") };
             var messageOption = FacebookHelper.ActivityToFacebook(activity);
 
@@ -52,9 +51,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         [Fact]
         public void ActivityToFacebookShouldReturnNullWithActivityNull()
         {
-            Activity activity = null;
-
-            var messageOptions = FacebookHelper.ActivityToFacebook(activity);
+            var messageOptions = FacebookHelper.ActivityToFacebook(null);
 
             Assert.Null(messageOptions);
         }
@@ -62,20 +59,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         [Fact]
         public void ProcessSingleMessageShouldReturnNullWithMessageNull()
         {
-            FacebookMessage message = null;
-
-            var nullActivity = FacebookHelper.ProcessSingleMessage(message);
+            var nullActivity = FacebookHelper.ProcessSingleMessage(null);
 
             Assert.Null(nullActivity);
         }
 
         [Fact]
-        public void ProcessSingleMessageShouldReturnAActivityWithMessageWithData()
+        public void ProcessSingleMessageShouldReturnAnActivityWithMessageWithData()
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(uri)[0];
-
             var activity = FacebookHelper.ProcessSingleMessage(facebookMessage);
+
             Assert.Equal(activity.Conversation.Id, facebookMessage.Recipient.Id);
         }
 
@@ -84,8 +79,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(uri)[1];
-
             var activity = FacebookHelper.ProcessSingleMessage(facebookMessage);
+
             Assert.NotNull(activity.Conversation.Id);
         }
 
@@ -94,8 +89,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(uri)[2];
-
             var activity = FacebookHelper.ProcessSingleMessage(facebookMessage);
+
             Assert.NotNull(activity.Text);
             Assert.NotNull(activity.ChannelData);
         }
@@ -105,8 +100,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(uri)[3];
-
             var activity = FacebookHelper.ProcessSingleMessage(facebookMessage);
+
             Assert.NotNull(activity.Attachments);
             Assert.Equal(3, activity.Attachments.Count);
         }
@@ -116,8 +111,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         {
             var uri = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(uri)[4];
-
             var activity = FacebookHelper.ProcessSingleMessage(facebookMessage);
+
             Assert.NotNull(activity.Text);
             Assert.Equal(facebookMessage.PostBack.Payload, activity.Text);
         }

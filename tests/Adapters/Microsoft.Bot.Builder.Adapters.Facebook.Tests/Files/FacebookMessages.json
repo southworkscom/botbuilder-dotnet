@@ -2,7 +2,6 @@
   {
     "recipient": {
       "id": "123123123"
-
     },
     "sender": {
       "id": "123123123"
@@ -17,7 +16,6 @@
     "standby": false,
     "post_back": null,
     "optin": null
-
   },
   {
     "recipient": {
@@ -36,7 +34,6 @@
     "optin": {
       "user_ref": "123123123"
     }
-
   },
   {
     "recipient": {
@@ -127,5 +124,4 @@
       "payload": "Hello button"
     }
   }
-
 ]
