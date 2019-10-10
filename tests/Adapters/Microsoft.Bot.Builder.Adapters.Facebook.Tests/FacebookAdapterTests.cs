@@ -122,7 +122,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void ProcessAsyncShouldReturnWhenHubModeSubscribe()
+        public async void ProcessAsyncShouldVerifyWebhookOnHubModeSubscribe()
         {
             var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
             var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
@@ -220,10 +220,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             const string testResponse = "Test Response";
             var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
             var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
-
             var attachments = new List<Attachment>();
-            attachments.Add(new Attachment("text/html", "http://contoso.com"));
-
             var activity = new Activity
             {
                 Type = ActivityTypes.Message,
@@ -238,6 +235,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             Activity[] activities = { activity };
             ResourceResponse[] responses = null;
 
+            attachments.Add(new Attachment("text/html", "http://contoso.com"));
             facebookClientWrapper.Setup(api => api.SendMessageAsync(It.IsAny<string>(), It.IsAny<FacebookMessage>(), It.IsAny<HttpMethod>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(testResponse));
 
             using (var turnContext = new TurnContext(facebookAdapter, activity))
