@@ -1,0 +1,13 @@
+{
+  "IsCancellationRequested": false,
+  "CanBeCanceled": false,
+  "WaitHandle": {
+    "Handle": {
+      "value": 123
+    },
+    "SafeWaitHandle": {
+      "IsInvalid": false,
+      "IsClosed": false
+    }
+  }
+}
