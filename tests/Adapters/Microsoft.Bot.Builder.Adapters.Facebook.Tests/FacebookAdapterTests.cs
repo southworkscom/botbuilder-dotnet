@@ -81,9 +81,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void ProcessAsyncShouldSucceed()
+        public async void ProcessAsyncShouldSucceedWithCorrectData()
         {
-            var callback = false;
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Payload.json");
             var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
             var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
@@ -97,20 +96,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
             httpRequest.SetupGet(req => req.Body).Returns(stream);
 
-            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
-            {
-                callback = true;
-            });
-
             await facebookAdapter.ProcessAsync(httpRequest.Object, httpResponse.Object, bot.Object, default(CancellationToken));
 
-            Assert.True(callback);
+            bot.Verify(b => b.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async void ProcessAsyncShouldSucceedWithStandbyMessages()
         {
-            var callback = false;
             var payload = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\PayloadWithStandby.json");
             var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
             var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
@@ -124,38 +117,25 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("test");
             httpRequest.SetupGet(req => req.Body).Returns(stream);
 
-            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
-            {
-                callback = true;
-            });
-
             await facebookAdapter.ProcessAsync(httpRequest.Object, httpResponse.Object, bot.Object, default(CancellationToken));
-
-            Assert.True(callback);
+            bot.Verify(b => b.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
 
         [Fact]
         public async void ProcessAsyncShouldReturnWhenHubModeSubscribe()
         {
-            var callback = false;
             var facebookClientWrapper = new Mock<FacebookClientWrapper>(_testOptions);
             var facebookAdapter = new FacebookAdapter(facebookClientWrapper.Object);
             var httpRequest = new Mock<HttpRequest>();
             var httpResponse = new Mock<HttpResponse>();
             var bot = new Mock<IBot>();
 
-            bot.Setup(x => x.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>())).Callback(() =>
-            {
-                callback = true;
-            });
-
             facebookClientWrapper.Setup(api => api.VerifyWebhookAsync(It.IsAny<HttpRequest>(), It.IsAny<HttpResponse>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("subscribe");
 
             await facebookAdapter.ProcessAsync(httpRequest.Object, httpResponse.Object, bot.Object, default(CancellationToken));
-
-            Assert.False(callback);
+            bot.Verify(b => b.OnTurnAsync(It.IsAny<TurnContext>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
