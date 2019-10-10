@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -34,23 +37,25 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public void VerifySignatureShouldReturnTrue()
+        public void VerifySignatureShouldReturnTrueWithValidRequestHash()
         {
             const string requestHash = "SHA1=32ECC29689D860D68A713FF5BA8D7B787C5E8C80";
             var facebookWrapper = new FacebookClientWrapper(_testOptions);
             var request = new Mock<HttpRequest>();
             var stringifyBody = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\RequestResponse.json");
+
             request.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(requestHash);
 
             Assert.True(facebookWrapper.VerifySignature(request.Object, stringifyBody));
         }
 
         [Fact]
-        public void VerifySignatureShouldReturnFalse()
+        public void VerifySignatureShouldReturnFalseWithInvalidRequestHash()
         {
             const string requestHash = "FakeHash";
             var facebookWrapper = new FacebookClientWrapper(_testOptions);
             var request = new Mock<HttpRequest>();
+
             request.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(requestHash);
 
             Assert.False(facebookWrapper.VerifySignature(request.Object, string.Empty));
