@@ -160,21 +160,5 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             await FacebookHelper.WriteAsync(response, statusCode, challenge, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
         }
-
-        /// <summary>
-        /// Encodes the non ASCII characters of a string.
-        /// </summary>
-        /// <param name="value">The string to encode.</param>
-        /// <returns>The resulting string.</returns>
-        private string EncodeNonAsciiCharacters(string value)
-        {
-            var sb = new StringBuilder();
-            foreach (var c in value)
-            {
-                sb.Append(c);
-            }
-
-            return sb.ToString();
-        }
     }
 }
