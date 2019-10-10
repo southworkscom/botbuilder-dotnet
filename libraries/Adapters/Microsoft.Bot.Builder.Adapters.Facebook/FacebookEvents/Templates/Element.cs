@@ -27,21 +27,21 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates
         public Uri Url { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the media element.
+        /// Gets or sets the title of the element.
         /// </summary>
-        /// <value>The type of the media element.</value>
+        /// <value>The title of the element.</value>
         [JsonProperty(PropertyName = "title")]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the subtitle text of the element.
         /// </summary>
-        /// <value>The type of the media element.</value>
+        /// <value>The subtitle of the element.</value>
         [JsonProperty(PropertyName = "subtitle")]
         public string Subtitle { get; set; }
 
         /// <summary>
-        /// Gets or sets the url of an image.
+        /// Gets or sets the url of the image.
         /// </summary>
         /// <value>The url of the image.</value>
         [JsonProperty(PropertyName = "image_url")]

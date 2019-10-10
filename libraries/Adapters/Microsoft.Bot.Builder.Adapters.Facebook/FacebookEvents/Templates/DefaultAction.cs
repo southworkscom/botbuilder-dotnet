@@ -13,7 +13,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates
         /// </summary>
         /// <value>The type of action.</value>
         [JsonProperty(PropertyName = "type")]
-        public Uri ActionType { get; set; }
+        public string ActionType { get; set; }
 
         /// <summary>
         /// Gets or sets the default url to open.
@@ -34,6 +34,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates
         /// </summary>
         /// <value>the height ratio for the webview.</value>
         [JsonProperty(PropertyName = "webview_height_ratio")]
-        public Uri WebviewHeightRatio { get; set; }
+        public string WebviewHeightRatio { get; set; }
     }
 }

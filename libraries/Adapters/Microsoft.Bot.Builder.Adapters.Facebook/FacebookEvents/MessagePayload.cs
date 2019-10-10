@@ -53,9 +53,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         public List<Button> Buttons { get; } = new List<Button>();
 
         /// <summary>
-        /// Gets a list of media elements.
+        /// Gets a list of media elements of the template.
         /// </summary>
-        /// <value>The list of buttons of the template.</value>
+        /// <value>The list of media elements of the template.</value>
         [JsonProperty(PropertyName = "elements")]
         public List<Element> Elements { get; } = new List<Element>();
 
