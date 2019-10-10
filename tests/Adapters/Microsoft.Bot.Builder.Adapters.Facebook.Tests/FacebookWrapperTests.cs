@@ -17,49 +17,78 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         [Fact]
         public void GetAppSecretProofShouldAlwaysReturnAStringWith64Characters()
         {
-            const int SecretProofLength = 64;
-            var facebookwrapper = new FacebookClientWrapper(_testOptions);
-            var secretProof = facebookwrapper.GetAppSecretProof();
+            const int secretProofLength = 64;
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
+            var secretProof = facebookWrapper.GetAppSecretProof();
 
             Assert.NotNull(secretProof);
-            Assert.Equal(SecretProofLength, secretProof.Length);
+            Assert.Equal(secretProofLength, secretProof.Length);
         }
 
         [Fact]
         public void VerifySignatureShouldThrowErrorWithNullRequest()
         {
-            var facebookwrapper = new FacebookClientWrapper(_testOptions);
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
 
-            Assert.Throws<ArgumentNullException>(() => { facebookwrapper.VerifySignature(null, string.Empty); });
+            Assert.Throws<ArgumentNullException>(() => { facebookWrapper.VerifySignature(null, string.Empty); });
         }
 
         [Fact]
         public void VerifySignatureShouldReturnTrue()
         {
-            const string RequestHash = "SHA1=32ECC29689D860D68A713FF5BA8D7B787C5E8C80";
-
-            var facebookwrapper = new FacebookClientWrapper(_testOptions);
+            const string requestHash = "SHA1=32ECC29689D860D68A713FF5BA8D7B787C5E8C80";
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
             var request = new Mock<HttpRequest>();
             var stringifyBody = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\RequestResponse.json");
-            request.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(RequestHash);
+            request.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(requestHash);
 
-            Assert.True(facebookwrapper.VerifySignature(request.Object, stringifyBody));
+            Assert.True(facebookWrapper.VerifySignature(request.Object, stringifyBody));
         }
 
         [Fact]
-        public async void ShouldReturnAnEmptyStringWithWrongPath()
+        public void VerifySignatureShouldReturnFalse()
+        {
+            const string requestHash = "FakeHash";
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
+            var request = new Mock<HttpRequest>();
+            request.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(requestHash);
+
+            Assert.False(facebookWrapper.VerifySignature(request.Object, string.Empty));
+        }
+
+        [Fact]
+        public async void SendMessageAsyncShouldReturnAnEmptyStringWithWrongPath()
         {
             var facebookMessageJson = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
             var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(facebookMessageJson)[5];
-
-            var cancellationTokenJson = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\CancellationToken.json");
-            var cancellationToken = JsonConvert.DeserializeObject<CancellationToken>(cancellationTokenJson);
-
-            var facebookwrapper = new FacebookClientWrapper(_testOptions);
-
-            var response = await facebookwrapper.SendMessageAsync("wrongPath", facebookMessage, null, cancellationToken);
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
+            var response = await facebookWrapper.SendMessageAsync("wrongPath", facebookMessage, null, default(CancellationToken));
 
             Assert.Equal(string.Empty, response);
+        }
+
+        [Fact]
+        public async void SendMessageAsyncShouldThrowAnExceptionWithNullPath()
+        {
+            var facebookMessageJson = File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\FacebookMessages.json");
+            var facebookMessage = JsonConvert.DeserializeObject<List<FacebookMessage>>(facebookMessageJson)[5];
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            {
+                await facebookWrapper.SendMessageAsync(null, facebookMessage, null, default(CancellationToken));
+            });
+        }
+
+        [Fact]
+        public async void SendMessageAsyncShouldThrowAnExceptionWithNullPayload()
+        {
+            var facebookWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            {
+                await facebookWrapper.SendMessageAsync("wrongPath", null, null, default(CancellationToken));
+            });
         }
     }
 }

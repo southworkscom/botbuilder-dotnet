@@ -39,6 +39,16 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <returns>A task representing the async operation.</returns>
         public virtual async Task<string> SendMessageAsync(string path, FacebookMessage payload, HttpMethod method = null, CancellationToken cancellationToken = default)
         {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
             var proof = GetAppSecretProof();
 
             if (method == null)
