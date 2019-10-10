@@ -1,9 +1,12 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using Newtonsoft.Json;
 
-namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
+namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates
 {
-    public class TemplateButton
+    public class Button
     {
         /// <summary>
         /// Gets or sets the type of button.

@@ -42,14 +42,23 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
                 switch (turnContext.Activity.Text)
                 {
-                    case "template":
-                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\TemplatePayload.json"));
+                    case "button template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\ButtonTemplatePayload.json"));
+                        break;
+                    case "media template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\MediaTemplatePayload.json"));
+                        break;
+                    case "generic template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"\Resources\GenericTemplatePayload.json"));
                         break;
                     case "Hello button":
                         activity = MessageFactory.Text("Hello Human!");
                         break;
                     case "Goodbye button":
                         activity = MessageFactory.Text("Goodbye Human!");
+                        break;
+                    case "Chatting":
+                        activity = MessageFactory.Text("Hello! How can I help you?");
                         break;
                     default:
                         activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");

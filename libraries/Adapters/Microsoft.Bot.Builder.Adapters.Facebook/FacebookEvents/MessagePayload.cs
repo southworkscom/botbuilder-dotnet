@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
@@ -45,15 +46,32 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         public string Text { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of buttons of the template.
+        /// Gets a list of buttons of the template.
         /// </summary>
         /// <value>The list of buttons of the template.</value>
         [JsonProperty(PropertyName = "buttons")]
-        public List<TemplateButton> Buttons { get; set; }
+        public List<Button> Buttons { get; } = new List<Button>();
+
+        /// <summary>
+        /// Gets a list of media elements.
+        /// </summary>
+        /// <value>The list of buttons of the template.</value>
+        [JsonProperty(PropertyName = "elements")]
+        public List<Element> Elements { get; } = new List<Element>();
 
         public bool ShouldSerializeIsReusable()
         {
             return IsReusable;
+        }
+
+        public bool ShouldSerializeButtons()
+        {
+            return Buttons.Count > 0;
+        }
+
+        public bool ShouldSerializeElements()
+        {
+            return Elements.Count > 0;
         }
     }
 }
