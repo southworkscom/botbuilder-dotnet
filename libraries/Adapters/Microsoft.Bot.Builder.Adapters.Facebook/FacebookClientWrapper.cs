@@ -173,15 +173,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             var sb = new StringBuilder();
             foreach (var c in value)
             {
-                if (c > 127)
-                {
-                    var encodedValue = "\\u" + ((int)c).ToString("x4", CultureInfo.InvariantCulture);
-                    sb.Append(encodedValue);
-                }
-                else
-                {
-                    sb.Append(c);
-                }
+                sb.Append(c);
             }
 
             return sb.ToString();
