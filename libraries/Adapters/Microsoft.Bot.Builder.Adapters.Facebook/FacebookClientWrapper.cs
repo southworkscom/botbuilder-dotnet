@@ -90,9 +90,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// Verifies the SHA1 signature of the raw request payload before bodyParser parses it will abort parsing if signature is invalid, and pass a generic error to response.
         /// </summary>
         /// <param name="request">An Http request object.</param>
-        /// <param name="stringifyBody">The request body.</param>
+        /// <param name="payload">The request body.</param>
         /// <returns>The result of the comparison between the signature in the request and hashed body.</returns>
-        public virtual bool VerifySignature(HttpRequest request, string stringifyBody)
+        public virtual bool VerifySignature(HttpRequest request, string payload)
         {
             if (request == null)
             {
@@ -100,8 +100,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             }
 
             var expected = request.Headers["x-hub-signature"].ToString().ToUpperInvariant();
-
-            var payload = EncodeNonAsciiCharacters(stringifyBody);
 
 #pragma warning disable CA5350 // Facebook uses SHA1 as cryptographic algorithm.
             using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(_options.AppSecret)))
