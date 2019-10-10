@@ -106,7 +106,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             var httpResponse = new Mock<HttpResponse>();
 
             httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("TestVerifyToken");
-
             httpResponse.SetupAllProperties();
             httpResponse.Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Callback((byte[] data, int offset, int length, CancellationToken token) =>
@@ -130,7 +129,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             var httpResponse = new Mock<HttpResponse>();
 
             httpRequest.SetupGet(req => req.Query[It.IsAny<string>()]).Returns("WrongVerifyToken");
-
             httpResponse.SetupAllProperties();
             httpResponse.Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Callback((byte[] data, int offset, int length, CancellationToken token) =>
