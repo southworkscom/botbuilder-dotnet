@@ -58,7 +58,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio.Tests
         }
 
         [Fact]
-        public void ActivityToTwilioShouldReturnNullWithNullActivity()
+        public void ActivityToTwilioShouldShouldThrowArgumentNullExceptionWithNullActivity()
         {
             Assert.Throws<ArgumentNullException>(() => { TwilioHelper.ActivityToTwilio(null, TwilioNumber); });
         }
