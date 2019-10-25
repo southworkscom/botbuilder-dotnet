@@ -62,7 +62,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
         public static async Task<bool> GetThreadOwnerAsync(string pageToken)
         {
-            return await GetToFacebookAPIAsync("pass_thread_control", pageToken).ConfigureAwait(false);
+            return await GetToFacebookAPIAsync("thread_owner", pageToken).ConfigureAwait(false);
         }
 
         private static async Task<bool> GetToFacebookAPIAsync(string getType, string pageToken)
