@@ -60,6 +60,32 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             return await PostToFacebookAPIAsync("pass_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
+        public static async Task<bool> GetThreadOwnerAsync(string pageToken)
+        {
+            return await GetToFacebookAPIAsync("pass_thread_control", pageToken).ConfigureAwait(false);
+        }
+
+        private static async Task<bool> GetToFacebookAPIAsync(string getType, string pageToken)
+        {
+            var requestPath = string.Format(GraphApiBaseUrl, getType, pageToken);
+
+            // Create HTTP transport objects
+            using (var requestMessage = new HttpRequestMessage())
+            {
+                requestMessage.Method = new HttpMethod("GET");
+                requestMessage.RequestUri = new Uri(requestPath);
+                requestMessage.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+
+                // Make the Http call
+                using (var response = await _httpClient.SendAsync(requestMessage, CancellationToken.None).ConfigureAwait(false))
+                {
+                    // Return true if the call was successfull
+                    Debug.Print(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+                    return response.IsSuccessStatusCode;
+                }
+            }
+        }
+
         // <summary>
         // This extension method populates a turn context's activity with conversation and user information from a Facebook payload.
         // This is necessary because a turn context needs that information to send messages to a conversation,
