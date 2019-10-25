@@ -174,15 +174,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var payload = new List<FacebookMessage>();
 
-                payload = entry.Changes ?? entry.Messaging;
-
-                foreach (var message in payload)
+                if (entry.Standby == null)
                 {
-                    var activity = FacebookHelper.ProcessSingleMessage(message);
+                    payload = entry.Changes ?? entry.Messaging;
 
-                    using (var context = new TurnContext(this, activity))
+                    foreach (var message in payload)
                     {
-                        await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        var activity = FacebookHelper.ProcessSingleMessage(message);
+
+                        using (var context = new TurnContext(this, activity))
+                        {
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                 }
 

@@ -55,6 +55,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         [JsonProperty(PropertyName = "is_echo")]
         public bool IsEcho { get; set; }
 
+        [JsonProperty(PropertyName = "mid")]
+        public string Mid { get; set; }
+
+        [JsonProperty(PropertyName = "nlp")]
+        public FacebookNaturalLenguageProcessing Nlp { get; set; }
+
         public bool ShouldSerializeQuickReplies()
         {
             return QuickReplies.Count > 0;
