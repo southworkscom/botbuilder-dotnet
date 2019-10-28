@@ -45,19 +45,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public static async Task<bool> RequestThreadControlAsync(string pageToken, string userId, string message)
         {
             var content = new { recipient = new { id = userId }, metadata = message };
-            return await PostToFacebookAPIAsync("request_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookAPIAsync("/me/request_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
         public static async Task<bool> TakeThreadControlAsync(string pageToken, string userId, string message)
         {
             var content = new { recipient = new { id = userId }, metadata = message };
-            return await PostToFacebookAPIAsync("take_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookAPIAsync("/me/take_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
         public static async Task<bool> PassThreadControlAsync(string pageToken, string targetAppId, string userId, string message)
         {
             var content = new { recipient = new { id = userId }, target_app_id = targetAppId, metadata = message };
-            return await PostToFacebookAPIAsync("pass_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookAPIAsync("/me/pass_thread_control", pageToken, JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
         public static async Task<bool> GetThreadOwnerAsync(string pageToken)

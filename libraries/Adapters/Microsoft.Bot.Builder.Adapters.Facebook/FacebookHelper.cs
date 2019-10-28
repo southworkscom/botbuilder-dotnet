@@ -112,6 +112,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 Text = null,
             };
 
+            if (message.PassThreadControl != null)
+            {
+                activity.Type = ActivityTypes.Message;
+                activity.Text = "Redirected to the bot";
+                return activity;
+            }
+
+            if (message.Standby)
+            {
+                return activity;
+            }
+
             if (message.Message != null)
             {
                 activity.Type = ActivityTypes.Message;

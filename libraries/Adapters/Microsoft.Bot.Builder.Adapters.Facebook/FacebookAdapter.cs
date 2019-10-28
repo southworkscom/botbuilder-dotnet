@@ -61,7 +61,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             foreach (var activity in activities)
             {
-                if (activity.Type != ActivityTypes.Message)
+                if (activity.Type != ActivityTypes.Message && activity.Type != ActivityTypes.Handoff)
                 {
                     throw new Exception("Only Activities of type Message are supported for sending.");
                 }
@@ -72,6 +72,17 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 {
                     message.Message.Attachments = null;
                     message.Message.Text = null;
+                }
+
+                if (activity.Type == ActivityTypes.Handoff)
+                {
+                    //263902037430900 == Facebook inbox
+                    var success = await _facebookClient.PassThreadControlAsync("263902037430900", activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
+
+                    if (!success)
+                    {
+                        message.Message.Text = "Sorry, there's an error with your request. (May a wrong AppId)";
+                    }
                 }
 
                 var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
@@ -180,12 +191,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                     foreach (var message in payload)
                     {
-                        var activity = FacebookHelper.ProcessSingleMessage(message);
+                            var activity = FacebookHelper.ProcessSingleMessage(message);
 
-                        using (var context = new TurnContext(this, activity))
-                        {
-                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
-                        }
+                            using (var context = new TurnContext(this, activity))
+                            {
+                                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                            }
                     }
                 }
 
@@ -196,14 +207,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                     foreach (var message in payload)
                     {
-                        // Indicate that this message was received in standby mode rather than normal mode.
-                        message.Standby = true;
-                        var activity = FacebookHelper.ProcessSingleMessage(message);
-
-                        using (var context = new TurnContext(this, activity))
-                        {
-                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
-                        }
+                            // Indicate that this message was received in standby mode rather than normal mode.
+                            message.Standby = true;
+                            var activity = FacebookHelper.ProcessSingleMessage(message);
+                            using (var context = new TurnContext(this, activity))
+                            {
+                                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                            }
                     }
                 }
             }

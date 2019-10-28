@@ -60,6 +60,16 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case "Chatting":
                         activity = MessageFactory.Text("Hello! How can I help you?");
                         break;
+                    case "handover template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"/Resources/HandoverTemplatePayload.json"));
+                        break;
+                    case "Handover":
+                        activity = MessageFactory.Text("Redirecting...");
+                        activity.Type = ActivityTypes.Handoff;
+                        break;
+                    case "Redirected to the bot":
+                        activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                        break;
                     default:
                         activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
                         break;

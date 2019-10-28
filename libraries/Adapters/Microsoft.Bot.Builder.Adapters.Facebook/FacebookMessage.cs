@@ -90,5 +90,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
         [JsonProperty(PropertyName = "optin")]
         public FacebookRecipient OptIn { get; set; }
+
+        [JsonProperty(PropertyName = "pass_thread_control")]
+        public FacebookPassThreadControl PassThreadControl { get; set; }
     }
 }
