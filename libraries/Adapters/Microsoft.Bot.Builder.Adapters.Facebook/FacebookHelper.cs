@@ -110,15 +110,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 ChannelData = message,
                 Type = ActivityTypes.Event,
                 Text = null,
+                Value = message.PassThreadControl ?? message.RequestThreadControl ?? message.TakeThreadControl ?? null,
             };
-
-            if (message.PassThreadControl != null)
-            {
-                activity.Type = ActivityTypes.Message;
-                activity.Text = "Redirected to the bot";
-                return activity;
-            }
-
+            
             if (message.Standby)
             {
                 return activity;

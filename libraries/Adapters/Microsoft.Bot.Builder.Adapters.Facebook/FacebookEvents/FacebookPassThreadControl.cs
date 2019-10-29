@@ -20,6 +20,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         [JsonProperty("new_owner_app_id")]
         public string NewOwnerAppId { get; set; }
 
+        [JsonProperty("previous_owner_app_id")]
+        public string PreviousOwnerAppId { get; set; }
+
+        [JsonProperty("requested_owner_app_id")]
+        public string RequestedOwnerAppId { get; set; }
+
         /// <summary>
         /// Gets or Sets the message sent from the requester.
         /// </summary>

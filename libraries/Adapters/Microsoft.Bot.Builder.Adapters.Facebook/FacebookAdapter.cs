@@ -20,6 +20,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
     public class FacebookAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
         private const string HubModeSubscribe = "subscribe";
+        
+        /// <summary>
+        /// The constant ID representing the page inbox.
+        /// </summary>
+        private const string PageInboxId = "263902037430900";
 
         private readonly FacebookClientWrapper _facebookClient;
 
@@ -61,9 +66,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             foreach (var activity in activities)
             {
-                if (activity.Type != ActivityTypes.Message && activity.Type != ActivityTypes.Handoff)
+                if (activity.Type != ActivityTypes.Message && activity.Type != ActivityTypes.Event)
                 {
-                    throw new Exception("Only Activities of type Message are supported for sending.");
+                    throw new NotSupportedException("Unknown message type encountered while sending activities.");
                 }
 
                 var message = FacebookHelper.ActivityToFacebook(activity);
@@ -74,14 +79,15 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     message.Message.Text = null;
                 }
 
-                if (activity.Type == ActivityTypes.Handoff)
+                if (activity.Type == ActivityTypes.Event)
                 {
-                    //263902037430900 == Facebook inbox
-                    var success = await _facebookClient.PassThreadControlAsync("263902037430900", activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
-
-                    if (!success)
+                    if (activity.Name.Equals("pass_thread_control", StringComparison.InvariantCulture))
                     {
-                        message.Message.Text = "Sorry, there's an error with your request. (May a wrong AppId)";
+                        var recipient = (string)activity.Value == "inbox" ? PageInboxId : (string)activity.Value;
+                        var success = await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
+                    }
+                    else if (activity.Name.Equals("take_thread_control", StringComparison.InvariantCulture))
+                    {
                     }
                 }
 
@@ -185,18 +191,15 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var payload = new List<FacebookMessage>();
 
-                if (entry.Standby == null)
+                payload = entry.Changes ?? entry.Messaging ?? entry.Standby;
+
+                foreach (var message in payload)
                 {
-                    payload = entry.Changes ?? entry.Messaging;
+                    var activity = FacebookHelper.ProcessSingleMessage(message);
 
-                    foreach (var message in payload)
+                    using (var context = new TurnContext(this, activity))
                     {
-                            var activity = FacebookHelper.ProcessSingleMessage(message);
-
-                            using (var context = new TurnContext(this, activity))
-                            {
-                                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
-                            }
+                        await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
                     }
                 }
 
@@ -207,13 +210,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
                     foreach (var message in payload)
                     {
-                            // Indicate that this message was received in standby mode rather than normal mode.
-                            message.Standby = true;
-                            var activity = FacebookHelper.ProcessSingleMessage(message);
-                            using (var context = new TurnContext(this, activity))
-                            {
-                                await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
-                            }
+                        // Indicate that this message was received in standby mode rather than normal mode.
+                        message.Standby = true;
+                        var activity = FacebookHelper.ProcessSingleMessage(message);
+                        using (var context = new TurnContext(this, activity))
+                        {
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                 }
             }

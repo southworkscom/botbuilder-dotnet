@@ -65,10 +65,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         break;
                     case "Handover":
                         activity = MessageFactory.Text("Redirecting...");
-                        activity.Type = ActivityTypes.Handoff;
-                        break;
-                    case "Redirected to the bot":
-                        activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                        activity.Type = ActivityTypes.Event;
+                        (activity as IEventActivity).Name = "pass_thread_control";
+                        (activity as IEventActivity).Value = "inbox";
                         break;
                     default:
                         activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
@@ -83,10 +82,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
         {
             if (turnContext.Activity.Value != null)
             {
-                var inputs = (Dictionary<string, string>)turnContext.Activity.Value;
-                var name = inputs["Name"];
-
-                var activity = MessageFactory.Text($"How are you doing {name}?");
+                var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
                 await turnContext.SendActivityAsync(activity, cancellationToken);
             }
         }

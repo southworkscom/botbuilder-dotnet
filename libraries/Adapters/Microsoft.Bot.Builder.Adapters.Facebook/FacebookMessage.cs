@@ -93,5 +93,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
         [JsonProperty(PropertyName = "pass_thread_control")]
         public FacebookPassThreadControl PassThreadControl { get; set; }
+
+        [JsonProperty(PropertyName = "take_thread_control")]
+        public FacebookPassThreadControl TakeThreadControl { get; set; }
+
+        [JsonProperty(PropertyName = "request_thread_control")]
+        public FacebookPassThreadControl RequestThreadControl { get; set; }
     }
 }
