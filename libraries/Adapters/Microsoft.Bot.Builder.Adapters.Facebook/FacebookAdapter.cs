@@ -88,6 +88,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     }
                     else if (activity.Name.Equals("take_thread_control", StringComparison.InvariantCulture))
                     {
+                        var success = await _facebookClient.TakeThreadControlAsync(activity.Conversation.Id, "Take thread control from a secondary receiver").ConfigureAwait(false);
+                    }
+                    else if (activity.Name.Equals("request_thread_control", StringComparison.InvariantCulture))
+                    {
+                        var success = await _facebookClient.RequestThreadControlAsync(activity.Conversation.Id, "Request thread control to the primary receiver").ConfigureAwait(false);
                     }
                 }
 
@@ -191,15 +196,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var payload = new List<FacebookMessage>();
 
-                payload = entry.Changes ?? entry.Messaging ?? entry.Standby;
-
-                foreach (var message in payload)
+                if (entry.Standby == null)
                 {
-                    var activity = FacebookHelper.ProcessSingleMessage(message);
+                    payload = entry.Changes ?? entry.Messaging;
 
-                    using (var context = new TurnContext(this, activity))
+                    foreach (var message in payload)
                     {
-                        await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        var activity = FacebookHelper.ProcessSingleMessage(message);
+
+                        using (var context = new TurnContext(this, activity))
+                        {
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                 }
 

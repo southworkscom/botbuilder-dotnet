@@ -110,11 +110,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 ChannelData = message,
                 Type = ActivityTypes.Event,
                 Text = null,
-                Value = message.PassThreadControl ?? message.RequestThreadControl ?? message.TakeThreadControl ?? null,
             };
-            
+
+            if (message.PassThreadControl != null)
+            {
+                activity.Value = message.PassThreadControl;
+            }
+            else if (message.RequestThreadControl != null)
+            {
+                activity.Value = message.RequestThreadControl;
+            }
+            else if (message.TakeThreadControl != null)
+            {
+                activity.Value = message.TakeThreadControl;
+            }
+
             if (message.Standby)
             {
+                activity.Text = message.Message?.Text ?? null;
                 return activity;
             }
 
