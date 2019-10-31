@@ -22,7 +22,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.Attachments != null)
+            if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
+            {
+            }
+            else if (turnContext.Activity.Attachments != null)
             {
                 foreach (var attachment in turnContext.Activity.Attachments)
                 {

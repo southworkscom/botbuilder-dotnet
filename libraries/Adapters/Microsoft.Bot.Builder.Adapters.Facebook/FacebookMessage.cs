@@ -83,7 +83,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public long TimeStamp { get; set; }
 
         [JsonProperty(PropertyName = "standby")]
-        public bool Standby { get; set; }
+        public bool IsStandby { get; set; }
 
         [JsonProperty(PropertyName = "postback")]
         public FacebookPostBack PostBack { get; set; }

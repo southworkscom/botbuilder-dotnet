@@ -160,26 +160,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             await FacebookHelper.WriteAsync(response, statusCode, challenge, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
         }
 
-        // <summary>
-        // This extension method populates a turn context's activity with conversation and user information from a Facebook payload.
-        // This is necessary because a turn context needs that information to send messages to a conversation,
-        // and event activities don't necessarily come with that information already in place.
-        // </summary>
-        // public static void ApplyFacebookPayload(this ITurnContext turnContext, FacebookPayload facebookPayload)
-        //{
-        //    var userId = facebookPayload.Sender.Id;
-        //    var pageId = facebookPayload.Recipient.Id;
-        //    var conversationId = string.Format("{0}-{1}", userId, pageId);
-
-        //    turnContext.Activity.From = new ChannelAccount();
-        //    turnContext.Activity.Recipient = new ChannelAccount();
-        //    turnContext.Activity.Conversation = new ConversationAccount(id: conversationId);
-        //}
-
         public async Task<bool> PostToFacebookAPIAsync(string postType, string content)
         {
             var graphApiBaseUrl = $"https://{_options.FacebookApiHost}/{_options.FacebookApiVersion + postType}?access_token={_options.FacebookAccessToken}";
-            var requestPath = string.Format(graphApiBaseUrl, postType, _options.FacebookAccessToken);
+            var requestPath = string.Format(System.Globalization.CultureInfo.InvariantCulture, graphApiBaseUrl, postType, _options.FacebookAccessToken);
             var stringContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             // Create HTTP transport objects
