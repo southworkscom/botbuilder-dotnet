@@ -3,8 +3,10 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
@@ -58,6 +60,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                     case "Redirected to the bot":
                         activity = MessageFactory.Text("Hello Human, I'm the secondary bot to help you!");
                         break;
+                    case "Little":
+                        activity = MessageFactory.Text($"You have spoken the forbidden word!");
+                        break;
                     default:
                         activity = MessageFactory.Text($"Echo Secondary: {turnContext.Activity.Text}");
                         break;
@@ -71,11 +76,24 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
         {
             if (turnContext.Activity.Value != null)
             {
-                var activity = MessageFactory.Text("Hello Again Human, I'm the bot the secondary bot to help you!");
-                await turnContext.SendActivityAsync(activity, cancellationToken);
+                Type type = turnContext.Activity.Value.GetType();
+                IList<PropertyInfo> props = new List<PropertyInfo>(type.GetProperties());
+
+                foreach (var prop in props)
+                {
+                    if (prop.Name == "Metadata")
+                    {
+                        var metadataValue = prop.GetValue(turnContext.Activity.Value, null);
+                        if (metadataValue.ToString().Trim() == "Pass thread control")
+                        {
+                            var activity = MessageFactory.Text("Hello Human, I'm the secondary bot to help you!");
+                            await turnContext.SendActivityAsync(activity, cancellationToken);
+                        }
+                    }
+                }
             }
 
-            if ((turnContext.Activity as Activity)?.Text == "OtherBot")
+            if ((turnContext.Activity as Activity)?.Text == "Other Bot")
             {
                 var activity = new Activity();
                 activity.Type = ActivityTypes.Event;

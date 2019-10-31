@@ -79,12 +79,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     message.Message.Text = null;
                 }
 
+                var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+
                 if (activity.Type == ActivityTypes.Event)
                 {
                     if (activity.Name.Equals("pass_thread_control", StringComparison.InvariantCulture))
                     {
                         var recipient = (string)activity.Value == "inbox" ? PageInboxId : (string)activity.Value;
-                        var success = await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
+                        var success = await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control").ConfigureAwait(false);
                     }
                     else if (activity.Name.Equals("take_thread_control", StringComparison.InvariantCulture))
                     {
@@ -95,8 +97,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                         var success = await _facebookClient.RequestThreadControlAsync(activity.Conversation.Id, "Request thread control to the primary receiver").ConfigureAwait(false);
                     }
                 }
-
-                var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
 
                 var response = new ResourceResponse()
                 {

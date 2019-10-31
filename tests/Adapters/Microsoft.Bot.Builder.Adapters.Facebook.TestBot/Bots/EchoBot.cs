@@ -91,6 +91,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         //Action
                         (activity as IEventActivity).Name = "take_thread_control";
                         break;
+                    case "Other Bot":
+                        activity = MessageFactory.Text($"Secondary bot is requesting me the thread control. Passing thread control!");
+                        break;
                     default:
                         activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
                         break;
@@ -120,9 +123,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                             (activity as IEventActivity).Value = "An app id";
                             await turnContext.SendActivityAsync(activity, cancellationToken);
                         }
-                        else if (metadataValue.ToString().Trim() == "Pass thread control to a secondary receiver")
+                        else if (metadataValue.ToString().Trim() == "Pass thread control" || metadataValue.ToString().Trim() == "Pass thread control from Page Inbox")
                         {
-                            var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                            var activity = MessageFactory.Text("Hello Human, I'm the bot to help you!");
                             await turnContext.SendActivityAsync(activity, cancellationToken);
                         }
                     }
