@@ -108,7 +108,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 },
                 ChannelData = message,
                 Type = ActivityTypes.Event,
-                Text = null
+                Text = null,
             };
 
             if (message.PassThreadControl != null)

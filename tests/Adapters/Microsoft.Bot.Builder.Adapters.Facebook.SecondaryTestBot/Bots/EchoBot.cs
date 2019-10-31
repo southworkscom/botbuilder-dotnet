@@ -3,8 +3,10 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
@@ -57,6 +59,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
 
                     case "Redirected to the bot":
                         activity = MessageFactory.Text("Hello Human, I'm the secondary bot to help you!");
+                        break;
+                    case "Little":
+                        activity = MessageFactory.Text($"You have spoken the forbidden word!");
                         break;
                     default:
                         activity = MessageFactory.Text($"Echo Secondary: {turnContext.Activity.Text}");

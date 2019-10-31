@@ -79,12 +79,14 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     message.Message.Text = null;
                 }
 
+                var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
+
                 if (activity.Type == ActivityTypes.Event)
                 {
                     if (activity.Name.Equals("pass_thread_control", StringComparison.InvariantCulture))
                     {
                         var recipient = (string)activity.Value == "inbox" ? PageInboxId : (string)activity.Value;
-                        await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
+                        await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control").ConfigureAwait(false);
                     }
                     else if (activity.Name.Equals("take_thread_control", StringComparison.InvariantCulture))
                     {
@@ -95,8 +97,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                         await _facebookClient.RequestThreadControlAsync(activity.Conversation.Id, "Request thread control to the primary receiver").ConfigureAwait(false);
                     }
                 }
-
-                var res = await _facebookClient.SendMessageAsync("/me/messages", message, null, cancellationToken).ConfigureAwait(false);
 
                 var response = new ResourceResponse()
                 {
@@ -196,19 +196,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             {
                 var payload = new List<FacebookMessage>();
 
-                payload = entry.Changes ?? entry.Messaging ?? entry.Standby;
+                    payload = entry.Changes ?? entry.Messaging ?? entry.Standby;
 
-                foreach (var message in payload)
-                {
-                    message.IsStandby = entry.Standby != null;
-
-                    var activity = FacebookHelper.ProcessSingleMessage(message);
-
-                    using (var context = new TurnContext(this, activity))
+                    foreach (var message in payload)
                     {
-                        await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        message.IsStandby = entry.Standby != null;
+
+                        var activity = FacebookHelper.ProcessSingleMessage(message);
+
+                        using (var context = new TurnContext(this, activity))
+                        {
+                            await RunPipelineAsync(context, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                        }
                     }
-                }
             }
         }
     }
