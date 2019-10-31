@@ -27,6 +27,15 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
         {
             if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
             {
+                if ((turnContext.Activity as Activity)?.Text == "Little")
+                {
+                    var activity = MessageFactory.Text("Primary Bot Taking control... The forbidden word has been spoken");
+                    activity.Type = ActivityTypes.Event;
+
+                    //Action
+                    (activity as IEventActivity).Name = "take_thread_control";
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
             }
             else if (turnContext.Activity.Attachments != null)
             {
@@ -126,16 +135,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
-            }
-
-            if ((turnContext.Activity as Activity)?.Text == "Little")
-            {
-                var activity = MessageFactory.Text("Primary Bot Taking control... The forbidden word has been spoken");
-                activity.Type = ActivityTypes.Event;
-
-                //Action
-                (activity as IEventActivity).Name = "take_thread_control";
-                await turnContext.SendActivityAsync(activity, cancellationToken);
             }
         }
 

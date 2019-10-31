@@ -30,7 +30,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.Attachments != null)
+            if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
+            {
+                if ((turnContext.Activity as Activity)?.Text == "OtherBot")
+                {
+                    var activity = new Activity();
+                    activity.Type = ActivityTypes.Event;
+
+                    //Action
+                    (activity as IEventActivity).Name = "request_thread_control";
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+            }
+            else if (turnContext.Activity.Attachments != null)
             {
                 foreach (var attachment in turnContext.Activity.Attachments)
                 {
@@ -77,16 +89,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
             if (turnContext.Activity.Value != null)
             {
                 var activity = MessageFactory.Text("Hello Again Human, I'm the bot the secondary bot to help you!");
-                await turnContext.SendActivityAsync(activity, cancellationToken);
-            }
-
-            if ((turnContext.Activity as Activity)?.Text == "OtherBot")
-            {
-                var activity = new Activity();
-                activity.Type = ActivityTypes.Event;
-
-                //Action
-                (activity as IEventActivity).Name = "request_thread_control";
                 await turnContext.SendActivityAsync(activity, cancellationToken);
             }
         }
