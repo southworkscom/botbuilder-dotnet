@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents;
+using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
@@ -95,9 +96,9 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         public FacebookPassThreadControl PassThreadControl { get; set; }
 
         [JsonProperty(PropertyName = "take_thread_control")]
-        public FacebookPassThreadControl TakeThreadControl { get; set; }
+        public FacebookTakeThreadControl TakeThreadControl { get; set; }
 
         [JsonProperty(PropertyName = "request_thread_control")]
-        public FacebookPassThreadControl RequestThreadControl { get; set; }
+        public FacebookRequestThreadControl RequestThreadControl { get; set; }
     }
 }

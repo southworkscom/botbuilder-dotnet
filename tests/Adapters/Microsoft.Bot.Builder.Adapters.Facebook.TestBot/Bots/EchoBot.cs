@@ -3,10 +3,13 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 
@@ -72,6 +75,26 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         (activity as IEventActivity).Name = "pass_thread_control";
                         (activity as IEventActivity).Value = "inbox";
                         break;
+                    case "bot template":
+                        activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"/Resources/HandoverBotsTemplatePayload.json"));
+                        break;
+                    case "SecondaryBot":
+                        activity = MessageFactory.Text("Redirecting to the secondary bot...");
+                        activity.Type = ActivityTypes.Event;
+
+                        //Action
+                        (activity as IEventActivity).Name = "pass_thread_control";
+
+                        //AppId
+                        (activity as IEventActivity).Value = "An app id of a secondary bot";
+                        break;
+                    case "TakeControl":
+                        activity = MessageFactory.Text("Primary Bot Taking control...");
+                        activity.Type = ActivityTypes.Event;
+
+                        //Action
+                        (activity as IEventActivity).Name = "take_thread_control";
+                        break;
                     default:
                         activity = MessageFactory.Text($"Echo: {turnContext.Activity.Text}");
                         break;
@@ -85,7 +108,30 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
         {
             if (turnContext.Activity.Value != null)
             {
-                var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                var metadata = (turnContext.Activity.Value as FacebookThreadControl).Metadata;
+
+                if (metadata.Equals("Request thread control to the primary receiver"))
+                {
+                    var activity = new Activity();
+                    activity.Type = ActivityTypes.Event;
+                    (activity as IEventActivity).Name = "pass_thread_control";
+                    (activity as IEventActivity).Value = "An app id";
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+                else if (metadata.Equals("Pass thread control to a secondary receiver"))
+                {
+                    var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+            }
+
+            if ((turnContext.Activity as Activity)?.Text == "Little")
+            {
+                var activity = MessageFactory.Text("Primary Bot Taking control... The forbidden word has been spoken");
+                activity.Type = ActivityTypes.Event;
+
+                //Action
+                (activity as IEventActivity).Name = "take_thread_control";
                 await turnContext.SendActivityAsync(activity, cancellationToken);
             }
         }

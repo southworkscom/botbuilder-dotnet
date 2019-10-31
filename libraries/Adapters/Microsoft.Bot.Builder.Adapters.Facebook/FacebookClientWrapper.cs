@@ -178,15 +178,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 using (var client = new HttpClient())
                 {
                     var res = await client.SendAsync(requestMessage, CancellationToken.None).ConfigureAwait(false);
-
-                    if (res.IsSuccessStatusCode)
-                    {
-                        var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        var stringResponse = JsonConvert.DeserializeObject<FacebookResponseThreadControl>(responseBody);
-                        return stringResponse.Success;
-                    }
-
-                    return false;
+                    return res.IsSuccessStatusCode;
                 }
             }
         }

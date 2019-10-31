@@ -51,7 +51,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             if (activity.Attachments != null && activity.Attachments.Count > 0)
             {
-                var payload = JsonConvert.DeserializeObject<MessagePayload>(JsonConvert.SerializeObject(
+                var payload = JsonConvert.DeserializeObject<AttachmentPayload>(JsonConvert.SerializeObject(
                     activity.Attachments[0].Content,
                     Formatting.None,
                     new JsonSerializerSettings
@@ -108,10 +108,22 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 },
                 ChannelData = message,
                 Type = ActivityTypes.Event,
-                Text = null,
-                Value = message.PassThreadControl ?? message.RequestThreadControl ?? message.TakeThreadControl ?? null,
+                Text = null
             };
-            
+
+            if (message.PassThreadControl != null)
+            {
+                activity.Value = message.PassThreadControl;
+            }
+            else if (message.RequestThreadControl != null)
+            {
+                activity.Value = message.RequestThreadControl;
+            }
+            else if (message.TakeThreadControl != null)
+            {
+                activity.Value = message.TakeThreadControl;
+            }
+
             if (message.Message != null)
             {
                 activity.Text = message.Message.Text;

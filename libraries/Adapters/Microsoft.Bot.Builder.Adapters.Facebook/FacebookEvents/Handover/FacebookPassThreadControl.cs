@@ -1,12 +1,15 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
+namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover
 {
-    public class FacebookPassThreadControl
+    public class FacebookPassThreadControl : FacebookThreadControl
     {
         /// <summary>
         /// Gets or Sets the app id of the new owner.
@@ -25,17 +28,5 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
 
         [JsonProperty("requested_owner_app_id")]
         public string RequestedOwnerAppId { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the message sent from the requester.
-        /// </summary>
-        /// <remarks>
-        /// Example: "i want the control!".
-        /// </remarks>
-        /// <value>
-        /// The message sent from the requester.
-        /// </value>
-        [JsonProperty("metadata")]
-        public string Metadata { get; set; }
     }
 }

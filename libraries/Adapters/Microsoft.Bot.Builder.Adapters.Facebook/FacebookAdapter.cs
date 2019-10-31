@@ -84,10 +84,15 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                     if (activity.Name.Equals("pass_thread_control", StringComparison.InvariantCulture))
                     {
                         var recipient = (string)activity.Value == "inbox" ? PageInboxId : (string)activity.Value;
-                        var success = await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
+                        await _facebookClient.PassThreadControlAsync(recipient, activity.Conversation.Id, "Pass thread control to a secondary receiver").ConfigureAwait(false);
                     }
                     else if (activity.Name.Equals("take_thread_control", StringComparison.InvariantCulture))
                     {
+                        await _facebookClient.TakeThreadControlAsync(activity.Conversation.Id, "Take thread control from a secondary receiver").ConfigureAwait(false);
+                    }
+                    else if (activity.Name.Equals("request_thread_control", StringComparison.InvariantCulture))
+                    {
+                        await _facebookClient.RequestThreadControlAsync(activity.Conversation.Id, "Request thread control to the primary receiver").ConfigureAwait(false);
                     }
                 }
 
