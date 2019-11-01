@@ -160,8 +160,18 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             await FacebookHelper.WriteAsync(response, statusCode, challenge, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<bool> PostToFacebookAPIAsync(string postType, string content)
+        public virtual async Task<bool> PostToFacebookApiAsync(string postType, string content)
         {
+            if (postType == null)
+            {
+                throw new ArgumentNullException(nameof(postType));
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
             var graphApiBaseUrl = $"https://{_options.FacebookApiHost}/{_options.FacebookApiVersion + postType}?access_token={_options.FacebookAccessToken}";
             var requestPath = string.Format(System.Globalization.CultureInfo.InvariantCulture, graphApiBaseUrl, postType, _options.FacebookAccessToken);
             var stringContent = new StringContent(content, Encoding.UTF8, "application/json");
@@ -185,20 +195,40 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
         public async Task<bool> RequestThreadControlAsync(string userId, string message)
         {
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
             var content = new { recipient = new { id = userId }, metadata = message };
-            return await PostToFacebookAPIAsync("/me/request_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookApiAsync("/me/request_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
         public async Task<bool> TakeThreadControlAsync(string userId, string message)
         {
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
             var content = new { recipient = new { id = userId }, metadata = message };
-            return await PostToFacebookAPIAsync("/me/take_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookApiAsync("/me/take_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
         public async Task<bool> PassThreadControlAsync(string targetAppId, string userId, string message)
         {
+            if (targetAppId == null)
+            {
+                throw new ArgumentNullException(nameof(targetAppId));
+            }
+
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
             var content = new { recipient = new { id = userId }, target_app_id = targetAppId, metadata = message };
-            return await PostToFacebookAPIAsync("/me/pass_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
+            return await PostToFacebookApiAsync("/me/pass_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
     }
 }
