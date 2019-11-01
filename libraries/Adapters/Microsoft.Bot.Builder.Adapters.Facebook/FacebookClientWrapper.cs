@@ -183,19 +183,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             }
         }
 
-        public async Task<bool> RequestThreadControlAsync(string userId, string message)
+        public virtual async Task<bool> RequestThreadControlAsync(string userId, string message)
         {
             var content = new { recipient = new { id = userId }, metadata = message };
             return await PostToFacebookAPIAsync("/me/request_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
-        public async Task<bool> TakeThreadControlAsync(string userId, string message)
+        public virtual async Task<bool> TakeThreadControlAsync(string userId, string message)
         {
             var content = new { recipient = new { id = userId }, metadata = message };
             return await PostToFacebookAPIAsync("/me/take_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
-        public async Task<bool> PassThreadControlAsync(string targetAppId, string userId, string message)
+        public virtual async Task<bool> PassThreadControlAsync(string targetAppId, string userId, string message)
         {
             var content = new { recipient = new { id = userId }, target_app_id = targetAppId, metadata = message };
             return await PostToFacebookAPIAsync("/me/pass_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
