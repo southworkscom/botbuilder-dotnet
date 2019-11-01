@@ -66,7 +66,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                         activity = MessageFactory.Text("Redirecting to the primary bot...");
                         activity.Type = ActivityTypes.Event;
                         (activity as IEventActivity).Name = "pass_thread_control";
-                        (activity as IEventActivity).Value = "An app id of the primary receiver";
+                        (activity as IEventActivity).Value = "<PRIMARY RECEIVER APP ID>";
                         break;
 
                     case "Redirected to the bot":

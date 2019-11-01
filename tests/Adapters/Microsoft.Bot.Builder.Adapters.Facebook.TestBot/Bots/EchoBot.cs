@@ -95,7 +95,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         (activity as IEventActivity).Name = "pass_thread_control";
 
                         //AppId
-                        (activity as IEventActivity).Value = "An app id of a secondary bot";
+                        (activity as IEventActivity).Value = "<SECOND RECEIVER APP ID>";
                         break;
                     case "TakeControl":
                         activity = MessageFactory.Text("Primary Bot Taking control...");
@@ -127,7 +127,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     var activity = new Activity();
                     activity.Type = ActivityTypes.Event;
                     (activity as IEventActivity).Name = "pass_thread_control";
-                    (activity as IEventActivity).Value = "An app id";
+                    (activity as IEventActivity).Value = "<APP ID>";
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
                 else if (metadata.Equals("Pass thread control") || metadata.Equals("Pass thread control from Page Inbox"))
