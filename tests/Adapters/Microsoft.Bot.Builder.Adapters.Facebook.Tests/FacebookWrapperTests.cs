@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Newtonsoft.Json;
@@ -159,6 +160,81 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             var httpRequest = new Mock<HttpRequest>();
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.VerifyWebhookAsync(httpRequest.Object, null, default); });
+        }
+
+        [Fact]
+        public async void PassThreadControlAsyncShouldThrowExceptionWithNullTargetAppId()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.PassThreadControlAsync(null, "fakeUserId", "Test Pass Thread Control"); });
+        }
+
+        [Fact]
+        public async void PassThreadControlAsyncShouldThrowExceptionWithNullUserId()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.PassThreadControlAsync("fakeAppId", null, "Test Pass Thread Control"); });
+        }
+
+        [Fact]
+        public async void PassThreadControlAsyncShouldPassWithTargetAppIdAndUserId()
+        {
+            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
+            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+
+            Assert.True(await facebookClientWrapperMock.Object.PassThreadControlAsync("fakeAppId", "fakeUserId", "Test Pass Thread Control"));
+        }
+
+        [Fact]
+        public async void RequestThreadControlAsyncShouldThrowExceptionWithNullUserId()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.RequestThreadControlAsync(null, "Test Pass Thread Control"); });
+        }
+
+        [Fact]
+        public async void RequestThreadControlAsyncShouldPassWithUserId()
+        {
+            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
+            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+
+            Assert.True(await facebookClientWrapperMock.Object.RequestThreadControlAsync("fakeUserId", "Test Pass Thread Control"));
+        }
+
+        [Fact]
+        public async void TakeThreadControlAsyncShouldThrowExceptionWithNullUserId()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.TakeThreadControlAsync(null, "Test Pass Thread Control"); });
+        }
+
+        [Fact]
+        public async void TakeThreadControlAsyncShouldPassWithUserId()
+        {
+            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
+            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+
+            Assert.True(await facebookClientWrapperMock.Object.TakeThreadControlAsync("fakeUserId", "Test Pass Thread Control"));
+        }
+
+        [Fact]
+        public async void PostToFacebookApiAsyncShouldThrowExceptionWithNullPostType()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.PostToFacebookApiAsync(null, "fakeContent"); });
+        }
+
+        [Fact]
+        public async void PostToFacebookApiAsyncShouldThrowExceptionWithNullContent()
+        {
+            var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.PostToFacebookApiAsync("fakePostType", null); });
         }
     }
 }
