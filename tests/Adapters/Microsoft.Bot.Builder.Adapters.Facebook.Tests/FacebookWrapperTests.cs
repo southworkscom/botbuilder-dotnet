@@ -179,15 +179,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void PassThreadControlAsyncShouldPassWithTargetAppIdAndUserId()
-        {
-            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
-            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            Assert.True(await facebookClientWrapperMock.Object.PassThreadControlAsync("fakeAppId", "fakeUserId", "Test Pass Thread Control"));
-        }
-
-        [Fact]
         public async void RequestThreadControlAsyncShouldThrowExceptionWithNullUserId()
         {
             var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
@@ -196,29 +187,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
         }
 
         [Fact]
-        public async void RequestThreadControlAsyncShouldPassWithUserId()
-        {
-            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
-            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            Assert.True(await facebookClientWrapperMock.Object.RequestThreadControlAsync("fakeUserId", "Test Pass Thread Control"));
-        }
-
-        [Fact]
         public async void TakeThreadControlAsyncShouldThrowExceptionWithNullUserId()
         {
             var facebookClientWrapper = new FacebookClientWrapper(_testOptions);
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookClientWrapper.TakeThreadControlAsync(null, "Test Pass Thread Control"); });
-        }
-
-        [Fact]
-        public async void TakeThreadControlAsyncShouldPassWithUserId()
-        {
-            var facebookClientWrapperMock = new Mock<FacebookClientWrapper>(_testOptions);
-            facebookClientWrapperMock.Setup(api => api.PostToFacebookApiAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            Assert.True(await facebookClientWrapperMock.Object.TakeThreadControlAsync("fakeUserId", "Test Pass Thread Control"));
         }
 
         [Fact]
