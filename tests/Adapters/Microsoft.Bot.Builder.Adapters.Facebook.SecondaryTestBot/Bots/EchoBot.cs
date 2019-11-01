@@ -6,11 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
@@ -88,8 +87,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
         {
             if (turnContext.Activity.Value != null)
             {
-                var activity = MessageFactory.Text("Hello Again Human, I'm the bot the secondary bot to help you!");
-                await turnContext.SendActivityAsync(activity, cancellationToken);
+                var metadata = (turnContext.Activity.Value as FacebookThreadControl).Metadata;
+
+                if (metadata.Equals("Pass thread control"))
+                {
+                    var activity = MessageFactory.Text("Hello Human, I'm the secondary bot to help you!");
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
             }
         }
 
