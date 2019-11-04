@@ -160,6 +160,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             await FacebookHelper.WriteAsync(response, statusCode, challenge, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Posts webhook control events to Facebook. 
+        /// </summary>
+        /// <param name="postType">The REST post type (GET, PUT, POST, etc).</param>
+        /// <param name="content">The string content to be posted to Facebook.</param>
+        /// <returns>A bool indicating the success of the operation.</returns>
         public virtual async Task<bool> PostToFacebookApiAsync(string postType, string content)
         {
             if (postType == null)
@@ -176,7 +182,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             var requestPath = string.Format(System.Globalization.CultureInfo.InvariantCulture, graphApiBaseUrl, postType, _options.FacebookAccessToken);
             var stringContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            // Create HTTP transport objects
             using (var requestMessage = new HttpRequestMessage())
             {
                 requestMessage.Method = new HttpMethod("POST");
@@ -184,7 +189,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
                 requestMessage.Content = stringContent;
                 requestMessage.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
 
-                // Make the Http call
                 using (var client = new HttpClient())
                 {
                     var res = await client.SendAsync(requestMessage, CancellationToken.None).ConfigureAwait(false);
@@ -193,6 +197,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             }
         }
 
+        /// <summary>
+        /// Sends the request_thread_control webhook event to Facebook.
+        /// </summary>
+        /// <param name="userId">The sender user Id.</param>
+        /// <param name="message">An optional message for the metadata paremter.</param>
+        /// <returns>A bool value indicating the success of the operation.</returns>
         public virtual async Task<bool> RequestThreadControlAsync(string userId, string message)
         {
             if (userId == null)
@@ -204,6 +214,12 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             return await PostToFacebookApiAsync("/me/request_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sends the take_thread_control webhook event to Facebook.
+        /// </summary>
+        /// <param name="userId">The sender user Id.</param>
+        /// <param name="message">An optional message for the metadata paremter.</param>
+        /// <returns>A bool value indicating the success of the operation.</returns>
         public virtual async Task<bool> TakeThreadControlAsync(string userId, string message)
         {
             if (userId == null)
@@ -215,6 +231,13 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             return await PostToFacebookApiAsync("/me/take_thread_control", JsonConvert.SerializeObject(content)).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sends the pass_thread_control webhook event to Facebook.
+        /// </summary>
+        /// <param name="targetAppId">The Id of the target app to pass control to.</param>
+        /// <param name="userId">The sender user Id.</param>
+        /// <param name="message">An optional message for the metadata paremter.</param>
+        /// <returns>A bool value indicating the success of the operation.</returns>
         public virtual async Task<bool> PassThreadControlAsync(string targetAppId, string userId, string message)
         {
             if (targetAppId == null)

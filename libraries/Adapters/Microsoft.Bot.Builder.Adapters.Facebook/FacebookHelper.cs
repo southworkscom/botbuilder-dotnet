@@ -143,6 +143,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
             return activity;
         }
 
+        /// <summary>
+        /// Extracts attachments from the facebook message.
+        /// </summary>
+        /// <param name="message">The <see cref="Message"/>used for input.</param>
+        /// <returns>A List of <see cref="Attachment"/>.</returns>
         public static List<Attachment> HandleMessageAttachments(Message message)
         {
             var attachmentsList = new List<Attachment>();

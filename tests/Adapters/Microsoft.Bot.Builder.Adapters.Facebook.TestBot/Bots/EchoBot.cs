@@ -3,10 +3,8 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover;
@@ -17,6 +15,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 {
     public class EchoBot : ActivityHandler
     {
+        private const string PageInboxId = "263902037430900";
+
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = MessageFactory.Text("Hello and Welcome!");
@@ -29,7 +29,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
             {
                 if ((turnContext.Activity as Activity)?.Text == "Little")
                 {
-                    var activity = MessageFactory.Text("Primary Bot Taking control... The forbidden word has been spoken");
+                    var activity = MessageFactory.Text("Primary Bot taking back control...");
                     activity.Type = ActivityTypes.Event;
 
                     //Action
@@ -126,7 +126,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                 {
                     var requester = (turnContext.Activity.Value as FacebookRequestThreadControl).RequestedOwnerAppId;
 
-                    if (requester == "263902037430900")
+                    if (requester == PageInboxId)
                     {
                         var activity = MessageFactory.Text($"The Inbox is requesting me the thread control. Passing thread control!");
                         activity.Type = ActivityTypes.Event;
@@ -145,7 +145,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                 }
                 else if (metadata.Equals("Pass thread control") || metadata.Equals("Pass thread control from Page Inbox"))
                 {
-                    var activity = MessageFactory.Text("Hello Again Human, I'm the bot to help you!");
+                    var activity = MessageFactory.Text("Hello Again Human, I'm the bot");
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
             }

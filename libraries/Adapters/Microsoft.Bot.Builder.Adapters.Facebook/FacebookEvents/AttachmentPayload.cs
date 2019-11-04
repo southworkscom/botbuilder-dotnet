@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates;
 using Newtonsoft.Json;
 
-// TODO - This represents an attachment. Should we rename (AttachmentPayload)? 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
 {
     public class AttachmentPayload

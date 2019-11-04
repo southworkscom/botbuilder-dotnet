@@ -3,7 +3,6 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.3.0
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
