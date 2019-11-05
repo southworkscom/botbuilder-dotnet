@@ -19,6 +19,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
         /// Gets the entry property.
         /// </summary>
         /// <value>Array containing event data.</value>
-        public List<FacebookEntry> Entry { get; }
+        public List<FacebookEntry> Entry { get; } = new List<FacebookEntry>();
     }
 }
