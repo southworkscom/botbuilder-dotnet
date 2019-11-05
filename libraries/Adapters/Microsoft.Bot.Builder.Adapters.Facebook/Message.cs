@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Message
     {
         /// <summary>
@@ -67,11 +70,19 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         [JsonProperty(PropertyName = "mid")]
         public string Mid { get; set; }
 
+        /// <summary>
+        /// Newtonsoft Json method for conditionally serializing the QuickReplies property.
+        /// </summary>
+        /// <returns>A boolean with the value.</returns>
         public bool ShouldSerializeQuickReplies()
         {
             return QuickReplies.Count > 0;
         }
 
+        /// <summary>
+        /// Newtonsoft Json method for conditionally serializing the IsEcho property.
+        /// </summary>
+        /// <returns>A boolean with the value.</returns>
         public bool ShouldSerializeIsEcho()
         {
             return IsEcho;
