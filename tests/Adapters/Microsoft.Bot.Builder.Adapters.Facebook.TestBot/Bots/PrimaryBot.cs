@@ -41,7 +41,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
             }
             else if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
             {
-                if ((turnContext.Activity as Activity)?.Text == "Provoke a take")
+                if ((turnContext.Activity as Activity)?.Text == "Invoke a take")
                 {
                     var activity = MessageFactory.Text("Hi! I'm the primary bot!");
                     activity.Type = ActivityTypes.Event;

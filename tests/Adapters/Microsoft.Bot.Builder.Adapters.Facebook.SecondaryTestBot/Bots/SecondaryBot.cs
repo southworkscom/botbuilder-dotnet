@@ -23,7 +23,21 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
+            if (turnContext.Activity.Attachments != null)
+            {
+                foreach (var attachment in turnContext.Activity.Attachments)
+                {
+                    var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
+
+                    var image = new Attachment(
+                        attachment.ContentType,
+                        content: attachment.Content);
+
+                    activity.Attachments.Add(image);
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+            }
+            else if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
             {
                 if ((turnContext.Activity as Activity)?.Text == "Other Bot")
                 {
@@ -34,20 +48,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
 
                     // Action
                     ((IEventActivity)activity).Name = "request_thread_control";
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
-                }
-            }
-            else if (turnContext.Activity.Attachments != null)
-            {
-                foreach (var attachment in turnContext.Activity.Attachments)
-                {
-                    var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
-
-                    var image = new Attachment(
-                       attachment.ContentType,
-                       content: attachment.Content);
-
-                    activity.Attachments.Add(image);
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
             }
@@ -66,7 +66,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                     case "Redirected to the bot":
                         activity = MessageFactory.Text("Hello, I'm the secondary bot. How can I help you?");
                         break;
-                    case "Provoke a take":
+                    case "Invoke a take":
                         activity = MessageFactory.Text($"The Primary bot will take back the control");
                         break;
                     default:
