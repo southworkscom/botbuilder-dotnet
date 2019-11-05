@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -195,11 +194,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             foreach (var entry in facebookResponseEvent.Entry)
             {
-                var payload = entry.Changes.Any() ? entry.Changes : entry.Messaging.Any() ? entry.Messaging : entry.Standby.Any() ? entry.Standby : new List<FacebookMessage>();
+                var payload = entry.Changes.Count > 0 ? entry.Changes : entry.Messaging.Count > 0 ? entry.Messaging : entry.Standby.Count > 0 ? entry.Standby : new List<FacebookMessage>();
 
                 foreach (var message in payload)
                 {
-                    message.IsStandby = entry.Standby.Any();
+                    message.IsStandby = entry.Standby.Count > 0;
 
                     var activity = FacebookHelper.ProcessSingleMessage(message);
 
