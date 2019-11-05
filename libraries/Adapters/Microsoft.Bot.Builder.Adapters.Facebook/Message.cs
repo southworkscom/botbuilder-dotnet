@@ -7,9 +7,6 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class Message
     {
         /// <summary>

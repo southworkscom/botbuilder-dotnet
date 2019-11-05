@@ -20,17 +20,17 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
         /// <param name="messagingType">Property identifying the messaging type of the message being sent. See https://developers.facebook.com/docs/messenger-platform/send-messages#messaging_types. </param>
         /// <param name="tag">The optional message tag string. See https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags.</param>
         /// <param name="notificationType">The optional notification type: REGULAR (default value), SILENT_PUSH, NO_PUSH.</param>
-        /// <param name="personalId">The persona Id.</param>
+        /// <param name="personaId">The persona Id.</param>
         /// <param name="senderAction">Message state to display to the user: typing_on, typing_off, mark_seen. Cannot be sent with 'message'. When used, 'recipient' should be the only other property set in the request.</param>
         /// <param name="senderId">The sender Id.</param>
-        public FacebookMessage(string recipientId, Message message, string messagingType, string tag = null, string notificationType = null, string personalId = null, string senderAction = null, string senderId = null)
+        public FacebookMessage(string recipientId, Message message, string messagingType, string tag = null, string notificationType = null, string personaId = null, string senderAction = null, string senderId = null)
         {
             Recipient.Id = recipientId;
             Message = message;
             MessagingType = messagingType;
             Tag = tag;
             NotificationType = notificationType;
-            PersonaId = personalId;
+            PersonaId = personaId;
             SenderAction = senderAction;
             Sender.Id = senderId;
         }
