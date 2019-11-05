@@ -129,7 +129,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
                         break;
 
-                    case "Request thread control to the primary receiver":
+                    case HandoverConstants.MetadataRequestThreadControl:
 
                         activity.Type = ActivityTypes.Event;
                         ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
@@ -137,7 +137,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         await turnContext.SendActivityAsync(activity, cancellationToken);
                         break;
 
-                    case "Pass thread control": 
+                    case HandoverConstants.MetadataPassThreadControl: 
                     case "Pass thread control from Page Inbox":
                         activity = MessageFactory.Text("Hello Again Human, I'm the bot");
                         await turnContext.SendActivityAsync(activity, cancellationToken);

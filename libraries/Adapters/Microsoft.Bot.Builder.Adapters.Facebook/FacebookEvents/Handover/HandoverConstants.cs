@@ -13,5 +13,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover
         public const string TakeThreadControl = "take_thread_control";
 
         public const string PageInboxId = "263902037430900";
+
+        public const string MetadataPassThreadControl = "Pass thread control";
+
+        public const string MetadataRequestThreadControl = "Request thread control to the primary receiver";
+
+        public const string MetadataTakeThreadControl = "Take thread control from a secondary receiver";
     }
 }
