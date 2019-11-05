@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -20,7 +21,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
     public class FacebookAdapter : BotAdapter, IBotFrameworkHttpAdapter
     {
         private const string HubModeSubscribe = "subscribe";
-        
+
         /// <summary>
         /// The constant ID representing the page inbox.
         /// </summary>
@@ -194,13 +195,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook
 
             foreach (var entry in facebookResponseEvent.Entry)
             {
-                var payload = new List<FacebookMessage>();
-
-                payload = entry.Changes ?? entry.Messaging ?? entry.Standby;
+                var payload = entry.Changes.Any() ? entry.Changes : entry.Messaging.Any() ? entry.Messaging : entry.Standby.Any() ? entry.Standby : new List<FacebookMessage>();
 
                 foreach (var message in payload)
                 {
-                    message.IsStandby = entry.Standby != null;
+                    message.IsStandby = entry.Standby.Any();
 
                     var activity = FacebookHelper.ProcessSingleMessage(message);
 
