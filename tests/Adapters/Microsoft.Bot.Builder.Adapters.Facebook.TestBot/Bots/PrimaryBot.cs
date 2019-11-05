@@ -25,7 +25,33 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.Text != null && turnContext.Activity.Attachments == null && !turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
+            if (turnContext.Activity.Attachments != null)
+            {
+                foreach (var attachment in turnContext.Activity.Attachments)
+                {
+                    var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
+
+                    var image = new Attachment(
+                        attachment.ContentType,
+                        content: attachment.Content);
+
+                    activity.Attachments.Add(image);
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+            }
+            else if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
+            {
+                if ((turnContext.Activity as Activity)?.Text == "Provoke a take")
+                {
+                    var activity = MessageFactory.Text("Hi! I'm the primary bot!");
+                    activity.Type = ActivityTypes.Event;
+
+                    //Action
+                    ((IEventActivity)activity).Name = "take_thread_control";
+                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                }
+            }
+            else
             {
                 IActivity activity;
 
@@ -55,8 +81,8 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case "Handover":
                         activity = MessageFactory.Text("Redirecting...");
                         activity.Type = ActivityTypes.Event;
-                        (activity as IEventActivity).Name = "pass_thread_control";
-                        (activity as IEventActivity).Value = "inbox";
+                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Value = "inbox";
                         break;
                     case "bot template":
                         activity = MessageFactory.Attachment(CreateTemplateAttachment(Directory.GetCurrentDirectory() + @"/Resources/HandoverBotsTemplatePayload.json"));
@@ -66,10 +92,10 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         activity.Type = ActivityTypes.Event;
 
                         //Action
-                        (activity as IEventActivity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Name = "pass_thread_control";
 
                         //AppId
-                        (activity as IEventActivity).Value = "<SECONDARY RECEIVER APP ID>";
+                        ((IEventActivity)activity).Value = "<SECONDARY RECEIVER APP ID>";
                         break;
                     case "Other Bot":
                         activity = MessageFactory.Text($"Secondary bot is requesting me the thread control. Passing thread control!");
@@ -81,65 +107,43 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 
                 await turnContext.SendActivityAsync(activity, cancellationToken);
             }
-            else if (turnContext.Activity.Attachments != null)
-            {
-                foreach (var attachment in turnContext.Activity.Attachments)
-                {
-                    var activity = MessageFactory.Text($" I got {turnContext.Activity.Attachments.Count} attachments");
-
-                    var image = new Attachment(
-                        attachment.ContentType,
-                        content: attachment.Content);
-
-                    activity.Attachments.Add(image);
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
-                }
-            }
-            else if (turnContext.Activity.GetChannelData<FacebookMessage>().IsStandby)
-            {
-                if ((turnContext.Activity as Activity)?.Text == "Forbidden word")
-                {
-                    var activity = MessageFactory.Text("Primary Bot taking back control...");
-                    activity.Type = ActivityTypes.Event;
-
-                    //Action
-                    (activity as IEventActivity).Name = "take_thread_control";
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
-                }
-            }
         }
 
         protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
             if (turnContext.Activity.Value != null)
             {
-                var metadata = (turnContext.Activity.Value as FacebookThreadControl).Metadata;
-
-                if (metadata == null)
+                var metadata = ((FacebookThreadControl)turnContext.Activity.Value).Metadata;
+                var activity = new Activity();
+                switch (metadata)
                 {
-                    var requester = (turnContext.Activity.Value as FacebookRequestThreadControl).RequestedOwnerAppId;
+                    case null:
+                        var requester = ((FacebookRequestThreadControl)turnContext.Activity.Value).RequestedOwnerAppId;
 
-                    if (requester == PageInboxId)
-                    {
-                        var activity = MessageFactory.Text($"The Inbox is requesting me the thread control. Passing thread control!");
+                        if (requester == PageInboxId)
+                        {
+                            activity = MessageFactory.Text($"The Inbox is requesting me the thread control. Passing thread control!");
+                            activity.Type = ActivityTypes.Event;
+                            ((IEventActivity)activity).Name = "pass_thread_control";
+                            ((IEventActivity)activity).Value = "inbox";
+                            await turnContext.SendActivityAsync(activity, cancellationToken);
+                        }
+
+                        break;
+
+                    case "Request thread control to the primary receiver":
+
                         activity.Type = ActivityTypes.Event;
-                        (activity as IEventActivity).Name = "pass_thread_control";
-                        (activity as IEventActivity).Value = "inbox";
+                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Value = "<SECONDARY RECEIVER APP ID>";
                         await turnContext.SendActivityAsync(activity, cancellationToken);
-                    }
-                }
-                else if (metadata.Equals("Request thread control to the primary receiver"))
-                {
-                    var activity = new Activity();
-                    activity.Type = ActivityTypes.Event;
-                    (activity as IEventActivity).Name = "pass_thread_control";
-                    (activity as IEventActivity).Value = "<SECONDARY RECEIVER APP ID>";
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
-                }
-                else if (metadata.Equals("Pass thread control") || metadata.Equals("Pass thread control from Page Inbox"))
-                {
-                    var activity = MessageFactory.Text("Hello Again Human, I'm the bot");
-                    await turnContext.SendActivityAsync(activity, cancellationToken);
+                        break;
+
+                    case "Pass thread control": 
+                    case "Pass thread control from Page Inbox":
+                        activity = MessageFactory.Text("Hello Again Human, I'm the bot");
+                        await turnContext.SendActivityAsync(activity, cancellationToken);
+                        break;
                 }
             }
         }
