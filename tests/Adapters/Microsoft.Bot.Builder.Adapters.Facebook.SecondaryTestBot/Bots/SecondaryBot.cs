@@ -47,7 +47,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                     };
 
                     // Action
-                    ((IEventActivity)activity).Name = "request_thread_control";
+                    ((IEventActivity)activity).Name = HandoverConstants.RequestThreadControl;
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
             }
@@ -60,7 +60,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                     case "Pass to primary":
                         activity = MessageFactory.Text("Redirecting to the primary bot...");
                         activity.Type = ActivityTypes.Event;
-                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
                         ((IEventActivity)activity).Value = "<PRIMARY RECEIVER APP ID>";
                         break;
                     case "Redirected to the bot":

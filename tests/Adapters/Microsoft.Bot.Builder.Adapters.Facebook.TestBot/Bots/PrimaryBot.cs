@@ -15,8 +15,6 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
 {
     public class PrimaryBot : ActivityHandler
     {
-        private const string PageInboxId = "263902037430900";
-
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = MessageFactory.Text("Hello and Welcome!");
@@ -47,7 +45,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     activity.Type = ActivityTypes.Event;
 
                     //Action
-                    ((IEventActivity)activity).Name = "take_thread_control";
+                    ((IEventActivity)activity).Name = HandoverConstants.TakeThreadControl;
                     await turnContext.SendActivityAsync(activity, cancellationToken);
                 }
             }
@@ -81,7 +79,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case "Handover":
                         activity = MessageFactory.Text("Redirecting...");
                         activity.Type = ActivityTypes.Event;
-                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
                         ((IEventActivity)activity).Value = "inbox";
                         break;
                     case "bot template":
@@ -92,7 +90,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         activity.Type = ActivityTypes.Event;
 
                         //Action
-                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
 
                         //AppId
                         ((IEventActivity)activity).Value = "<SECONDARY RECEIVER APP ID>";
@@ -120,11 +118,11 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case null:
                         var requester = ((FacebookRequestThreadControl)turnContext.Activity.Value).RequestedOwnerAppId;
 
-                        if (requester == PageInboxId)
+                        if (requester == HandoverConstants.PageInboxId)
                         {
                             activity = MessageFactory.Text($"The Inbox is requesting me the thread control. Passing thread control!");
                             activity.Type = ActivityTypes.Event;
-                            ((IEventActivity)activity).Name = "pass_thread_control";
+                            ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
                             ((IEventActivity)activity).Value = "inbox";
                             await turnContext.SendActivityAsync(activity, cancellationToken);
                         }
@@ -134,7 +132,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case "Request thread control to the primary receiver":
 
                         activity.Type = ActivityTypes.Event;
-                        ((IEventActivity)activity).Name = "pass_thread_control";
+                        ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
                         ((IEventActivity)activity).Value = "<SECONDARY RECEIVER APP ID>";
                         await turnContext.SendActivityAsync(activity, cancellationToken);
                         break;
