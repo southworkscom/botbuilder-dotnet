@@ -18,7 +18,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
         /// <summary>
         /// Id value for the intended primary receiver app.
         /// </summary>
-        private readonly string primaryReceiverAppId = "<PRIMARY RECEIVER APP ID>";
+        private const string PrimaryReceiverAppId = "<PRIMARY RECEIVER APP ID>";
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -66,7 +66,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.SecondaryTestBot.Bots
                         activity = MessageFactory.Text("Redirecting to the primary bot...");
                         activity.Type = ActivityTypes.Event;
                         ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
-                        ((IEventActivity)activity).Value = primaryReceiverAppId;
+                        ((IEventActivity)activity).Value = PrimaryReceiverAppId;
                         break;
                     case "Redirected to the bot":
                         activity = MessageFactory.Text("Hello, I'm the secondary bot. How can I help you?");

@@ -18,7 +18,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
         /// <summary>
         /// Id value for the intended secondary receiver app.
         /// </summary>
-        private readonly string secondaryReceiverAppId = "<SECONDARY RECEIVER APP ID>";
+        private const string SecondaryReceiverAppId = "<SECONDARY RECEIVER APP ID>";
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -98,7 +98,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                         ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
 
                         //AppId
-                        ((IEventActivity)activity).Value = secondaryReceiverAppId;
+                        ((IEventActivity)activity).Value = SecondaryReceiverAppId;
                         break;
                     case "Other Bot":
                         activity = MessageFactory.Text($"Secondary bot is requesting me the thread control. Passing thread control!");
@@ -137,7 +137,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.TestBot.Bots
                     case HandoverConstants.MetadataRequestThreadControl:
                         activity.Type = ActivityTypes.Event;
                         ((IEventActivity)activity).Name = HandoverConstants.PassThreadControl;
-                        ((IEventActivity)activity).Value = secondaryReceiverAppId;
+                        ((IEventActivity)activity).Value = SecondaryReceiverAppId;
                         await turnContext.SendActivityAsync(activity, cancellationToken);
                         break;
 
