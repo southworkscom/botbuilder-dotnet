@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Builder.Dialogs.Declarative</PackageId>
     <Description>This library implements .NET support for Declarative defintion of dialogs assets</Description>
     <Summary>This library implements .NET support for Declarative defintion of dialogs assets</Summary>

@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Configuration</PackageId>
     <Description>Classes for loading and saving bot configuration files</Description>
   </PropertyGroup>

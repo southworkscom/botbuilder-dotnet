@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Builder.LanguageGeneration</PackageId>
     <Description>This library implements Language Generation template library system for the Bot Builder SDK</Description>
     <Summary>This library implements Language Generation template library system for the Bot Builder SDK</Summary>

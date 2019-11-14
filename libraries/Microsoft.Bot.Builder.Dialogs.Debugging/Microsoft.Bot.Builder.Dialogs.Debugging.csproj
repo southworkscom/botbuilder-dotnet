@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Builder.Dialogs.Debugging</PackageId>
     <Description>This library implements support for debugging declarative adaptive dialogs</Description>
     <Summary>This library implements support for debugging declarative adaptive dialogs</Summary>

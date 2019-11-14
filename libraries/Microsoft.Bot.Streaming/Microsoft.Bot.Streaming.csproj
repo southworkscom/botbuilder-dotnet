@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Streaming</PackageId>
     <Description>Streaming library for the Bot Framework SDK</Description>
     <Summary>Streaming library for the Bot Framework SDK</Summary>
