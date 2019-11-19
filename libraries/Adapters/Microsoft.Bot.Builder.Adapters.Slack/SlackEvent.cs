@@ -61,7 +61,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         public string ItemChannel { get; set; }
 
         [JsonProperty(PropertyName = "files")]
-        public List<File> Files { get; } = new List<File>();
+        public List<SlackFile> Files { get; } = new List<SlackFile>();
 
         [JsonProperty(PropertyName = "message")]
         public NewSlackMessage Message { get; set; }
