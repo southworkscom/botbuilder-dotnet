@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.Adapters.Slack;
 using Microsoft.Bot.Builder.FunctionalTests.Payloads;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -14,15 +17,26 @@ namespace Microsoft.Bot.Builder.FunctionalTests
     public class SlackClientTest
     {
         private HttpClient client;
+        private string _slackChannel = null;
+        private string _slackToken = null;
+        private string _slackUrlBase = "https://slack.com/api";
 
         [TestMethod]
-        public async Task SendSlackMessage()
+        public async Task SendAndReceiveSlackMessageShouldSucced()
         {
             try
             {
-                await SendMessage();
-                var response = await ReceiveMessage();
-                Assert.AreEqual("Echo: Test6", response);
+                GetEnvironmentVars();
+                await SendMessageAsync();
+
+                var response = string.Empty;
+
+                while (!response.Contains("Echo"))
+                {
+                    response = await ReceiveMessageAsync();
+                }
+                
+                Assert.AreEqual("Echo: Hello bot", response);
             }
             catch (Exception e)
             {
@@ -30,10 +44,10 @@ namespace Microsoft.Bot.Builder.FunctionalTests
             }
         }
 
-        private async Task<string> ReceiveMessage()
+        private async Task<string> ReceiveMessageAsync()
         {
             client = new HttpClient();
-            var requestUri = "https://slack.com/api/conversations.history?token=XXXXX&channel=XXXXX";
+            var requestUri = $"{_slackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
 
             var request = new HttpRequestMessage
             {
@@ -41,7 +55,7 @@ namespace Microsoft.Bot.Builder.FunctionalTests
                 RequestUri = new Uri(requestUri),
             };
 
-            var httpResponse = await client.SendAsync(request).ConfigureAwait(false);
+            var httpResponse = await client.SendAsync(request);
 
             var response = httpResponse.Content.ReadAsStringAsync().Result;
             var chatHistory = JsonConvert.DeserializeObject<SlackHistoryRetrieve>(response).Messages[0].Text;
@@ -49,33 +63,41 @@ namespace Microsoft.Bot.Builder.FunctionalTests
             return chatHistory;
         }
 
-        private async Task<string> SendMessage()
+        private async Task<string> SendMessageAsync()
         {
-            var requestUri = "XXXX";
-            var json = File.ReadAllText(Directory.GetCurrentDirectory() + @"/Payloads/SlackSendGreets.json").Replace(" ", string.Empty);
-            var timestamp = "fakeStamp";
-
-            var slackSignature = string.Empty;
-
-            object[] signature = { "v0", timestamp.ToString(), json };
-            var baseString = string.Join(":", signature);
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes("XXXXXX")))
+            var data = new NameValueCollection
             {
-                var hashArray = hmac.ComputeHash(Encoding.UTF8.GetBytes(baseString));
-
-                var hash = string.Concat("v0=", BitConverter.ToString(hashArray).Replace("-", string.Empty)).ToUpperInvariant();
-                slackSignature = hash;
+                ["token"] = _slackToken,
+                ["channel"] = _slackChannel,
+                ["text"] = "Hello bot",
+                ["as_user"] = "true",
+            };
+            byte[] response;
+            using (var client = new WebClient())
+            {
+                response = await client.UploadValuesTaskAsync($"{_slackUrlBase}/chat.postMessage", "POST", data);
             }
 
-            client = new HttpClient();
-            client.DefaultRequestHeaders.TryAddWithoutValidation("X-Slack-Request-Timestamp", "fakeStamp");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("X-Slack-Signature", slackSignature);
+            var stringResponse = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
+            return stringResponse.Message.Text;
+        }
 
-            var requestMessage = new HttpRequestMessage(new HttpMethod("POST"), requestUri);
+        private void GetEnvironmentVars()
+        {
+            if (string.IsNullOrWhiteSpace(_slackChannel) || string.IsNullOrWhiteSpace(_slackToken))
+            {
+                _slackChannel = Environment.GetEnvironmentVariable("SLACK_CHANNEL");
+                if (string.IsNullOrWhiteSpace(_slackChannel))
+                {
+                    throw new Exception("Environment variable 'SLACK_CHANNEL' not found.");
+                }
 
-            requestMessage.Content = new StringContent(json);
-            var result = await client.PostAsync(requestUri, requestMessage.Content);
-            return result.StatusCode.ToString();
+                _slackToken = Environment.GetEnvironmentVariable("SLACK_TOKEN");
+                if (string.IsNullOrWhiteSpace(_slackToken))
+                {
+                    throw new Exception("Environment variable 'SLACK_TOKEN' not found.");
+                }
+            }
         }
     }
 }

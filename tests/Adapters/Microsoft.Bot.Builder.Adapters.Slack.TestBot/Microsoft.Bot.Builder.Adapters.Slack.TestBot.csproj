@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Bot.Builder.Adapters.Slack" Version="4.7.0-preview-191203-1" />
   </ItemGroup>
 
   <ItemGroup>
