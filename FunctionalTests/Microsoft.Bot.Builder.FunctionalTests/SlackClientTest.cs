@@ -14,6 +14,9 @@ using Newtonsoft.Json;
 namespace Microsoft.Bot.Builder.FunctionalTests
 {
     [TestClass]
+    #if !FUNCTIONALTESTS
+    [Ignore("These integration tests run only when FUNCTIONALTESTS is defined")]
+    #endif
     public class SlackClientTest
     {
         private HttpClient client;
