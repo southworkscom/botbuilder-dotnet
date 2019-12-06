@@ -21,7 +21,7 @@ namespace Microsoft.Bot.Builder.FunctionalTests
         private const string SlackUrlBase = "https://slack.com/api";
         private HttpClient _client;
         private string _slackChannel;
-        private string _slackToken;
+        private string _slackBotToken;
 
         [TestMethod]
         public async Task SendAndReceiveSlackMessageShouldSucceed()
@@ -43,7 +43,7 @@ namespace Microsoft.Bot.Builder.FunctionalTests
             while (!lastMessage.Contains("Echo") && i < 5)
             {
                 _client = new HttpClient();
-                var requestUri = $"{SlackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
+                var requestUri = $"{SlackUrlBase}/conversations.history?token={_slackBotToken}&channel={_slackChannel}";
 
                 var request = new HttpRequestMessage
                 {
@@ -68,7 +68,7 @@ namespace Microsoft.Bot.Builder.FunctionalTests
         {
             var data = new NameValueCollection
             {
-                ["token"] = _slackToken,
+                ["token"] = _slackBotToken,
                 ["channel"] = _slackChannel,
                 ["text"] = echoGuid,
                 ["as_user"] = "true",
@@ -82,7 +82,7 @@ namespace Microsoft.Bot.Builder.FunctionalTests
 
         private void GetEnvironmentVars()
         {
-            if (string.IsNullOrWhiteSpace(_slackChannel) || string.IsNullOrWhiteSpace(_slackToken))
+            if (string.IsNullOrWhiteSpace(_slackChannel) || string.IsNullOrWhiteSpace(_slackBotToken))
             {
                 _slackChannel = Environment.GetEnvironmentVariable("SLACK_CHANNEL");
                 if (string.IsNullOrWhiteSpace(_slackChannel))
@@ -90,10 +90,10 @@ namespace Microsoft.Bot.Builder.FunctionalTests
                     throw new Exception("Environment variable 'SLACK_CHANNEL' not found.");
                 }
 
-                _slackToken = Environment.GetEnvironmentVariable("SLACK_TOKEN");
-                if (string.IsNullOrWhiteSpace(_slackToken))
+                _slackBotToken = Environment.GetEnvironmentVariable("SLACK_BOT_TOKEN");
+                if (string.IsNullOrWhiteSpace(_slackBotToken))
                 {
-                    throw new Exception("Environment variable 'SLACK_TOKEN' not found.");
+                    throw new Exception("Environment variable 'SLACK_BOT_TOKEN' not found.");
                 }
             }
         }
