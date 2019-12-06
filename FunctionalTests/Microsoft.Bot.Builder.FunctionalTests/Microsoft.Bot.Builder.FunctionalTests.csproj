@@ -31,9 +31,6 @@
     <None Update="Assets\TellMeAJoke.wav">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="Payloads\SlackSendGreets.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
