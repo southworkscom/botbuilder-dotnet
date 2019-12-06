@@ -25,21 +25,19 @@ namespace Microsoft.Bot.Builder.FunctionalTests
         private string _slackUrlBase = "https://slack.com/api";
 
         [TestMethod]
-        public async Task SendAndReceiveSlackMessageShouldSucced()
+        public async Task SendAndReceiveSlackMessageShouldSucceed()
         {
             try
             {
                 GetEnvironmentVars();
-                await SendMessageAsync();
+                var echoGuid = Guid.NewGuid().ToString();
+                await SendMessageAsync(echoGuid);
 
                 var response = string.Empty;
 
-                while (!response.Contains("Echo"))
-                {
-                    response = await ReceiveMessageAsync();
-                }
-                
-                Assert.AreEqual("Echo: Hello bot", response);
+                response = await ReceiveMessageAsync();
+
+                Assert.AreEqual($"Echo: {echoGuid}", response);
             }
             catch (Exception e)
             {
@@ -49,30 +47,39 @@ namespace Microsoft.Bot.Builder.FunctionalTests
 
         private async Task<string> ReceiveMessageAsync()
         {
-            client = new HttpClient();
-            var requestUri = $"{_slackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
-
-            var request = new HttpRequestMessage
+            var res = string.Empty;
+            var i = 0;
+            while (!res.Contains("Echo") && i < 5)
             {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(requestUri),
-            };
+                client = new HttpClient();
+                var requestUri = $"{_slackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
 
-            var httpResponse = await client.SendAsync(request);
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(requestUri),
+                };
 
-            var response = httpResponse.Content.ReadAsStringAsync().Result;
-            var chatHistory = JsonConvert.DeserializeObject<SlackHistoryRetrieve>(response).Messages[0].Text;
-            
-            return chatHistory;
+                var httpResponse = await client.SendAsync(request);
+
+                var response = httpResponse.Content.ReadAsStringAsync().Result;
+                res = JsonConvert.DeserializeObject<SlackHistoryRetrieve>(response).Messages[0].Text;
+
+                await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+
+                i++;
+            }
+
+            return res;
         }
 
-        private async Task<string> SendMessageAsync()
+        private async Task<string> SendMessageAsync(string echoGuid)
         {
             var data = new NameValueCollection
             {
                 ["token"] = _slackToken,
                 ["channel"] = _slackChannel,
-                ["text"] = "Hello bot",
+                ["text"] = echoGuid,
                 ["as_user"] = "true",
             };
             byte[] response;
