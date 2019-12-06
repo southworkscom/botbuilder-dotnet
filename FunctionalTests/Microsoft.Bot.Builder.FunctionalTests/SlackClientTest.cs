@@ -1,12 +1,11 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Adapters.Slack;
 using Microsoft.Bot.Builder.FunctionalTests.Payloads;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -19,40 +18,32 @@ namespace Microsoft.Bot.Builder.FunctionalTests
     #endif
     public class SlackClientTest
     {
-        private HttpClient client;
-        private string _slackChannel = null;
-        private string _slackToken = null;
-        private string _slackUrlBase = "https://slack.com/api";
+        private const string SlackUrlBase = "https://slack.com/api";
+        private HttpClient _client;
+        private string _slackChannel;
+        private string _slackToken;
 
         [TestMethod]
         public async Task SendAndReceiveSlackMessageShouldSucceed()
         {
-            try
-            {
-                GetEnvironmentVars();
-                var echoGuid = Guid.NewGuid().ToString();
-                await SendMessageAsync(echoGuid);
+            GetEnvironmentVars();
+            var echoGuid = Guid.NewGuid().ToString();
+            await SendMessageAsync(echoGuid);
 
-                var response = string.Empty;
+            var response = await ReceiveMessageAsync();
 
-                response = await ReceiveMessageAsync();
-
-                Assert.AreEqual($"Echo: {echoGuid}", response);
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            Assert.AreEqual($"Echo: {echoGuid}", response);
         }
 
         private async Task<string> ReceiveMessageAsync()
         {
-            var res = string.Empty;
+            var lastMessage = string.Empty;
             var i = 0;
-            while (!res.Contains("Echo") && i < 5)
+
+            while (!lastMessage.Contains("Echo") && i < 5)
             {
-                client = new HttpClient();
-                var requestUri = $"{_slackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
+                _client = new HttpClient();
+                var requestUri = $"{SlackUrlBase}/conversations.history?token={_slackToken}&channel={_slackChannel}";
 
                 var request = new HttpRequestMessage
                 {
@@ -60,20 +51,20 @@ namespace Microsoft.Bot.Builder.FunctionalTests
                     RequestUri = new Uri(requestUri),
                 };
 
-                var httpResponse = await client.SendAsync(request);
+                var httpResponse = await _client.SendAsync(request);
 
                 var response = httpResponse.Content.ReadAsStringAsync().Result;
-                res = JsonConvert.DeserializeObject<SlackHistoryRetrieve>(response).Messages[0].Text;
+                lastMessage = JsonConvert.DeserializeObject<SlackHistoryRetrieve>(response).Messages[0].Text;
 
                 await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
 
                 i++;
             }
 
-            return res;
+            return lastMessage;
         }
 
-        private async Task<string> SendMessageAsync(string echoGuid)
+        private async Task SendMessageAsync(string echoGuid)
         {
             var data = new NameValueCollection
             {
@@ -82,14 +73,11 @@ namespace Microsoft.Bot.Builder.FunctionalTests
                 ["text"] = echoGuid,
                 ["as_user"] = "true",
             };
-            byte[] response;
+
             using (var client = new WebClient())
             {
-                response = await client.UploadValuesTaskAsync($"{_slackUrlBase}/chat.postMessage", "POST", data);
+                await client.UploadValuesTaskAsync($"{SlackUrlBase}/chat.postMessage", "POST", data);
             }
-
-            var stringResponse = JsonConvert.DeserializeObject<SlackResponse>(Encoding.UTF8.GetString(response));
-            return stringResponse.Message.Text;
         }
 
         private void GetEnvironmentVars()
