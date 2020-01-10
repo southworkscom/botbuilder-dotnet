@@ -1,4 +1,5 @@
 pool:
+  vmImage: 'windows-2019'
   name: Azure Pipelines
   demands:
   - msbuild
@@ -7,8 +8,6 @@ pool:
 variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
-  BotGroup: 'TestWebexBot-Group-CI-Build'
-  BotName: 'TestWebexBot-Echo-CI-Build'
 
 steps:
 - task: UseDotNet@2
@@ -48,14 +47,14 @@ steps:
 - task: AzureCLI@1
   displayName: 'Create Azure Resources'
   inputs:
-    azureSubscription: "$(AzureSubscriptionName)"
+    azureSubscription: 'mr-azure-subscription'
     scriptLocation: inlineScript
     inlineScript: 'call az deployment create --name "$(ResourceGroupName)" --template-file "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\DeploymentTemplates\template-with-new-rg.json" --location "westus" --parameters appId=$(AppId) appSecret="$(AppSecret)" botId="$(AzureBotName)" botSku=F0 newAppServicePlanName="$(AzureBotName)" newWebAppName="$(AzureBotName)" groupName="$(ResourceGroupName)" groupLocation="westus" newAppServicePlanLocation="westus" webexPublicAddress="$(AzureBotPublicAddress)" webexAccessToken="$(WebexBotAccessToken)" webexSecret="$(WebexWebhookSecret)" webexWebhookName="$(WebexWebhookName)"'
 
 - task: AzureCLI@1
   displayName: 'Zip Deploy Bot'
   inputs:
-    azureSubscription: "$(AzureSubscriptionName)"
+    azureSubscription: 'mr-azure-subscription'
     scriptLocation: inlineScript
     inlineScript: 'call az webapp deployment source config-zip --resource-group "$(ResourceGroupName)" --name "$(AzureBotName)" --src "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\PublishedBot\PublishedBot.zip"'
 
@@ -77,7 +76,7 @@ steps:
 - task: AzureCLI@1
   displayName: 'Delete Resources'
   inputs:
-    azureSubscription: "$(AzureSubscriptionName)"
+    azureSubscription: 'mr-azure-subscription'
     scriptLocation: inlineScript
     inlineScript: 'call az group delete -n "$(ResourceGroupName)" --yes'
 
