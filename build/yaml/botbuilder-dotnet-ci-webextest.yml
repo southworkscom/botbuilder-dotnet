@@ -8,6 +8,8 @@ pool:
 variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
+  ResourceGroupName: 'mr-webex-rg'
+  AzureBotName: 'mr-webex-bot'
 
 steps:
 - task: UseDotNet@2
