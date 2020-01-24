@@ -139,10 +139,10 @@ namespace Microsoft.Bot.Builder.FunctionalTests
                     throw new Exception("Environment variable 'BotEndpoint' not found.");
                 }
 
-                _senderId = Environment.GetEnvironmentVariable("UserId");
+                _senderId = Environment.GetEnvironmentVariable("SenderId");
                 if (string.IsNullOrWhiteSpace(_senderId))
                 {
-                    throw new Exception("Environment variable 'UserId' not found.");
+                    throw new Exception("Environment variable 'SenderId' not found.");
                 }
             }
         }
