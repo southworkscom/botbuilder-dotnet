@@ -1,4 +1,8 @@
 steps:
+- powershell: |
+   dotnet tool install --global coverlet.console
+  displayName: 'Install Coverlet'
+
 - task: DotNetCoreCLI@2
   displayName: dotnet test
   inputs:
