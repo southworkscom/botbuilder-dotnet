@@ -7,7 +7,6 @@ steps:
      Tests/**/*Tests.csproj
      
     arguments: '-v n  --configuration debug --no-build --no-restore --filter TestCategory!=IgnoreInAutomatedBuild --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
-  condition: eq(variables['BuildConfiguration'],'Debug-Windows')
 
 - powershell: |
    # This task copies the code coverage file created by dotnet test into a well known location. In all
