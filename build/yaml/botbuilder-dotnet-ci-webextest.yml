@@ -8,8 +8,6 @@ pool:
 variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
-  ResourceGroupName: 'testwebexbot-group-ci-build'
-  AzureBotName: 'testwebexbot-echo-ci-build'
 
 steps:
 - task: UseDotNet@2
@@ -49,16 +47,16 @@ steps:
 - task: AzureCLI@1
   displayName: 'Create Azure Resources'
   inputs:
-    azureSubscription: '$(AzureSubscriptionName)'
+    azureSubscription: '$(AzureSubscription)'
     scriptLocation: inlineScript
-    inlineScript: 'call az deployment create --name "$(ResourceGroupName)" --template-file "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\DeploymentTemplates\template-with-new-rg.json" --location "westus" --parameters appId=$(AppId) appSecret="$(AppSecret)" botId="$(AzureBotName)" botSku=F0 newAppServicePlanName="$(AzureBotName)" newWebAppName="$(AzureBotName)" groupName="$(ResourceGroupName)" groupLocation="westus" newAppServicePlanLocation="westus" webexPublicAddress="$(AzureBotPublicAddress)" webexAccessToken="$(WebexBotAccessToken)" webexSecret="$(WebexWebhookSecret)" webexWebhookName="$(WebexWebhookName)"'
+    inlineScript: 'call az deployment create --name "$(BotGroup)" --template-file "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\DeploymentTemplates\template-with-new-rg.json" --location "westus" --parameters appId=$(AppId) appSecret="$(AppSecret)" botId="$(BotName)" botSku=F0 newAppServicePlanName="$(BotName)" newWebAppName="$(BotName)" groupName="$(BotGroup)" groupLocation="westus" newAppServicePlanLocation="westus" webexPublicAddress="https://$(BotName).azurewebsites.net/api/messages" webexAccessToken="$(WebexBotAccessToken)" webexSecret="$(WebexWebhookSecret)" webexWebhookName="$(WebexWebhookName)"'
 
 - task: AzureCLI@1
   displayName: 'Zip Deploy Bot'
   inputs:
-    azureSubscription: '$(AzureSubscriptionName)'
+    azureSubscription: '$(AzureSubscription)'
     scriptLocation: inlineScript
-    inlineScript: 'call az webapp deployment source config-zip --resource-group "$(ResourceGroupName)" --name "$(AzureBotName)" --src "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\PublishedBot\PublishedBot.zip"'
+    inlineScript: 'call az webapp deployment source config-zip --resource-group "$(BotGroup)" --name "$(BotName)" --src "$(System.DefaultWorkingDirectory)\tests\Adapters\Microsoft.Bot.Builder.Adapters.Webex.TestBot\PublishedBot\PublishedBot.zip"'
 
 - powershell: |
    echo '##vso[task.setvariable variable=WEBEX_ROOM_ID]$(WebexRoomId)'
@@ -78,8 +76,8 @@ steps:
 - task: AzureCLI@1
   displayName: 'Delete Resources'
   inputs:
-    azureSubscription: '$(AzureSubscriptionName)'
+    azureSubscription: '$(AzureSubscription)'
     scriptLocation: inlineScript
-    inlineScript: 'call az group delete -n "$(ResourceGroupName)" --yes'
+    inlineScript: 'call az group delete -n "$(BotGroup)" --yes'
   condition: always()
 
