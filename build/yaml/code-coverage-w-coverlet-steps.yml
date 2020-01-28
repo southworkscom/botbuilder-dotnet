@@ -1,8 +1,4 @@
 steps:
-- powershell: |
-   dotnet tool install --global coverlet.console
-  displayName: 'Install Coverlet'
-
 - task: DotNetCoreCLI@2
   displayName: dotnet test
   inputs:
@@ -12,8 +8,7 @@ steps:
      !**/Microsoft.Bot.Builder.Classic.Tests.csproj
      !**/Microsoft.Bot.ApplicationInsights.WebApi.Tests.csproj
      !**/Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests.csproj
-
-    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
 
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
