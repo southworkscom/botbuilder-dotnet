@@ -1,17 +1,19 @@
 steps:
-- powershell: |
-   dotnet tool install --global coverlet.console
-  displayName: 'Install Coverlet'
+- task: DotNetCoreCLI@2
+  displayName: dotnet test
+  inputs:
+    command: test
+    arguments: '--configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+    projects: 'tests/**/*.csproj'
 
-- powershell: |
-   coverlet Adapters\$(ProjectName)\bin\$(BuildConfiguration)\netcoreapp3.0\$(ProjectName).dll --target "dotnet" --targetargs "test Adapters\$(ProjectName)\$(ProjectName).csproj -v n --configuration debug --no-build --no-restore --filter 'TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests'" --format cobertura --output $(Build.SourcesDirectory)\$(OutputFile) --exclude-by-file "Adapters\$env:ProjectName\TwilioClientWrapper.cs" --exclude-by-file "Adapters\$env:ProjectName\TwilioMessage.cs" 
-
-  workingDirectory: tests
-  displayName: 'Coverlet - Run test'
+- script: |
+    dotnet tool install -g dotnet-reportgenerator-globaltool
+    reportgenerator -reports:$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines;Cobertura
+  displayName: Create Code coverage report
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage '
   inputs:
     codeCoverageTool: Cobertura
-    summaryFileLocation: '$(Build.SourcesDirectory)\$(OutputFile)'
-    reportDirectory: '$(Build.SourcesDirectory)'
+    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+    reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
