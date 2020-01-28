@@ -4,7 +4,9 @@ steps:
   inputs:
     command: test
     projects: |
-     Tests/**/*Tests.csproj
+     **/**Tests.csproj
+     !**/Microsoft.Bot.ApplicationInsights.WebApi.Tests.csproj
+     !**/Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests.csproj
      
     arguments: '-v n  --configuration debug --no-build --no-restore --filter TestCategory!=IgnoreInAutomatedBuild --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
 
