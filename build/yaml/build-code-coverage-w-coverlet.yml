@@ -8,7 +8,7 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  BuildPlatform: 'Any CPU'
+  BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
   ProjectName: 'Microsoft.Bot.Builder.Adapters.Twilio.Tests'
   Build.SourcesDirectory: ''
@@ -42,5 +42,7 @@ steps:
     vsVersion: 16.0
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
+    msbuildArgs: -p:SignAssembly=false -p:delaySign=false
+    solution: '$(Parameters.solution)'
 
 - template: code-coverage-w-coverlet-steps.yml
