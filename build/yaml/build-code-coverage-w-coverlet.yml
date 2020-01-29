@@ -43,6 +43,5 @@ steps:
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
     msbuildArgs: -p:SignAssembly=false -p:delaySign=false
-    solution: '$(Parameters.solution)'
 
 - template: code-coverage-w-coverlet-steps.yml
