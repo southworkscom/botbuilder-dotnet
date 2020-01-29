@@ -1,62 +1,20 @@
 steps:
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test (debug)'
+  displayName: dotnet test
   inputs:
     command: test
     projects: |
-     **/**Tests.csproj
-     !**/Microsoft.Bot.ApplicationInsights.WebApi.Tests.csproj
-     !**/Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests.csproj
-     
-    arguments: '-v n  --configuration debug --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+     Tests/**/*Tests.csproj
+    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
 
-- powershell: |
-   # This task copies the code coverage file created by dotnet test into a well known location. In all
-   # checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
-   # My attempts to override this and have it go directly to the CodeCoverage directory have
-   # all failed, so I'm just doing the copy here.  (cmullins)
-   
-   Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
-  displayName: 'Copy .coverage Files to CodeCoverage folder'
+- script: |
+    dotnet tool install -g dotnet-reportgenerator-globaltool
+    reportgenerator -reports:$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines;Cobertura
+  displayName: Create Code coverage report
 
-- task: PowerShell@2
-  displayName: 'Upload Coverage Files to Coveralls.io https://coveralls.io/github/Microsoft/botbuilder-dotnet'
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage '
   inputs:
-    targetType: filePath
-    filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
-    arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
-  continueOnError: true
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: Coverage files'
-  inputs:
-    PathtoPublish: CodeCoverage
-    ArtifactName: CodeCoverage
-  enabled: false
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: build folder'
-  inputs:
-    PathtoPublish: build
-    ArtifactName: build
-  enabled: false
-
-- powershell: |
-   New-Item -ItemType directory -Path "outputLibraries\" -Force
-   
-   $buildTarget = $env:BuildConfiguration.Split("-")[0];
-   
-   $env:BotBuilderDll.Split(",") | ForEach {
-       $library = $_.Trim()
-       Write-Host $library
-   
-       Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-       Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-   }
-  displayName: 'Copy DLLs to outputLibraries folder'
-
-- task: PublishPipelineArtifact@0
-  displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
-  inputs:
-    artifactName: 'BotBuilderDLLs-$(BuildConfiguration)'
-    targetPath: outputLibraries
+    codeCoverageTool: Cobertura
+    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+    reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
