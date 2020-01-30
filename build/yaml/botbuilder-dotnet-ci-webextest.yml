@@ -6,8 +6,11 @@ pool:
   - visualstudio
 
 variables:
+  ReleasePackageVersion: 4.8.0-preview-$(Build.BuildNumber)
+  MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
+  Parameters.solution: Microsoft.Bot.Builder.sln
   BotGroup: 'testwebexbot-group-ci-build'
   BotName: 'testwebexbot-echo-ci-build'
 
