@@ -11,8 +11,6 @@ variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
   Parameters.solution: Microsoft.Bot.Builder.sln
-  BotGroup: 'testwebexbot-group-ci-build'
-  BotName: 'testwebexbot-echo-ci-build'
 
 steps:
 - template: ci-build-steps.yml
