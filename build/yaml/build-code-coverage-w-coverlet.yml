@@ -7,7 +7,7 @@ pr:
 variables:
   BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
   BuildPlatform: any cpu
-  BuildConfiguration: debug
+  BuildConfiguration: Debug-Windows
   OutputFile: 'result.xml'
   IsBuildServer: true # This is consumed by projects in Microsoft.Bot.Builder.sln.
   MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
@@ -24,7 +24,7 @@ stages:
   jobs:
   - job: Debug_Windows_Configuration
     variables:
-      BuildConfiguration: debug
+      BuildConfiguration: Debug-Windows
     steps:
     - template: ci-build-steps.yml
     - template: code-coverage-w-coverlet-steps.yml
