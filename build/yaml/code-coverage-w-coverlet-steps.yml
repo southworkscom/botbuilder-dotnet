@@ -13,7 +13,7 @@ steps:
     command: test
     projects: |
      Tests/**/*Tests.csproj
-    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings''
+    arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
 
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -21,7 +21,7 @@ steps:
   displayName: Create Code coverage report
 
 - task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage '
+  displayName: 'Publish code coverage'
   inputs:
     codeCoverageTool: Cobertura
     summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
