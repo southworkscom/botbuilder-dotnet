@@ -13,6 +13,8 @@ variables:
   ProjectName: 'Microsoft.Bot.Builder.Adapters.Twilio.Tests'
   Build.SourcesDirectory: ''
   OutputFile: 'result.xml'
+  MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
+  Parameters.solution: Microsoft.Bot.Builder.sln
 
 steps:
 - template: ci-build-steps.yml
