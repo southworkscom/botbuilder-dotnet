@@ -4,13 +4,8 @@ trigger:
 pr:
   - master
 
-pool:
-  vmImage: 'windows-2019'
-  demands:
-    - msbuild
-    - visualstudio
-
 variables:
+  BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
   OutputFile: 'result.xml'
@@ -18,6 +13,18 @@ variables:
   MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
   Parameters.solution: Microsoft.Bot.Builder.sln
 
-steps:
-- template: ci-build-steps.yml
-- template: code-coverage-w-coverlet-steps.yml
+pool:
+  vmImage: 'windows-2019'
+  demands:
+    - msbuild
+    - visualstudio
+
+stages:
+- stage: Build
+  jobs:
+  - job: Debug_Windows_Configuration
+    variables:
+      BuildConfiguration: Debug_Windows
+    steps:
+    - template: ci-build-steps.yml
+    - template: code-coverage-w-coverlet-steps.yml
