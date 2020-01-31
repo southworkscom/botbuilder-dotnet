@@ -12,7 +12,7 @@ steps:
   inputs:
     command: test
     projects: |
-     Tests/**/*Tests.csproj
+     Tests/**/*Microsoft.Bot.ApplicationInsights.WebApi.Tests.csproj
     arguments: '-v n --configuration $(BuildConfiguration) --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
 
 - script: |
