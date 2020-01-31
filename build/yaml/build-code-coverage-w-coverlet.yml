@@ -14,9 +14,6 @@ variables:
   Build.SourcesDirectory: ''
   OutputFile: 'result.xml'
 
-
-  jobs:
-    - job: Run_Code_Coverage
-      steps:
-      - template: ci-build-steps.yml
-      - template: code-coverage-w-coverlet-steps.yml
+steps:
+- template: ci-build-steps.yml
+- template: code-coverage-w-coverlet-steps.yml
