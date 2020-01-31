@@ -6,16 +6,18 @@ pr:
 
 pool:
   vmImage: 'windows-2019'
+  demands:
+    - msbuild
+    - visualstudio
 
 variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
-  ProjectName: 'Microsoft.Bot.Builder.Adapters.Twilio.Tests'
-  Build.SourcesDirectory: ''
   OutputFile: 'result.xml'
+  IsBuildServer: true # This is consumed by projects in Microsoft.Bot.Builder.sln.
   MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
   Parameters.solution: Microsoft.Bot.Builder.sln
 
-steps:
+steps:s
 - template: ci-build-steps.yml
 - template: code-coverage-w-coverlet-steps.yml
