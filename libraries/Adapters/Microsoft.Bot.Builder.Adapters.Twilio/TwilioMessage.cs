@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
@@ -10,6 +11,7 @@ namespace Microsoft.Bot.Builder.Adapters.Twilio
     /// A class wrapping Twilio request parameters.
     /// </summary>
     /// <remarks>These parameters can be included in an HTTP request that contains a Twilio message.</remarks>
+    [ExcludeFromCodeCoverage]
     public class TwilioMessage
     {
         /// <summary>

@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Bot.Builder.Adapters.Twilio
 {
     /// <summary>
     /// Defines values that a <see cref="TwilioClientWrapper"/> can use to connect to Twilio's SMS service.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class TwilioAdapterOptions
     {
         /// <summary>

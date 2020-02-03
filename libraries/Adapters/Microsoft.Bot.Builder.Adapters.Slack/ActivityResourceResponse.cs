@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Bot.Schema;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
@@ -8,6 +9,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
     /// <summary>
     /// Extends ResourceResponse with ActivityId and Conversation properties.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ActivityResourceResponse : ResourceResponse
     {
         /// <summary>

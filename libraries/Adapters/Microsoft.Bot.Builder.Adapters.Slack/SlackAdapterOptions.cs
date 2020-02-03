@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
     /// <summary>
     /// Class for defining implementation of the SlackAdapter Options.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class SlackAdapterOptions
     {
         /// <summary>

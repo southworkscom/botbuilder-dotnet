@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -18,6 +19,7 @@ using Attachment = SlackAPI.Attachment;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
+    [ExcludeFromCodeCoverage]
     public class SlackClientWrapper
     {
         private const string PostMessageUrl = "https://slack.com/api/chat.postMessage";
