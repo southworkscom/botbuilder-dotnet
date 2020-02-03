@@ -1,11 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
     /// <summary>
     /// SlackMessage class.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class SlackMessage
     {
         /// <summary>

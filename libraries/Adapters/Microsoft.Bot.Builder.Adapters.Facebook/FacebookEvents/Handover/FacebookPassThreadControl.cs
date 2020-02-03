@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Handover
 {
+    [ExcludeFromCodeCoverage]
     public class FacebookPassThreadControl : FacebookThreadControl
     {
         /// <summary>

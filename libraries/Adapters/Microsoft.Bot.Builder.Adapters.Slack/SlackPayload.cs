@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using SlackAPI;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
+    [ExcludeFromCodeCoverage]
     public class SlackPayload
     {
         [JsonProperty(PropertyName = "type")]

@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
+    [ExcludeFromCodeCoverage]
     public class SlackRequestBody
     {
         [JsonProperty(PropertyName = "challenge")]

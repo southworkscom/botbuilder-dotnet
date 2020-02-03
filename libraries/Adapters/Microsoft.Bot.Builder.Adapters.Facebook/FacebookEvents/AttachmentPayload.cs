@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents.Templates;
 using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Adapters.Facebook.FacebookEvents
 {
+    [ExcludeFromCodeCoverage]
     public class AttachmentPayload
     {
         /// <summary>
