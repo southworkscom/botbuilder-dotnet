@@ -32,49 +32,9 @@ stages:
     steps:
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
-  - job: Release_Windows_Configuration
-    variables:
-      BuildConfiguration: Release-Windows
-    steps:
-    - template: ci-build-steps.yml
-    - template: ci-test-steps.yml
-
-- stage: API_Compatibility_Validation
-  dependsOn: Build
-  jobs:
-  - job: generate_multiconfig_var
-    steps:
-    - powershell: |
-       $multiconfig = '{';
-
-       $env:BotBuilderDll.Split(",") | ForEach {
-           $library = $_.Trim()
-           Write-Host $library
-
-           $threadName = $library.Split(".")[-1];
-           $multiconfig += "'" + $threadName + "':{'BotBuilderDll':'" + $library + "'}, ";
-         }
-       $multiconfig = $multiconfig.TrimEnd(' ').TrimEnd(',') + "}";
-       $multiconfig
-
-       "##vso[task.setVariable variable=MULTICONFIG;isOutput=true]$multiconfig"
-      name: generate_var
-    - script: echo $(generate_var.MULTICONFIG)
-
-  - job: check_api_for
-    dependsOn: generate_multiconfig_var
-    timeoutInMinutes: 10
-    strategy:
-      maxParallel: 10
-      matrix: $[ dependencies.generate_multiconfig_var.outputs['generate_var.MULTICONFIG'] ]
-    steps:
-    - template: ci-api-validation-steps.yml
-
-- stage: Post_Results_to_GitHub
-  dependsOn: API_Compatibility_Validation
-  jobs:
-  - job: Post_to_GitHub
-    variables:
-      BuildConfiguration: Release-Windows
-    steps:
-    - template: ci-post-to-github-steps.yml
+  # - job: Release_Windows_Configuration
+  #   variables:
+  #     BuildConfiguration: Release-Windows
+  #   steps:
+  #   - template: ci-build-steps.yml
+  #   - template: ci-test-steps.yml
