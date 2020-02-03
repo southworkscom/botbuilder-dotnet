@@ -88,6 +88,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="coverlet.msbuild">
+      <Version>2.7.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights.TraceListener">
       <Version>2.8.1</Version>
     </PackageReference>
