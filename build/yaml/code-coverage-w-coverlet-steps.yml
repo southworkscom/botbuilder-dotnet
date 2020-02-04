@@ -19,7 +19,7 @@ steps:
 - script: |
     Write-Host "Upload coverage result to codecov.io"
     dotnet tool install --global Codecov.Tool
-    codecov -f "$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml" -t $(CODECOV_TOKEN)
+    codecov -f $(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml -t $(CODECOV_TOKEN)
   displayName: 'Upload coverage result'
 
 # - script: |
