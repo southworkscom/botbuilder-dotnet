@@ -13,7 +13,7 @@ steps:
     command: test
     projects: |
      Tests/**/*Tests.csproj
-    arguments: '-v n --configuration debug --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[Microsoft.Bot.*]*" /p:Exclude="[*Luis.TestUtils]*,[*Adaptive.Templates.Tests]*,[*Dialogs.Debugging]*,[*Integration.ApplicationInsights.WebApi]*,[*Integration.AspNet.WebApi],[*Builder.TestBot*],[*Builder.Tests],[*Configuration]*,[*Connector]*,[*Schema]*,[*Streaming]*"'
+    arguments: '-v n --configuration debug --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[Microsoft.Bot.*]*" /p:Exclude="[*Luis.TestUtils]*%2c[*Adaptive.Templates.Tests]*%2c[*Dialogs.Debugging]*%2c[*Integration.ApplicationInsights.WebApi]*%2c[*Integration.AspNet.WebApi]*%2c[*Builder.TestBot]*%2c[*Builder.Tests]*%2c[*Configuration]*%2c[*Connector]*%2c[*Schema]*%2c[*Streaming]*"'
   condition: eq(variables['BuildConfiguration'],'Debug-Windows')
 
 - script: |
