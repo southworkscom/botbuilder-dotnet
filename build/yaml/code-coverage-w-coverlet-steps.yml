@@ -17,9 +17,15 @@ steps:
   condition: eq(variables['BuildConfiguration'],'Debug-Windows')
 
 - script: |
-    dotnet tool install -g dotnet-reportgenerator-globaltool
-    reportgenerator -reports:$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines;Cobertura
-  displayName: Create Code coverage report
+    Write-Host "Upload coverage result to codecov.io"
+    dotnet tool install --global Codecov.Tool
+    codecov -f "$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml" -t $(CODECOV_TOKEN)
+  displayName: 'Upload coverage result'
+
+# - script: |
+#     dotnet tool install -g dotnet-reportgenerator-globaltool
+#     reportgenerator -reports:$(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines;Cobertura
+#   displayName: Create Code coverage report
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage'
