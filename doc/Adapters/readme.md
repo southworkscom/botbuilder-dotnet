@@ -8,7 +8,7 @@ The Adapter is part of the [Activity Process Stack.](https://docs.microsoft.com/
 
 In conversation, the adapter is a component mediator between the communication apps and the bot's logic.
 
-![](C:\Users\BillyDelgado\Desktop\Adapters\media\bot-builder-adapter-work-flow.png)
+![alt text](https://github.com/southworks/botbuilder-dotnet/blob/doc/add-adapters-documentation/doc/Adapters/media/bot-builder-adapter-work-flow.png)
 
 
 
