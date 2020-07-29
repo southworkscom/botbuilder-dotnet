@@ -61,6 +61,7 @@ namespace Microsoft.Bot.Builder
 
             if (turnContext.Activity.Type == null)
             {
+                Console.WriteLine("testing a change in BotBuilder");
                 throw new ArgumentException($"{nameof(turnContext)}.Activity must have non-null Type.");
             }
 
