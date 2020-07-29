@@ -81,7 +81,7 @@ stages:
   - job: generate_multiconfig_var
     steps:
     - powershell: |
-       if ("$(Build.Reason)" eq 'Manual') {
+       if ("$(Build.Reason)" -eq 'Manual') {
          git checkout master-test
          $branchSource = "$(Build.SourceBranch)"
          echo $branchSource
