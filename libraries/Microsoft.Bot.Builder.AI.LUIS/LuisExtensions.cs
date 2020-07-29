@@ -35,7 +35,7 @@ namespace Microsoft.Bot.Builder.AI.Luis
             builder.AddInMemoryCollection(settings);
             if (environment == "Development")
             {
-                Console.WriteLine("testing a change in LUIS");
+                Console.WriteLine("testing a second change in LUIS");
                 environment = Environment.UserName;
             }
 
