@@ -47,6 +47,7 @@ namespace Microsoft.Bot.Builder.Dialogs
         {
             if (options is CancellationToken)
             {
+                Console.WriteLine("testing a change in Dialogs again");
                 throw new ArgumentException($"{nameof(options)} cannot be a cancellation token");
             }
 
