@@ -1,4 +1,5 @@
 #variables:
+#  An inocuos change in a yaml.
 #  DotNetCoverallsToken: define this in Azure
 #  NoCoverageUpload: (optional) define this in Azure. Default = false.
 steps:
