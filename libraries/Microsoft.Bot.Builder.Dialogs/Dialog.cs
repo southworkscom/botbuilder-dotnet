@@ -35,6 +35,7 @@ namespace Microsoft.Bot.Builder.Dialogs
         /// <param name="dialogId">The ID to assign to this dialog.</param>
         public Dialog(string dialogId = null)
         {
+            Console.WriteLine("A change in Dialogs");
             Id = dialogId;
             _telemetryClient = NullBotTelemetryClient.Instance;
         }
