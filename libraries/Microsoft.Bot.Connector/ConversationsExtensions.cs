@@ -11,6 +11,7 @@
 namespace Microsoft.Bot.Connector
 {
     using Microsoft.Bot.Schema;
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading;
@@ -94,6 +95,7 @@ namespace Microsoft.Bot.Connector
         {
             using (var _result = await operations.CreateConversationWithHttpMessagesAsync(parameters, null, cancellationToken).ConfigureAwait(false))
             {
+                Console.WriteLine("A change in Connector");
                 return _result.Body;
             }
         }
