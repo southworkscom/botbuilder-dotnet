@@ -98,11 +98,11 @@ jobs:
     - template: ci-test-steps.yml
 
     - script: |
-      cd ..
-      dir *.* /s
-    displayName: 'Dir workspace'
-    continueOnError: true
-    condition: succeededOrFailed()
+        cd ..
+        dir *.* /s
+      displayName: 'Dir workspace'
+      continueOnError: true
+      condition: succeededOrFailed()
 
   - job: generate_multiconfig_var
     dependsOn: dotnet
