@@ -58,32 +58,32 @@ jobs:
         restoreSolution: '$(Parameters.solution)'
 
     - script: |
-        ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
-        ##vso[task.setvariable variable=BuildTarget]netcoreapp21
+        echo ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
+        echo ##vso[task.setvariable variable=BuildTarget]netcoreapp21
       displayName: Debug netcoreapp 2.1
 
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
 
     - script: |
-        ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
-        ##vso[task.setvariable variable=BuildTarget]netcoreapp31
+        echo ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
+        echo ##vso[task.setvariable variable=BuildTarget]netcoreapp31
       displayName: Debug netcoreapp 3.1
 
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
 
     - script: |
-        ##vso[task.setvariable variable=BuildConfiguration]Release-Windows
-        ##vso[task.setvariable variable=BuildTarget]netcoreapp21
+        echo ##vso[task.setvariable variable=BuildConfiguration]Release-Windows
+        echo ##vso[task.setvariable variable=BuildTarget]netcoreapp21
       displayName: Release netcoreapp 2.1
 
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
 
     - script: |
-        ##vso[task.setvariable variable=BuildConfiguration]Release-Windows
-        ##vso[task.setvariable variable=BuildTarget]netcoreapp31
+        echo ##vso[task.setvariable variable=BuildConfiguration]Release-Windows
+        echo ##vso[task.setvariable variable=BuildTarget]netcoreapp31
       displayName: Release netcoreapp 3.1
 
     - template: ci-build-steps.yml
