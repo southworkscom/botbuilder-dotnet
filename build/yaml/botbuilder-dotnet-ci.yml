@@ -42,7 +42,7 @@ variables:
 # The .NET 4.X asp.net integrations libraries do not build and test on non-windows boxes.
 # If we drop support for .NET 4.x then we can drop to just Debug/Release.
 jobs:
-  - job: dotnet
+  - job: build
     steps:
     - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
       displayName: 'Display env vars'
@@ -105,6 +105,7 @@ jobs:
       condition: succeededOrFailed()
 
   - job: generate_multiconfig_var
+    dependsOn: build
     steps:
     - powershell: |
        $multiconfig = '{';
