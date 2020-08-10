@@ -1,25 +1,3 @@
-steps:
-- powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
-  displayName: 'Display env vars'
-
-# Variables ReleasePackageVersion and PreviewPackageVersion are consumed by projects in Microsoft.Bot.Builder.sln.
-# For the signed build, they should be settable at queue time. To set that up, define the variables in Azure on the Variables tab.
-- task: colinsalmcorner.colinsalmcorner-buildtasks.tag-build-task.tagBuildOrRelease@0
-  displayName: 'Tag build with package version'
-  inputs:
-    tags: 'Version=$(ReleasePackageVersion)'
-  continueOnError: true
-
-- task: NuGetToolInstaller@0
-  displayName: 'Use NuGet 4.9.1'
-  inputs:
-    versionSpec: 4.9.1
-
-- task: NuGetCommand@2
-  displayName: 'NuGet restore'
-  inputs:
-    restoreSolution: '$(Parameters.solution)'
-
 - task: VSBuild@1
   displayName: 'Build solution Microsoft.Bot.Builder.sln'
   inputs:
@@ -30,10 +8,3 @@ steps:
     configuration: '$(BuildConfiguration)'
     maximumCpuCount: true
     logProjectEvents: false
-
-- script: |
-   cd ..
-   dir *.* /s
-  displayName: 'Dir workspace'
-  continueOnError: true
-  condition: succeededOrFailed()

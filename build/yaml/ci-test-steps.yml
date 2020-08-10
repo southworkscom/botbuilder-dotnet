@@ -115,10 +115,3 @@ steps:
   inputs:
     artifactName: 'BotBuilderDLLs-$(BuildConfiguration)-$(BuildTarget)'
     targetPath: outputLibraries
-
-- script: |
-   cd ..
-   dir *.* /s
-  displayName: 'Dir workspace'
-  continueOnError: true
-  condition: succeededOrFailed()
