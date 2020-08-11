@@ -5,7 +5,7 @@ steps:
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
   inputs:
-    artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
+    artifactName: 'BotBuilderDLLs-Debug-Windows'
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 - ${{ each library in parameters.libraries }}:
     - task: NuGetCommand@2
