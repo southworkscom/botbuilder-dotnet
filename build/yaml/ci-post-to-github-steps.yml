@@ -7,7 +7,7 @@ steps:
     downloadPath: '$(System.ArtifactsDirectory)\ApiCompat'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
-- task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
+- task: Southworks-Pipelines-Test.github-pr-comment-test.custom-publish-comment-task.github-pr-comment-test@0
   displayName: 'Publish Compat Results to Github'
   inputs:
     userToken: '$(GitHubCommentApiKey)'
