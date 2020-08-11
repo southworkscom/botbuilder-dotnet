@@ -42,7 +42,7 @@ variables:
 # The .NET 4.X asp.net integrations libraries do not build and test on non-windows boxes.
 # If we drop support for .NET 4.x then we can drop to just Debug/Release.
 jobs:
-  - job: build
+  - job: build_test_apicompat
     steps:
     - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
       displayName: 'Display env vars'
@@ -74,7 +74,7 @@ jobs:
 
     - script: |
         echo ##vso[task.setvariable variable=BuildConfiguration]Release-Windows
-      displayName: Release
+      displayName: Assign Release Variables
 
     - task: VSBuild@1
       displayName: 'Build solution Microsoft.Bot.Builder.sln'
@@ -129,7 +129,7 @@ jobs:
 
     - script: |
         echo ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
-      displayName: Debug
+      displayName: Assign Debug Variables
 
     - task: VSBuild@1
       displayName: 'Build solution Microsoft.Bot.Builder.sln'
