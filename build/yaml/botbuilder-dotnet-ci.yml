@@ -25,7 +25,6 @@ pr: # pr trigger
 variables:
   ApiCompatVersion: 4.6.3
   BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
-  BuildConfiguration: Debug-Windows
   BuildPlatform: any cpu
 #  DotNetCoverallsToken: define this in Azure
 #  GitHubCommentApiKey: define this in Azure
@@ -124,23 +123,6 @@ jobs:
         arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
       continueOnError: true
       condition: and(succeeded(), ne(variables['CoverallsToken'], ''))
-
-    - template: ci-test-steps.yml
-
-    - script: |
-        echo ##vso[task.setvariable variable=BuildConfiguration]Debug-Windows
-      displayName: Assign Debug Variables
-
-    - task: VSBuild@1
-      displayName: 'Build solution Microsoft.Bot.Builder.sln'
-      inputs:
-        solution: '$(Parameters.solution)'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
-        configuration: '$(BuildConfiguration)'
-        maximumCpuCount: true
-        logProjectEvents: false
 
     - template: ci-test-steps.yml
 
