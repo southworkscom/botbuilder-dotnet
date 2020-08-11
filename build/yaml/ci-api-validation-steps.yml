@@ -58,6 +58,7 @@ steps:
   displayName: 'Publish Compat Results to Github'
   inputs:
     userToken: '$(GitHubCommentApiKey)'
+    prNumber: '299'
     bodyFilePath: '$(System.DefaultWorkingDirectory)\ApiCompat'
     getSubFolders: true
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
