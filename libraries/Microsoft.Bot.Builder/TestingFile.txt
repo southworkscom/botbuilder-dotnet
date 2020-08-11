@@ -1,1 +1,1 @@
-A new file in a librarie.
+A new file in a library.
