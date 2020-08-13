@@ -33,13 +33,13 @@ steps:
   enabled: false
 
 - powershell: |
-    $path = "DownloadedNuGet\**\lib\netstandard2.0"
+    $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
 
     If (!(Test-Path "LibrariesToCompare\")) {
       New-Item -Path "LibrariesToCompare\" -ItemType Directory
     }
 
-    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
+    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
   displayName: 'Copy Nuget Libraries into LibrariesToCompare'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
