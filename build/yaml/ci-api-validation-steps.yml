@@ -5,11 +5,23 @@ steps:
     artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
+- powershell: |
+    echo ##vso[task.setvariable variable=Libraries]$env:BotBuilderDll.Split(",")
+    $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+    $Libraries | ForEach-Object {
+      $library = $_.Trim()
+      $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
+    }
+    $xml += "</packages>"
+    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
+    $xml
+  displayName: 'Generate NuGet packages.config File'
+
 - task: NuGetCommand@2
-  displayName: 'NuGet Install of Compatability Target Package: $(BotBuilderDll)'
+  displayName: 'NuGet Install Packages'
   inputs:
     command: custom
-    arguments: 'install $(BotBuilderDll) -Version $(ApiCompatVersion) -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
+    arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
 
 - task: CmdLine@1
   displayName: 'Run dir'
@@ -18,38 +30,39 @@ steps:
     arguments: '..\*.* /s'
   enabled: false
 
-- task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-  displayName: 'Compare Binaries'
-  inputs:
-    contractsRootFolder: 'DownloadedNuGet\$(BotBuilderDll).$(ApiCompatVersion)\lib\netstandard2.0'
-    contractsFileName: '$(BotBuilderDll).dll'
-    implFolder: '$(System.ArtifactsDirectory)/Artifacts'
-    failOnIssue: true
-    resolveFx: false
-    generateLog: true
-    outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
-    outputFolder: '$(Build.ArtifactStagingDirectory)'
-    useBaseline: false
+- ${{ each library in $Libraries }}:
+  - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
+    displayName: 'Compare Binaries'
+    inputs:
+      contractsRootFolder: 'DownloadedNuGet\${{ library }}.$(ApiCompatVersion)\lib\netstandard2.0'
+      contractsFileName: '${{ library }}.dll'
+      implFolder: '$(System.ArtifactsDirectory)/Artifacts'
+      failOnIssue: true
+      resolveFx: false
+      generateLog: true
+      outputFilename: '${{ library }}.$(ApiCompatVersion).CompatResults.txt'
+      outputFolder: '$(Build.ArtifactStagingDirectory)'
+      useBaseline: false
 
-- powershell: |
-   $FileName = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
-   $FileContent = @(Get-Content $FileName)
+  - powershell: |
+    $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
+    $FileContent = @(Get-Content $FileName)
+      
+    $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
+      
+    if ($FileContent.Length -eq 1) {
+    [system.io.file]::WriteAllText($fileName,$FileContent)
+    } else {
+    Set-Content $fileName $FileContent
+    }
     
-   $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion))"
-    
-   if ($FileContent.Length -eq 1) {
-   [system.io.file]::WriteAllText($fileName,$FileContent)
-   } else {
-   Set-Content $fileName $FileContent
-   }
-   
-   Write-Host "The updated line 1: `n$FileContent[0]"
-  displayName: 'Insert nuget link into ApiCompat results file.'
+    Write-Host "The updated line 1: `n$FileContent[0]"
+    displayName: 'Insert nuget link into ApiCompat results file.'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Compat Results artifact'
-  inputs:
-    ArtifactName: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Compat Results artifact'
+    inputs:
+      ArtifactName: '${{ library }}.$(ApiCompatVersion).CompatResults'
 
 - script: |
    cd ..
