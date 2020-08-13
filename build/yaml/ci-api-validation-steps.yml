@@ -45,18 +45,18 @@ steps:
       useBaseline: false
 
   - powershell: |
-    $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
-    $FileContent = @(Get-Content $FileName)
+      $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
+      $FileContent = @(Get-Content $FileName)
+        
+      $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
+        
+      if ($FileContent.Length -eq 1) {
+      [system.io.file]::WriteAllText($fileName,$FileContent)
+      } else {
+      Set-Content $fileName $FileContent
+      }
       
-    $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
-      
-    if ($FileContent.Length -eq 1) {
-    [system.io.file]::WriteAllText($fileName,$FileContent)
-    } else {
-    Set-Content $fileName $FileContent
-    }
-    
-    Write-Host "The updated line 1: `n$FileContent[0]"
+      Write-Host "The updated line 1: `n$FileContent[0]"
     displayName: 'Insert nuget link into ApiCompat results file.'
 
   - task: PublishBuildArtifacts@1
