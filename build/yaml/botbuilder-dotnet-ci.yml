@@ -22,6 +22,25 @@ pr: # pr trigger
     include:
      - master
 
+parameters:
+- name: libraries
+  type: string
+  values: 
+  - Microsoft.Bot.Builder.AI.Luis
+  - Microsoft.Bot.Builder.AI.QnA
+  - Microsoft.Bot.Builder.ApplicationInsights
+  - Microsoft.Bot.Builder.Azure
+  - Microsoft.Bot.Builder.Dialogs
+  - Microsoft.Bot.Builder.Integration.ApplicationInsights.Core
+  - Microsoft.Bot.Builder.Integration.AspNet.Core
+  - Microsoft.Bot.Builder.TemplateManager
+  - Microsoft.Bot.Builder.Testing
+  - Microsoft.Bot.Builder
+  - Microsoft.Bot.Configuration
+  - Microsoft.Bot.Connector
+  - Microsoft.Bot.Schema
+  - Microsoft.Bot.Streaming
+
 variables:
   ApiCompatVersion: 4.6.3
   BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
