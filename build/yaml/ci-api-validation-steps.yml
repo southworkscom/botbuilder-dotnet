@@ -10,7 +10,7 @@ steps:
 
 - powershell: |
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-    ${{ parameters.libraries }} | ForEach-Object {
+    $env:BotBuilderDll.Split(",") | ForEach-Object {
       $library = $_.Trim()
       $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
     }
