@@ -38,12 +38,6 @@ steps:
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
   displayName: 'Copy Nuget Libraries into LibrariesToCompare'
 
-- powershell: |
-    $path = "DownloadedNuGet\**\lib\netstandard2.0"
-
-    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
-  displayName: 'Copy Nuget Libraries into LibrariesToCompare'
-
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
   inputs:
