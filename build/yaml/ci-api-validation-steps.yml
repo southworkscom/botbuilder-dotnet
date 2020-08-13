@@ -1,6 +1,9 @@
 parameters:
   libraries: []
 
+variables:
+  librariesToCompare: ''
+
 steps:
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
@@ -9,7 +12,10 @@ steps:
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
 - powershell: |
+    $librariesToCompare = $env:BotBuilderDll -replace " ", "," 
+
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+
     $env:BotBuilderDll.Split(",") | ForEach-Object {
       $library = $_.Trim()
       $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
@@ -32,39 +38,50 @@ steps:
     arguments: '..\*.* /s'
   enabled: false
 
-- ${{ each library in parameters.libraries }}:
-  - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-    displayName: 'Compare Binaries'
-    inputs:
-      contractsRootFolder: 'DownloadedNuGet\${{ library }}.$(ApiCompatVersion)\lib\netstandard2.0'
-      contractsFileName: '${{ library }}.dll'
-      implFolder: '$(System.ArtifactsDirectory)/Artifacts'
-      failOnIssue: true
-      resolveFx: false
-      generateLog: true
-      outputFilename: '${{ library }}.$(ApiCompatVersion).CompatResults.txt'
-      outputFolder: '$(Build.ArtifactStagingDirectory)'
-      useBaseline: false
+- powershell: |
+    $path = "DownloadedNuGet\**\lib\netstandard2.0"
 
-  - powershell: |
-      $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
-      $FileContent = @(Get-Content $FileName)
-        
-      $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
-        
-      if ($FileContent.Length -eq 1) {
-      [system.io.file]::WriteAllText($fileName,$FileContent)
-      } else {
-      Set-Content $fileName $FileContent
-      }
+    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
+  displayName: 'Copy Nuget Libraries into LibrariesToCompare'
+
+- powershell: |
+    $path = "DownloadedNuGet\**\lib\netstandard2.0"
+
+    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
+  displayName: 'Copy Nuget Libraries into LibrariesToCompare'
+
+- task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
+  displayName: 'Compare Binaries'
+  inputs:
+    contractsRootFolder: 'LibrariesToCompare\'
+    contractsFileName: $(librariesToCompare)
+    implFolder: '$(System.ArtifactsDirectory)/Artifacts'
+    failOnIssue: true
+    resolveFx: false
+    generateLog: true
+    outputFilename: 'CompatResults.txt'
+    outputFolder: '$(Build.ArtifactStagingDirectory)'
+    useBaseline: false
+
+# - powershell: |
+#     $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
+#     $FileContent = @(Get-Content $FileName)
       
-      Write-Host "The updated line 1: `n$FileContent[0]"
-    displayName: 'Insert nuget link into ApiCompat results file.'
+#     $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
+      
+#     if ($FileContent.Length -eq 1) {
+#     [system.io.file]::WriteAllText($fileName,$FileContent)
+#     } else {
+#     Set-Content $fileName $FileContent
+#     }
+    
+#     Write-Host "The updated line 1: `n$FileContent[0]"
+#   displayName: 'Insert nuget link into ApiCompat results file.'
 
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Compat Results artifact'
-    inputs:
-      ArtifactName: '${{ library }}.$(ApiCompatVersion).CompatResults'
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish Compat Results artifact'
+#   inputs:
+#     ArtifactName: '${{ library }}.$(ApiCompatVersion).CompatResults'
 
 - script: |
    cd ..
