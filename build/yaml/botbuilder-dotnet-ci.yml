@@ -74,26 +74,6 @@ stages:
     steps:
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
-
-    - powershell: |
-        New-Item -ItemType directory -Path "outputLibraries\" -Force
-        
-        $buildTarget = $env:BuildConfiguration.Split("-")[0];
-        
-        $env:BotBuilderDll.Split(",") | ForEach {
-            $library = $_.Trim()
-            Write-Host $library
-        
-            Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-            Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-        }
-      displayName: 'Copy DLLs to outputLibraries folder'
-
-    - task: PublishPipelineArtifact@0
-      displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
-      inputs:
-        artifactName: 'BotBuilderDLLs-$(BuildConfiguration)-$(BuildTarget)'
-        targetPath: outputLibraries
   
 - stage: API_Compatibility_Validation
   dependsOn: Build
