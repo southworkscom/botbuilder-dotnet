@@ -76,24 +76,24 @@ stages:
   #   - template: ci-test-steps.yml
 
     - powershell: |
-        $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"
-        $FileContent = @(Get-Content $FileName)
-          
-        $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
-          
-        if ($FileContent.Length -eq 1) {
-        [system.io.file]::WriteAllText($fileName,$FileContent)
-        } else {
-        Set-Content $fileName $FileContent
-        }
+        New-Item -ItemType directory -Path "outputLibraries\" -Force
         
-        Write-Host "The updated line 1: `n$FileContent[0]"
-      displayName: 'Insert nuget link into ApiCompat results file.'
+        $buildTarget = $env:BuildConfiguration.Split("-")[0];
+        
+        $env:BotBuilderDll.Split(",") | ForEach {
+            $library = $_.Trim()
+            Write-Host $library
+        
+            Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+            Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+        }
+      displayName: 'Copy DLLs to outputLibraries folder'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Compat Results artifact'
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
       inputs:
-        ArtifactName: '${{ library }}.$(ApiCompatVersion).CompatResults'
+        artifactName: 'BotBuilderDLLs-$(BuildConfiguration)-$(BuildTarget)'
+        targetPath: outputLibraries
   
 - stage: API_Compatibility_Validation
   dependsOn: Build
