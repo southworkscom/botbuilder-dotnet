@@ -17,6 +17,7 @@ steps:
     $xml += "</packages>"
     New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
     $xml
+    $librariesToCompare
   displayName: 'Generate NuGet packages.config File'
 
 - task: NuGetCommand@2
