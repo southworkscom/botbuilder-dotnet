@@ -35,6 +35,10 @@ steps:
 - powershell: |
     $path = "DownloadedNuGet\**\lib\netstandard2.0"
 
+    If (!(Test-Path "LibrariesToCompare\")) {
+      New-Item -Path "LibrariesToCompare\" -ItemType Directory
+    }
+
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse
   displayName: 'Copy Nuget Libraries into LibrariesToCompare'
 
@@ -50,6 +54,11 @@ steps:
     outputFilename: 'CompatResults.txt'
     outputFolder: '$(Build.ArtifactStagingDirectory)'
     useBaseline: false
+
+- powershell: |
+    $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
+    $FileContent
+  displayName: 'Insert nuget link into ApiCompat results file.'
 
 # - powershell: |
 #     $FileName = "$(Build.ArtifactStagingDirectory)\${{ library }}.$(ApiCompatVersion).CompatResults.txt"

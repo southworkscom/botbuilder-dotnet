@@ -83,8 +83,8 @@ stages:
     steps:
     - template: ci-api-validation-steps.yml
 
-  - job: post_results_to_gitHub
-    variables:
-      BuildConfiguration: Release-Windows
-    steps:
-    - template: ci-post-to-github-steps.yml
+  # - job: post_results_to_gitHub
+  #   variables:
+  #     BuildConfiguration: Release-Windows
+  #   steps:
+  #   - template: ci-post-to-github-steps.yml
