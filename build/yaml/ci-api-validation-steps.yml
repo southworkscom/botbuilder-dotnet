@@ -6,7 +6,7 @@ steps:
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
 - powershell: |
-    $librariesToCompare = $env:BotBuilderDll -replace " ", "," 
+    $librariesToCompare = $env:BotBuilderDll -replace ".dll ", "," 
 
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
 
@@ -41,6 +41,13 @@ steps:
 
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
   displayName: 'Copy Nuget Libraries into LibrariesToCompare'
+
+- task: CmdLine@1
+  displayName: 'Run dir'
+  inputs:
+    filename: dir
+    arguments: 'LibrariesToCompare\*.* /s'
+  enabled: false
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
