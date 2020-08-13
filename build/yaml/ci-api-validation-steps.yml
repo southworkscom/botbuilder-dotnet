@@ -6,7 +6,7 @@ steps:
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
 - powershell: |
-    $librariesToCompare = $env:BotBuilderDll -replace ".dll ", "," 
+    $librariesToCompare = ($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
 
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
 
@@ -16,7 +16,7 @@ steps:
     }
     $xml += "</packages>"
     New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
-    $xml
+    
     $librariesToCompare
   displayName: 'Generate NuGet packages.config File'
 
