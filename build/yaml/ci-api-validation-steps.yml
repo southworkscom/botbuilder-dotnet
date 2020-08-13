@@ -40,6 +40,8 @@ steps:
     }
 
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
+
+    $librariesToCompare
   displayName: 'Copy Nuget Libraries into LibrariesToCompare'
 
 - task: CmdLine@1
@@ -47,7 +49,6 @@ steps:
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
-  enabled: false
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
