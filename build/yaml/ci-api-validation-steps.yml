@@ -36,8 +36,6 @@ steps:
 
     Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
 
-    Write-Host $librariesToCompare.Split(' ')
-
     $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
 
     If (!(Test-Path "LibrariesToCompare\")) {
