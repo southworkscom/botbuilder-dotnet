@@ -91,7 +91,7 @@ steps:
         $result = $line.Substring(0, $firstIndex - 3) + ':' + "`n"
         ForEach ($library in $libraries) {
           $libraryName = $library.Replace('.dll','') 
-          $libraryName += " compared against [version $ApiCompatVersion](https://www.nuget.org/packages/$libraryName/$ApiCompatVersion)"
+          $libraryName += " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$libraryName/$(ApiCompatVersion))"
           $result += '- ' + $libraryName + "`n"
         }
         break;
