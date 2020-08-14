@@ -55,7 +55,7 @@ steps:
   displayName: 'Compare Binaries'
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
-    contractsFileName: $(librariesToCompare)
+    contractsFileName: 'Microsoft.Bot.Builder.AI.Luis.dll Microsoft.Bot.Builder.AI.QnA.dll'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
     failOnIssue: true
     resolveFx: false
