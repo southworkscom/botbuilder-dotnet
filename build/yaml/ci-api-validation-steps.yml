@@ -47,7 +47,6 @@ steps:
 
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
 
-    New-Item -Path "LibrariesToCompare\" -Name "Microsoft.Bot.Builder.Integration.AspNet.Core.dll" -ItemType "file" -Value "This is a text string." -Force
   displayName: 'Prepare Nuget Libraries to Binary Compare'
 
 - task: CmdLine@1
@@ -60,7 +59,7 @@ steps:
   displayName: 'Compare Binaries'
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
-    contractsFileName: 'Microsoft.Bot.Builder.Integration.AspNet.Core.dll'
+    contractsFileName: '$(librariesToCompare)'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
     failOnIssue: true
     resolveFx: false
