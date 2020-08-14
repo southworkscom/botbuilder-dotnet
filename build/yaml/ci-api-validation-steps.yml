@@ -68,43 +68,43 @@ steps:
     useBaseline: false
 
 - powershell: |
-    # TODO: Work in progress
+    $FilePath = "$(Build.ArtifactStagingDirectory)\"
+    $FileName = "CompatResults.txt"
 
-    $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
-    $FileContent = @(Get-Content $FileName)
-    
-    $FileContent
+    $FileFullPath = $FilePath + $FileName
+    $FileContent = @(Get-Content $FileFullPath)
 
-    # $result = ''
+    $result = ''
+    $failed = $FALSE;
 
-    # ForEach ($line in $FileContent) {
-    #   $firstIndex =  $line.IndexOf('**') + 2
-    #   $lastIndex = $line.LastIndexOf('**')
-
-    #   $libraries = $line.Substring($firstIndex, $lastIndex - $firstIndex).Split(' ')
-
-    #   $result = $line.Substring(0, $firstIndex - 3) + ':' + "`n"
-
-    #   ForEach ($library in $libraries) {
-    #     $libraryName = $library.Replace('.dll','') 
-    #     $libraryName += " compared against [version 1](https://www.nuget.org/packages/$libraryName/1)"
-
-    #     $result += '- ' + $libraryName + "`n"
-    #   }
-    # } 
-      
-    # if ($FileContent.Length -eq 1) {
-    #   [system.io.file]::WriteAllText($fileName, $result)
-    # } else {
-    #   Set-Content $fileName $FileContent
-    # }
-    
-    # $result
-  displayName: 'Insert nuget link into ApiCompat results file.'
+    ForEach ($line in $FileContent) {
+      if ($line.StartsWith(':x:','CurrentCultureIgnoreCase')) {
+        $failed = $TRUE
+        $result += ":x: Found at least one binary incompatibility:`n"
+        $result += $line.Replace(":x: ", "") + "`n"
+      } elseif ($failed) {
+        $result += $line + "`n"
+      } else {
+        $firstIndex =  $line.IndexOf('**') + 2
+        $lastIndex = $line.LastIndexOf('**')
+        $libraries = $line.Substring($firstIndex, $lastIndex - $firstIndex).Split(' ')
+        $result = $line.Substring(0, $firstIndex - 3) + ':' + "`n"
+        ForEach ($library in $libraries) {
+          $libraryName = $library.Replace('.dll','') 
+          $libraryName += " compared against [version $ApiCompatVersion](https://www.nuget.org/packages/$libraryName/$ApiCompatVersion)"
+          $result += '- ' + $libraryName + "`n"
+        }
+        break;
+      }
+    }
+        
+    Set-Content -Path $FileFullPath -Value $result
+    $result
+  displayName: 'Format CompatResults file'
   condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Compat Results artifact'
+  displayName: 'Publish CompatResults to artifact'
   inputs:
     ArtifactName: 'BotBuilderDLLs.CompatResults'
 
