@@ -61,7 +61,7 @@ steps:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
-    failOnIssue: true
+    failOnIssue: false
     resolveFx: false
     generateLog: true
     outputFilename: 'CompatResults.txt'
