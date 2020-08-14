@@ -1,4 +1,3 @@
-
 # TODO: Write logs
 
 steps:
@@ -50,7 +49,7 @@ steps:
   displayName: 'Prepare Nuget Libraries to Binary Compare'
 
 - task: CmdLine@1
-  displayName: 'Run dir'
+  displayName: 'NuGet LibrariesToCompare Folder'
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
@@ -69,43 +68,42 @@ steps:
     useBaseline: false
 
 - powershell: |
+    # TODO: Work in progress
+
     $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
     $FileContent = @(Get-Content $FileName)
     
-    $FileContent
-  displayName: 'Insert nuget link into ApiCompat results file.'
-  condition: succeededOrFailed()
+    $result = ''
 
-# :heavy_check_mark: No Binary Compatibility issues for **Microsoft.Bot.Builder.AI.Luis.dll Microsoft.Bot.Builder.AI.QnA.dll Microsoft.Bot.Builder.ApplicationInsights.dll Microsoft.Bot.Builder.Azure.dll Microsoft.Bot.Builder.Dialogs.dll Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.dll Microsoft.Bot.Builder.Integration.AspNet.Core.dll Microsoft.Bot.Builder.TemplateManager.dll Microsoft.Bot.Builder.Testing.dll Microsoft.Bot.Builder.dll Microsoft.Bot.Configuration.dll Microsoft.Bot.Connector.dll Microsoft.Bot.Schema.dll Microsoft.Bot.Streaming.dll**
+    ForEach ($line in $FileContent) {
+      $firstIndex =  $line.IndexOf('**') + 2
+      $lastIndex = $line.LastIndexOf('**')
 
+      $libraries = $line.Substring($firstIndex, $lastIndex - $firstIndex).Split(' ')
 
-# :heavy_check_mark: No Binary Compatibility issues for **Microsoft.Bot.Builder.AI.Luis.dll** compared against [version 4.6.3](https://www.nuget.org/packages/Microsoft.Bot.Builder.AI.Luis/4.6.3)[0]
+      $result = $line.Substring(0, $firstIndex - 3) + ':' + "`n"
 
+      ForEach ($library in $libraries) {
+        $libraryName = $library.Replace('.dll','') 
+        $libraryName += " compared against [version 1](https://www.nuget.org/packages/$libraryName/1)"
 
-# - powershell: |
-#     $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
-#     $FileContent = @(Get-Content $FileName)
+        $result += '- ' + $libraryName + "`n"
+      }
+    } 
       
-#     # $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
-      
-#     # if ($FileContent.Length -eq 1) {
-#     # [system.io.file]::WriteAllText($fileName,$FileContent)
-#     # } else {
-#     # Set-Content $fileName $FileContent
-#     # }
+    if ($FileContent.Length -eq 1) {
+      [system.io.file]::WriteAllText($fileName, $result)
+    } else {
+      Set-Content $fileName $FileContent
+    }
     
-#     # Write-Host "The updated line 1: `n$FileContent[0]"
+    $result
+  displayName: 'Insert nuget link into ApiCompat results file.'
 
-#     ForEach ($line in $(FileContent)) {
-#       $a = 
-#     } 
-
-#   displayName: 'Insert nuget link into ApiCompat results file.'
-
-# - task: PublishBuildArtifacts@1
-#   displayName: 'Publish Compat Results artifact'
-#   inputs:
-#     ArtifactName: '${{ library }}.$(ApiCompatVersion).CompatResults'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Compat Results artifact'
+  inputs:
+    ArtifactName: 'BotBuilderDLLs.CompatResults'
 
 - script: |
    cd ..
