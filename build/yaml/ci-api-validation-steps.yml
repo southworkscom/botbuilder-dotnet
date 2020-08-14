@@ -6,7 +6,9 @@ steps:
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
 - powershell: |
-    echo ##vso[task.setvariable variable=librariesToCompare]($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
+    $libraries = ($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
+
+    Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
 
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
 
