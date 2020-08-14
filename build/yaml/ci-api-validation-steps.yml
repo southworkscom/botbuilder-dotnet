@@ -1,3 +1,6 @@
+
+# TODO: Write logs
+
 steps:
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
@@ -44,7 +47,7 @@ steps:
 
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
 
-    New-Item -Path $path -Name "Microsoft.Bot.Builder.Integration.AspNet.Core.dll" -ItemType "file" -Value "This is a text string." -Force
+    New-Item -Path "LibrariesToCompare\" -Name "Microsoft.Bot.Builder.Integration.AspNet.Core.dll" -ItemType "file" -Value "This is a text string." -Force
   displayName: 'Prepare Nuget Libraries to Binary Compare'
 
 - task: CmdLine@1
@@ -79,20 +82,29 @@ steps:
 # :heavy_check_mark: No Binary Compatibility issues for **Microsoft.Bot.Builder.AI.Luis.dll** compared against [version 4.6.3](https://www.nuget.org/packages/Microsoft.Bot.Builder.AI.Luis/4.6.3)[0]
 
 
-# - powershell: |
-#     $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
-#     $FileContent = @(Get-Content $FileName)
+- powershell: |
+    $FileName = "$(Build.ArtifactStagingDirectory)\CompatResults.txt"
+    $FileContent = @(Get-Content $FileName)
       
-#     $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
+    $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/${{ library }}/$(ApiCompatVersion))"
       
-#     if ($FileContent.Length -eq 1) {
-#     [system.io.file]::WriteAllText($fileName,$FileContent)
-#     } else {
-#     Set-Content $fileName $FileContent
-#     }
+    if ($FileContent.Length -eq 1) {
+    [system.io.file]::WriteAllText($fileName,$FileContent)
+    } else {
+    Set-Content $fileName $FileContent
+    }
     
-#     Write-Host "The updated line 1: `n$FileContent[0]"
-#   displayName: 'Insert nuget link into ApiCompat results file.'
+    Write-Host "The updated line 1: `n$FileContent[0]"
+
+
+
+
+    $FileContent | ForEach {
+      
+    }
+
+
+  displayName: 'Insert nuget link into ApiCompat results file.'
 
 # - task: PublishBuildArtifacts@1
 #   displayName: 'Publish Compat Results artifact'
