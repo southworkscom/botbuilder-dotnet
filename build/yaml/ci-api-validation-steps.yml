@@ -61,7 +61,7 @@ steps:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
-    failOnIssue: false
+    failOnIssue: true
     resolveFx: false
     generateLog: true
     outputFilename: 'CompatResults.txt'
@@ -74,6 +74,7 @@ steps:
     
     $FileContent
   displayName: 'Insert nuget link into ApiCompat results file.'
+  condition: succeededOrFailed()
 
 # :heavy_check_mark: No Binary Compatibility issues for **Microsoft.Bot.Builder.AI.Luis.dll Microsoft.Bot.Builder.AI.QnA.dll Microsoft.Bot.Builder.ApplicationInsights.dll Microsoft.Bot.Builder.Azure.dll Microsoft.Bot.Builder.Dialogs.dll Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.dll Microsoft.Bot.Builder.Integration.AspNet.Core.dll Microsoft.Bot.Builder.TemplateManager.dll Microsoft.Bot.Builder.Testing.dll Microsoft.Bot.Builder.dll Microsoft.Bot.Configuration.dll Microsoft.Bot.Connector.dll Microsoft.Bot.Schema.dll Microsoft.Bot.Streaming.dll**
 
