@@ -6,7 +6,7 @@ steps:
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
 - powershell: |
-    $librariesToCompare = ($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
+    echo ##vso[task.setvariable variable=librariesToCompare]($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
 
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
 
@@ -55,7 +55,7 @@ steps:
   displayName: 'Compare Binaries'
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
-    contractsFileName: 'Microsoft.Bot.Builder.AI.Luis.dll Microsoft.Bot.Builder.AI.QnA.dll'
+    contractsFileName: '$(librariesToCompare)'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
     failOnIssue: true
     resolveFx: false
