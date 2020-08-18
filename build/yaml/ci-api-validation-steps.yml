@@ -3,13 +3,13 @@
 steps:
 - powershell: |
     if ("$(Build.Reason)" -eq 'PullRequest') {
+      $libraries = ($env:BotBuilderDll).Split(",")
       $updatedLibraries = @()
       $updatedFiles = $(git diff HEAD HEAD~ --name-only)
       foreach ($updatedFile in $updatedFiles) {
         $updatedLibrary = ''
-        $libraries = ($env:BotBuilderDll).Split(",")
         foreach ($library in $libraries) {
-          if($updatedFile -match ('*/' + $library + '/*')){
+          if($updatedFile -like ('*/' + $library + '/*')){
             $updatedLibraries.Add($library)
           }
         }
