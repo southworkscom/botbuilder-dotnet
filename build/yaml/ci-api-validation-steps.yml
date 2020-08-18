@@ -16,6 +16,8 @@ steps:
       }
     }
     "##vso[task.setVariable variable=BotBuilderUpdatedDll;isOutput=true]$updatedLibraries.Join(',')"
+
+    Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
   displayName: 'Evaluate Updated Libraries'
 
 - task: DownloadPipelineArtifact@1
