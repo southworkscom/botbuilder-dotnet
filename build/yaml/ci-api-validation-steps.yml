@@ -15,7 +15,7 @@ steps:
         }
       }
     }
-    "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
+    echo "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
 
     Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
   name: evaluate_updated_libraries
