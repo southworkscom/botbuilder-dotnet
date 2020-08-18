@@ -98,6 +98,8 @@ steps:
       }
     }
         
+
+        
     Set-Content -Path $FileFullPath -Value $result
     $result
   displayName: 'Format CompatResults file'
