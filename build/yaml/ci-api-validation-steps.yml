@@ -15,14 +15,14 @@ steps:
         }
       }
     }
-    "##vso[task.setVariable variable=BotBuilderUpdatedDll;isOutput=true]$updatedLibraries.Join(',')"
+    "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
 
     Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
   displayName: 'Evaluate Updated Libraries'
 
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
   inputs:
     artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
@@ -39,11 +39,11 @@ steps:
     
     $xml
   displayName: 'Generate NuGet packages.config File'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
 
 - task: NuGetCommand@2
   displayName: 'NuGet Install Packages'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
   inputs:
     command: custom
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
@@ -69,18 +69,18 @@ steps:
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
 
   displayName: 'Prepare Nuget Libraries to Binary Compare'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
 
 - task: CmdLine@1
   displayName: 'NuGet LibrariesToCompare Folder'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  condition: $[ne(variables['BotBuilderUpdatedDll'], '')]
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
