@@ -122,7 +122,7 @@ steps:
     }
         
 
-        
+
     Set-Content -Path $FileFullPath -Value $result
     $result
   displayName: 'Format CompatResults file'
@@ -134,7 +134,7 @@ steps:
     userToken: '$(GitHubCommentApiKey)'
     bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
     getSubFolders: true
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
+  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
 
 - powershell: |
    # Check for string in the logs in the current DevOps pipeline run.
@@ -191,7 +191,7 @@ steps:
    
   displayName: 'Verify Publish Compat Results success'
   continueOnError: true
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
+  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
 
 - script: |
    cd ..
