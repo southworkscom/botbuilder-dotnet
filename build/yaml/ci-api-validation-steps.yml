@@ -80,7 +80,7 @@ steps:
     ForEach ($line in $FileContent) {
       if ($line.StartsWith(':x:','CurrentCultureIgnoreCase')) {
         $failed = $TRUE
-        $result += ":x: Found at least one binary incompatibility:`n"
+        $result += ":x: Found an incompatibility in at least one of all modified libraries:`n"
         $result += $line.Replace(":x: ", "") + "`n"
       } elseif ($failed) {
         $result += $line + "`n"
@@ -88,7 +88,7 @@ steps:
         $firstIndex =  $line.IndexOf('**') + 2
         $lastIndex = $line.LastIndexOf('**')
         $libraries = $line.Substring($firstIndex, $lastIndex - $firstIndex).Split(' ')
-        $result = $line.Substring(0, $firstIndex - 3) + ':' + "`n"
+        $result = ":heavy_check_mark: Found no incompatibilities for all modified libraries:`n"
         ForEach ($library in $libraries) {
           $libraryName = $library.Replace('.dll','') 
           $libraryName += " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$libraryName/$(ApiCompatVersion))"
