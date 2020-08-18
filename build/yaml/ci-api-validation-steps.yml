@@ -20,7 +20,7 @@ steps:
 
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
   inputs:
     artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
@@ -37,11 +37,11 @@ steps:
     
     $xml
   displayName: 'Generate NuGet packages.config File'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
 
 - task: NuGetCommand@2
   displayName: 'NuGet Install Packages'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
   inputs:
     command: custom
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
@@ -67,18 +67,18 @@ steps:
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
 
   displayName: 'Prepare Nuget Libraries to Binary Compare'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
 
 - task: CmdLine@1
   displayName: 'NuGet LibrariesToCompare Folder'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
-  condition: ne(variables['BotBuilderUpdatedDll'], '')
+  condition: ne($(BotBuilderUpdatedDll), '')
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
