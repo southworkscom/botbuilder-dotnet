@@ -4,7 +4,7 @@ steps:
 - powershell: |
     if ("$(Build.Reason)" -eq 'PullRequest') {
       $libraries = ($env:BotBuilderDll).Split(",")
-      $updatedLibraries = @()
+      $updatedLibraries = [System.Collections.ArrayList]@()
       $updatedFiles = $(git diff HEAD HEAD~ --name-only)
       foreach ($updatedFile in $updatedFiles) {
         $updatedLibrary = ''
