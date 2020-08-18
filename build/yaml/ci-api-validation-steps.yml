@@ -1,8 +1,26 @@
 # TODO: Write logs
 
 steps:
+- powershell: |
+    if ("$(Build.Reason)" -eq 'PullRequest') {
+      $updatedLibraries = @()
+      $updatedFiles = $(git diff HEAD HEAD~ --name-only)
+      foreach ($updatedFile in $updatedFiles) {
+        $updatedLibrary = ''
+        $libraries = ($env:BotBuilderDll).Split(",")
+        foreach ($library in $libraries) {
+          if($updatedFile -match ('*/' + $library + '/*')){
+            $updatedLibraries.Add($library)
+          }
+        }
+      }
+    }
+    "##vso[task.setVariable variable=BotBuilderUpdatedDll;isOutput=true]$updatedLibraries.Join(',')"
+  displayName: 'Evaluate Updated Libraries'
+
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
   inputs:
     artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
@@ -10,7 +28,7 @@ steps:
 - powershell: |
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
 
-    $env:BotBuilderDll.Split(",") | ForEach-Object {
+    $(BotBuilderUpdatedDll).Split(",") | ForEach-Object {
       $library = $_.Trim()
       $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
     }
@@ -19,9 +37,11 @@ steps:
     
     $xml
   displayName: 'Generate NuGet packages.config File'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
 
 - task: NuGetCommand@2
   displayName: 'NuGet Install Packages'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
   inputs:
     command: custom
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
@@ -34,7 +54,7 @@ steps:
   enabled: false
 
 - powershell: |
-    $libraries = ($env:BotBuilderDll -replace ",", ".dll ") + ".dll"
+    $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
 
     Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
 
@@ -47,15 +67,18 @@ steps:
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
 
   displayName: 'Prepare Nuget Libraries to Binary Compare'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
 
 - task: CmdLine@1
   displayName: 'NuGet LibrariesToCompare Folder'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
+  condition: ne(variables['BotBuilderUpdatedDll'], '')
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
@@ -103,7 +126,7 @@ steps:
     Set-Content -Path $FileFullPath -Value $result
     $result
   displayName: 'Format CompatResults file'
-  condition: succeededOrFailed()
+  condition: and(succeededOrFailed(), ne(variables['BotBuilderUpdatedDll'], ''))
 
 - task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
   displayName: 'Publish Compat Results to Github'
@@ -111,7 +134,7 @@ steps:
     userToken: '$(GitHubCommentApiKey)'
     bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
     getSubFolders: true
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
 
 - powershell: |
    # Check for string in the logs in the current DevOps pipeline run.
@@ -168,7 +191,7 @@ steps:
    
   displayName: 'Verify Publish Compat Results success'
   continueOnError: true
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables['BotBuilderUpdatedDll'], ''))
 
 - script: |
    cd ..
