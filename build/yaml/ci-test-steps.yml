@@ -89,7 +89,8 @@ steps:
        Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
        Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
-
+   
+   cd outputLibraries/
    git add .
    git commit -m 'test'
    git push
