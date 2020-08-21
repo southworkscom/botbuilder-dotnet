@@ -123,9 +123,6 @@ steps:
         break;
       }
     }
-        
-
-
     Set-Content -Path $FileFullPath -Value $result
     $result
   displayName: 'Format CompatResults file'
@@ -204,14 +201,14 @@ steps:
   condition: succeededOrFailed()
 
 
-# - task: PublishBuildArtifacts@1
-#   displayName: 'Publish CompatResults to artifact'
-#   inputs:
-#     ArtifactName: 'BotBuilderDLLs.CompatResults'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish CompatResults to artifact'
+  inputs:
+    ArtifactName: 'BotBuilderDLLs.CompatResults'
 
-# - script: |
-#    cd ..
-#    dir /s
-#   displayName: 'Dir workspace'
-#   continueOnError: true
-#   condition: succeededOrFailed()
+- script: |
+   cd ..
+   dir /s
+  displayName: 'Dir workspace'
+  continueOnError: true
+  condition: succeededOrFailed()
