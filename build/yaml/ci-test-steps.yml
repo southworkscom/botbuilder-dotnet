@@ -78,7 +78,7 @@ steps:
 
 - powershell: |
    cd $(System.DefaultWorkingDirectory)\..
-   git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing outputLibraries
+   git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing outputLibraries
    
    New-Item -ItemType directory -Path "outputLibraries\" -Force
    $buildTarget = $env:BuildConfiguration.Split("-")[0];
