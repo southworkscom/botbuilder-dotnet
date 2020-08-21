@@ -88,6 +88,9 @@ steps:
   displayName: 'Prepare DLLs'
 
 - script: |
+    git config --global user.name "GitPythonDeploymentUser"
+    git config --global user.email GitPythonDeploymentUser@Pipeline.com
+
     cd $(System.DefaultWorkingDirectory)\..\outputLibraries
     git add .
     git commit -m 'test'
