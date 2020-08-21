@@ -1,9 +1,7 @@
 steps:
-- task: DownloadPipelineArtifact@1
-  displayName: 'Download BotBuilderDLLs artifact'
-  inputs:
-    artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
-    targetPath: '$(System.ArtifactsDirectory)/Artifacts'
+- script: |
+    git clone https://ian.scaltritti:h43j6aiph2wqffiw2pitz7zxd2exmskjdlx7u2q4zhkzqcvet2aa@dev.azure.com/ianscaltritti/test/_git/test $(System.ArtifactsDirectory)/Artifacts
+  displayName: 'Download DLLs'
 
 - task: NuGetCommand@2
   displayName: 'NuGet Install of Compatability Target Package: $(BotBuilderDll)'
