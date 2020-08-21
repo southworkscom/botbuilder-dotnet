@@ -77,23 +77,21 @@ steps:
   enabled: false
 
 - powershell: |
-   cd $(System.DefaultWorkingDirectory)\..
-   git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing outputLibraries
-   
-   New-Item -ItemType directory -Path "outputLibraries\" -Force
+   git clone https://joelmut93@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing $(System.DefaultWorkingDirectory)\..\outputLibraries
    $buildTarget = $env:BuildConfiguration.Split("-")[0];
    $env:BotBuilderDll.Split(",") | ForEach {
        $library = $_.Trim()
        Write-Host $library
-   
        Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
        Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
-   
-   cd outputLibraries/
-   git add .
-   git commit -m 'test'
-   git push
+  displayName: 'Prepare DLLs'
+
+- script: |
+    cd $(System.DefaultWorkingDirectory)\..outputLibraries
+    git add .
+    git commit -m 'test'
+    git push
   displayName: 'Upload DLLs'
 
 - script: |
