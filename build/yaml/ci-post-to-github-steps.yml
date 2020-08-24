@@ -1,10 +1,15 @@
 steps:
-- task: DownloadBuildArtifacts@0
-  displayName: 'Download Compat Results artifact'
-  inputs:
-    downloadType: specific
-    itemPattern: '**\*.txt'
-    downloadPath: '$(System.ArtifactsDirectory)\ApiCompat'
+# - task: DownloadBuildArtifacts@0
+#   displayName: 'Download Compat Results artifact'
+#   inputs:
+#     downloadType: specific
+#     itemPattern: '**\*.txt'
+#     downloadPath: '$(System.ArtifactsDirectory)\ApiCompat'
+#   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+
+- script: |
+    git clone https://dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.ArtifactsDirectory)/ApiCompat
+  displayName: 'Download DLLs'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
 - task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0

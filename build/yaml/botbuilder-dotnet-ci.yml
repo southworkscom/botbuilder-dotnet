@@ -55,6 +55,7 @@ stages:
     variables:
       BuildConfiguration: Debug-Windows
       BuildTarget: 'netcoreapp31' # set the TargetFramework property for tests to use netcoreapp3.1
+      UploadDLLs: true
     steps:
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
@@ -71,7 +72,6 @@ stages:
       BuildConfiguration: Release-Windows
       BuildTarget: 'netcoreapp31' # set the TargetFramework property for tests to use netcoreapp3.1
       NoCoverageUpload: true
-      UploadDLLs: true
     steps:
     - template: ci-build-steps.yml
     - template: ci-test-steps.yml
