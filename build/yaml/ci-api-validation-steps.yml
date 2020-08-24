@@ -50,7 +50,7 @@ steps:
    $env:BotBuilderDll.Split(",") | ForEach {
        $library = $_.Trim()
        Write-Host $library
-       Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
+       Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*.CompatResults" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
   displayName: 'Prepare DLLs'
   condition: eq(variables['UploadDLLs'],'true')
