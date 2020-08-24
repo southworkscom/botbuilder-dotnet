@@ -1,6 +1,6 @@
 steps:
 - script: |
-    git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing $(System.ArtifactsDirectory)\Artifacts
+    git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing $(System.ArtifactsDirectory)/Artifacts
   displayName: 'Download DLLs'
 
 - task: NuGetCommand@2

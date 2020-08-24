@@ -86,16 +86,18 @@ steps:
        Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
   displayName: 'Prepare DLLs'
+  condition: eq(variables['UploadDLLs'],'true')
 
 - script: |
-    git config --global user.name "GitPythonDeploymentUser"
-    git config --global user.email GitPythonDeploymentUser@Pipeline.com
+    git config --global user.name "botbuilder-dotnet-pipeline"
+    git config --global user.email botbuilder-dotnet@pipeline.com
 
     cd $(System.DefaultWorkingDirectory)\..\outputLibraries
     git add .
     git commit -m 'test'
     git push
   displayName: 'Upload DLLs'
+  condition: eq(variables['UploadDLLs'],'true')
 
 - script: |
    cd ..
