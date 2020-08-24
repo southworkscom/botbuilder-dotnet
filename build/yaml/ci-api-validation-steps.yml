@@ -16,6 +16,10 @@ steps:
     arguments: '..\*.* /s'
   enabled: false
 
+- script: |
+  git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
+ displayName: 'Clone Repository'
+
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
   inputs:
@@ -26,39 +30,28 @@ steps:
     resolveFx: false
     generateLog: true
     outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
-    outputFolder: '$(Build.ArtifactStagingDirectory)'
+    outputFolder: '$(System.DefaultWorkingDirectory)\..\outputLibraries'
     useBaseline: false
 
 - powershell: |
-   $FileName = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
+   $FileName = "$(System.DefaultWorkingDirectory)\..\outputLibraries\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
    $FileContent = @(Get-Content $FileName)
     
    $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion))"
     
    if ($FileContent.Length -eq 1) {
-   [system.io.file]::WriteAllText($fileName,$FileContent)
+    [system.io.file]::WriteAllText($fileName,$FileContent)
    } else {
-   Set-Content $fileName $FileContent
+    Set-Content $fileName $FileContent
    }
    
    Write-Host "The updated line 1: `n$FileContent[0]"
   displayName: 'Insert nuget link into ApiCompat results file.'
 
-- powershell: |
-   git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
-   $buildTarget = $env:BuildConfiguration.Split("-")[0];
-   $env:BotBuilderDll.Split(",") | ForEach {
-       $library = $_.Trim()
-       Write-Host $library
-       Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*.CompatResults.txt" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
-   }
-  displayName: 'Prepare DLLs'
-
 - script: |
+    cd $(System.DefaultWorkingDirectory)\..\outputLibraries
     git config --global user.name "botbuilder-dotnet-pipeline"
     git config --global user.email botbuilder-dotnet@pipeline.com
-
-    cd $(System.DefaultWorkingDirectory)\..\outputLibraries
     git pull
     git add .
     git commit -m 'test'
