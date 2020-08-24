@@ -17,8 +17,8 @@ steps:
   enabled: false
 
 - script: |
-  git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
- displayName: 'Clone Repository'
+    git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
+  displayName: 'Clone Repository'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Compare Binaries'
