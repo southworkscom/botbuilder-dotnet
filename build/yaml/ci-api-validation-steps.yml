@@ -17,6 +17,8 @@ steps:
   enabled: false
 
 - script: |
+    git config --global user.name "botbuilder-dotnet-pipeline"
+    git config --global user.email botbuilder-dotnet@pipeline.com
     git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
   displayName: 'Clone Repository'
 
@@ -34,29 +36,25 @@ steps:
     useBaseline: false
 
 - powershell: |
-   $FileName = "$(System.DefaultWorkingDirectory)\..\outputLibraries\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
-   $FileContent = @(Get-Content $FileName)
-    
-   $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion))"
-    
-   if ($FileContent.Length -eq 1) {
-    [system.io.file]::WriteAllText($fileName,$FileContent)
-   } else {
-    Set-Content $fileName $FileContent
-   }
-   
-   Write-Host "The updated line 1: `n$FileContent[0]"
-  displayName: 'Insert nuget link into ApiCompat results file.'
-
-- script: |
+    $FileName = "$(System.DefaultWorkingDirectory)\..\outputLibraries\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
+    $FileContent = @(Get-Content $FileName)
+    $FileContent[0] = $FileContent[0] + " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion))"
+    if ($FileContent.Length -eq 1) {
+      [system.io.file]::WriteAllText($fileName,$FileContent)
+    } else {
+      Set-Content $fileName $FileContent
+    }
+    Write-Host "The updated line 1: `n$FileContent[0]"
     cd $(System.DefaultWorkingDirectory)\..\outputLibraries
-    git config --global user.name "botbuilder-dotnet-pipeline"
-    git config --global user.email botbuilder-dotnet@pipeline.com
-    git pull
     git add .
     git commit -m 'test'
     git push
-  displayName: 'Upload DLLs'
+    while (-not $? -And $retry -lt 10) {
+        $retry++
+        git pull
+        git push    
+    }
+  displayName: 'Insert nuget link into result file & upload DLLs'
 
 # - task: PublishBuildArtifacts@1
 #   displayName: 'Publish Compat Results artifact'
