@@ -83,7 +83,7 @@ stages:
     steps:
     - powershell: |
        $multiconfig = '{';
-       if ("$(Build.Reason)" -in ('Schedule', 'Manual')) {
+       if ("$(Build.Reason)" -in ('Pull Request','Schedule', 'Manual')) {
          $env:BotBuilderDll.Split(",") | ForEach {
            $library = $_.Trim()
            $threadName = $library -replace "Microsoft.", "";
