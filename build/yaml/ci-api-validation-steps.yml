@@ -50,7 +50,7 @@ steps:
    $env:BotBuilderDll.Split(",") | ForEach {
        $library = $_.Trim()
        Write-Host $library
-       Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*.CompatResults" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
+       Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*.CompatResults.txt" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
   displayName: 'Prepare DLLs'
 
@@ -59,6 +59,7 @@ steps:
     git config --global user.email botbuilder-dotnet@pipeline.com
 
     cd $(System.DefaultWorkingDirectory)\..\outputLibraries
+    git pull
     git add .
     git commit -m 'test'
     git push
