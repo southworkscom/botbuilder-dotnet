@@ -1,6 +1,6 @@
 steps:
 - script: |
-    git clone https://dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing $(System.ArtifactsDirectory)/Artifacts
+    git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/manx-pipeline-testing $(System.ArtifactsDirectory)/Artifacts
   displayName: 'Download DLLs'
 
 - task: NuGetCommand@2
@@ -45,7 +45,7 @@ steps:
   displayName: 'Insert nuget link into ApiCompat results file.'
 
 - powershell: |
-   git clone https://dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
+   git clone https://joel.mut:nmwe4rrsitb36s6h36nq3ted3u6nzvwd4qtalufkjpyypmvllfua@dev.azure.com/joelmut93/manx-pipeline-testing/_git/api-compat-files $(System.DefaultWorkingDirectory)\..\outputLibraries
    $buildTarget = $env:BuildConfiguration.Split("-")[0];
    $env:BotBuilderDll.Split(",") | ForEach {
        $library = $_.Trim()
