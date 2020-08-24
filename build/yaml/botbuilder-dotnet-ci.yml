@@ -135,7 +135,7 @@ stages:
     - template: ci-api-validation-steps.yml
 
   - job: post_results_to_gitHub
-    dependsOn: generate_multiconfig_var
+    dependsOn: check_api_for
     condition: ne(dependencies.generate_multiconfig_var.outputs['generate_var.MULTICONFIG'], '{}')
     variables:
       BuildConfiguration: Release-Windows

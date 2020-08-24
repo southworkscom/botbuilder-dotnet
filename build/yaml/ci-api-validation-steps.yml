@@ -64,7 +64,6 @@ steps:
     git commit -m 'test'
     git push
   displayName: 'Upload DLLs'
-  condition: eq(variables['UploadDLLs'],'true')
 
 # - task: PublishBuildArtifacts@1
 #   displayName: 'Publish Compat Results artifact'
