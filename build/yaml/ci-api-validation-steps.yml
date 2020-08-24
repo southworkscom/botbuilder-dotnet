@@ -53,7 +53,6 @@ steps:
        Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/*.CompatResults" -Recurse | Copy-Item -Destination '$(System.DefaultWorkingDirectory)\..\outputLibraries\' -Force
    }
   displayName: 'Prepare DLLs'
-  condition: eq(variables['UploadDLLs'],'true')
 
 - script: |
     git config --global user.name "botbuilder-dotnet-pipeline"
