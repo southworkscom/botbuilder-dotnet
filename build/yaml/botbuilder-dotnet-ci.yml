@@ -126,7 +126,7 @@ steps:
   inputs:
     contractsRootFolder: '$(ImplementationPath)'
     contractsFileName: '$(Contracts)'
-    implFolder: '$(ContractsPath)'
+    implFolder: '$(System.DefaultWorkingDirectory)/implementation'
     failOnIssue: true
     resolveFx: false
     generateLog: true
