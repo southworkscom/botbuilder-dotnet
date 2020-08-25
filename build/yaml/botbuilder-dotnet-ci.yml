@@ -118,21 +118,6 @@ jobs:
       verbose: false
       customCommand: 'install -g @microsoft/botframework-cli@next'
 
-  - task: NuGetCommand@2
-    displayName: 'NuGet restore'
-    inputs:
-      restoreSolution: '$(Parameters.solution)'
-
-  - task: VSBuild@1
-    displayName: 'Build solution Microsoft.Bot.Builder.sln'
-    inputs:
-      solution: '$(Parameters.solution)'
-      vsVersion: 16.0
-      msbuildArgs: '$(MSBuildArguments)'
-      platform: '$(BuildPlatform)'
-      configuration: '$(BuildConfiguration)'
-      logProjectEvents: false       
-
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
     inputs:
