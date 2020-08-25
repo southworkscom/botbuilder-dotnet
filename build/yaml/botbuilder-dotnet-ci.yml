@@ -123,7 +123,11 @@ steps:
           }
         }
       }
-      $Contracts = $UpdatedLibraries.Join(',')
+      if ($UpdatedLibraries.count -gt 0){
+        $Contracts = $UpdatedLibraries.Join(',')
+      } else {
+        $Contracts = ""
+      }
     }
     $Contracts.Split(",") | ForEach-Object {
       $Library = $_.Trim()
