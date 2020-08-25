@@ -142,8 +142,8 @@ steps:
 - task: NuGetCommand@2
   displayName: 'Install contracts'
   inputs:
-  command: custom
-  arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget-installed'
+    command: custom
+    arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget-installed'
 
 - powershell: |
     New-Item -ItemType directory -Path "$(env:ImplementationPath)" -Force
