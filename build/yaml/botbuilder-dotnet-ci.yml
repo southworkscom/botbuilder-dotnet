@@ -109,7 +109,7 @@ steps:
 
 - powershell: |
     New-Item -Path $(ImplementationPath) -ItemType Directory -Force
-    $(BotBuilderDll).Split(",") | ForEach {
+    "$(BotBuilderDll)".Split(",") | ForEach {
         $library = $_.Trim()
         Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
         Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
