@@ -1,7 +1,3 @@
-#
-# Replaces the classic BotBuilder-DotNet-master-CI-PR
-#
-
 # "name" here defines the build number format. Build number is accessed via $(Build.BuildNumber)
 name: $(Build.BuildId)
 
@@ -35,8 +31,8 @@ variables:
   PreviewPackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
   ReleasePackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
   runCodesignValidationInjection: false # Disables unnecessary CodeSign Validation step
-  ImplementationPath: '$(System.DefaultWorkingDirectory)\implementation\'
-  ContractsPath: '$(System.DefaultWorkingDirectory)\contracts\'
+  ImplementationPath: $(System.DefaultWorkingDirectory)\implementation\
+  ContractsPath: $(System.DefaultWorkingDirectory)\contracts\
 
 steps:
 
@@ -135,7 +131,8 @@ steps:
     }
     $Xml += "</packages>"
     New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
-    Write-Host "##vso[task.setvariable variable=Contracts](($Contracts) -replace ",", ".dll ") + ".dll"
+    $Output = ($Contracts -replace ",", ".dll ") + ".dll"
+    Write-Host "##vso[task.setvariable variable=Contracts]$Output"
   displayName: 'Contracts setup'
   condition: succeeded()
 
@@ -147,16 +144,16 @@ steps:
   condition: succeeded()
 
 - powershell: |
-    New-Item -ItemType directory -Path "$(env:ImplementationPath)" -Force
+    New-Item -Path $(ImplementationPath) -ItemType Directory -Force
     $(BotBuilderDll).Split(",") | ForEach {
         $library = $_.Trim()
-        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
-        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
     }
-    If (!(Test-Path $(env:ContractsPath))) {
-      New-Item -Path $(env:ContractsPath) -ItemType Directory
+    If (!(Test-Path $(ContractsPath))) {
+      New-Item -Path $(ContractsPath) -ItemType Directory
     }
-    Copy-Item -Path "nuget-installed\**\lib\netstandard2.0\*" -Destination "$(env:ContractsPath)" -Recurse -Force
+    Copy-Item -Path "nuget-installed\**\lib\netstandard2.0\*" -Destination $(ContractsPath) -Recurse -Force
   displayName: 'Binaries Comparer setup'
   condition: succeeded()
 
@@ -175,8 +172,8 @@ steps:
   condition: succeeded()
 
 - powershell: |
-    $FilePath = "$(System.DefaultWorkingDirectory)/binaries-comparer"
-    $FileName = "results.txt"C
+    $FilePath = "$(System.DefaultWorkingDirectory)/binaries-comparer/"
+    $FileName = "results.txt"
     $FileFullPath = $FilePath + $FileName
     $FileContent = @(Get-Content $FileFullPath)
     $result = ''
