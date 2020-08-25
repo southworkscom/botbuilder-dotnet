@@ -127,12 +127,12 @@ steps:
     contractsRootFolder: '$(ImplementationPath)'
     contractsFileName: '$(Contracts)'
     # implFolder does not accept trailing slash
-    implFolder: '$(ContractsPath).substring(0 , ($(ContractsPath).length - 1))'
+    implFolder: "$(ContractsPath)".substring(0 , ($(ContractsPath).length - 1))
     failOnIssue: true
     resolveFx: false
     generateLog: true
     outputFilename: 'results.txt'
-    outputFolder: '$(System.DefaultWorkingDirectory)/binaries-comparer'
+    outputFolder: '$(System.DefaultWorkingDirectory)/binaries-comparer/'
     useBaseline: false
   condition: succeeded()
 
