@@ -52,11 +52,3 @@ steps:
     filePath: '$(Build.SourcesDirectory)\build\VerifyGitHubPublish.ps1'
   continueOnError: true
   condition: succeeded()
-
-- script: |
-   cd ..
-   dir *.* /s
-  displayName: 'Dir Workspace'
-  continueOnError: true
-  condition: succeededOrFailed()
-  enabled: false

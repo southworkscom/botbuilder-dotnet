@@ -148,8 +148,8 @@ steps:
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
 
 - powershell: |
-    $ImplementationPath = '$(System.DefaultWorkingDirectory)\implementation\'
-    $ContractsPath = '$(System.DefaultWorkingDirectory)\contracts'
+    $ImplementationPath = 'implementation\'
+    $ContractsPath = 'contracts\'
     New-Item -ItemType directory -Path $ImplementationPath -Force
     $env:BotBuilderDll.Split(",") | ForEach {
         $library = $_.Trim()
@@ -176,9 +176,9 @@ steps:
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Binaries Comparer run'
   inputs:
-    contractsRootFolder: '$(System.DefaultWorkingDirectory)\contracts'
+    contractsRootFolder: 'contracts\'
     contractsFileName: '$(Contracts)'
-    implFolder: '$(System.DefaultWorkingDirectory)/implementation/'
+    implFolder: 'implementation\'
     failOnIssue: true
     resolveFx: false
     generateLog: true
