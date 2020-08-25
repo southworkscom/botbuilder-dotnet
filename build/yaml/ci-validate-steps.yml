@@ -1,41 +1,39 @@
 variables:
   ImplementationPath: '$(System.DefaultWorkingDirectory)\implementation\'
-  ContractsPath: '$(System.DefaultWorkingDirectory)\contracts'
+  ContractsPath: '$(System.DefaultWorkingDirectory)\contracts\'
     
 - powershell: |
-    $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-    $updatedLibraries = 
+    $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+    $Contracts = ($env:BotBuilderDll)
+    $Version = ($env:ApiCompatVersion)
     if ("$(Build.Reason)" -eq 'PullRequest') {
-      $libraries = ($env:BotBuilderDll).Split(",")
-      $updatedLibraries = [System.Collections.ArrayList]@()
-      $updatedFiles = $(git diff HEAD HEAD~ --name-only)
-      foreach ($updatedFile in $updatedFiles) {
-        $updatedLibrary = ''
-        foreach ($library in $libraries) {
-          if($updatedFile -like ('*/' + $library + '/*')){
-            $updatedLibraries.Add($library)
+      $Libraries = $Contracts.Split(",")
+      $UpdatedLibraries = [System.Collections.ArrayList]@()
+      $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
+      foreach ($UpdatedFile in $UpdatedFiles) {
+        foreach ($Library in $Libraries) {
+          if($UpdatedFile -like ('*/' + $Library + '/*')){
+            $UpdatedLibraries.Add($Library)
           }
         }
       }
+      $Contracts = $UpdatedLibraries.Join(',')
     }
-    
-    # Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
-
-    
-    $(BotBuilderUpdatedDll).Split(",") | ForEach-Object {
-      $library = $_.Trim()
-      $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
+    $Contracts.Split(",") | ForEach-Object {
+      $Library = $_.Trim()
+      $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
     }
-    $xml += "</packages>"
-    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
-  displayName: 'Generate packages.config'
+    $Xml += "</packages>"
+    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
+    Write-Host "##vso[task.setvariable variable=Contracts](($Contracts) -replace ",", ".dll ") + ".dll"
+  displayName: 'Contracts setup'
   enabled: true
 
 - task: NuGetCommand@2
-  displayName: 'NuGet Install'
+  displayName: 'Install contracts'
   inputs:
   command: custom
-  arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
+  arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget'
 
 - powershell: |
     New-Item -ItemType directory -Path $ImplementationPath -Force
@@ -44,25 +42,28 @@ variables:
         Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
         Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
     }
-    # $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
-    $libraries = (($env:BotBuilderDll) -replace ",", ".dll ") + ".dll"
-    Write-Host "##vso[task.setvariable variable=Contracts]$libraries" # Replace Contracts with the contents of packages.config
-    $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
-    If (!(Test-Path $ContractsPath)) {
-      New-Item -Path $ContractsPath -ItemType Directory
+    If (!(Test-Path $(ContractsPath))) {
+      New-Item -Path $(ContractsPath) -ItemType Directory
     }
-    Copy-Item -Path $path -Destination $ContractsPath -Recurse -Force
+    Copy-Item -Path "$(System.DefaultWorkingDirectory)\nuget\**\lib\netstandard2.0\*" -Destination $(ContractsPath) -Recurse -Force
   displayName: 'Binaries Comparer setup'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Binaries Comparer run'
   inputs:
-  contractsRootFolder: '$(ContractsPath)'
-  contractsFileName: '$(Contracts)'
-  implFolder: '$(ImplementationPath)'
-  failOnIssue: true
-  resolveFx: false
-  generateLog: true
-  outputFilename: 'results.txt'
-  outputFolder: '$(System.DefaultWorkingDirectory)\binaries-comparer'
-  useBaseline: false
+    contractsRootFolder: '$(ContractsPath)'
+    contractsFileName: '$(Contracts)'
+    implFolder: '$(ImplementationPath)'
+    failOnIssue: true
+    resolveFx: false
+    generateLog: true
+    outputFilename: 'results.txt'
+    outputFolder: '$(System.DefaultWorkingDirectory)\binaries-comparer'
+    useBaseline: false
+
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops#parameters-to-select-a-template-at-runtime
+- ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+  variables:
+    BinariesComparerResultFilePath: $(System.DefaultWorkingDirectory)\binaries-comparer\
+    BinariesComparerResultFilename: results.txt
+  - template: ci-publish-steps.yml

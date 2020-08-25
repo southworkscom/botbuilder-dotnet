@@ -1,12 +1,7 @@
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops#parameters-to-select-a-template-at-runtime
-# steps:
-# - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
-#   - template: experimental.yml
-
-variables:
-  # BinariesComparerResultFilePath: Define in father | "$(System.DefaultWorkingDirectory)/binaries-comparer"
-  # BinariesComparerResultFilename: Define in father | "results.txt"
-  # GitHubCommentApiKey: Define in father
+# variables:
+  # BinariesComparerResultFilePath
+  # BinariesComparerResultFilename
+  # GitHubCommentApiKey
 
 steps:
 - powershell: |
