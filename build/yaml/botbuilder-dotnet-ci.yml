@@ -43,7 +43,8 @@ variables:
 # If we drop support for .NET 4.x then we can drop to just Debug/Release.
 steps:
 - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
-  displayName: 'Display env vars'
+  displayName: 'Display environment variables'
+  enabled: false
 
 # Variables ReleasePackageVersion and PreviewPackageVersion are consumed by projects in Microsoft.Bot.Builder.sln.
 # For the signed build, they should be settable at queue time. To set that up, define the variables in Azure on the Variables tab.
@@ -54,9 +55,7 @@ steps:
   continueOnError: true
 
 - task: NuGetToolInstaller@0
-  displayName: 'Use NuGet 4.9.1'
-  inputs:
-    versionSpec: 4.9.1
+  displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
@@ -64,7 +63,7 @@ steps:
     restoreSolution: '$(Parameters.solution)'
 
 - task: VSBuild@1
-  displayName: 'Build solution Microsoft.Bot.Builder.sln'
+  displayName: 'Build'
   inputs:
     solution: '$(Parameters.solution)'
     vsVersion: 16.0
@@ -72,42 +71,41 @@ steps:
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
     logProjectEvents: false
+    
 - powershell: |
     Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
     New-Item CodeCoverage -ItemType Directory -Force
-  displayName: 'Create Code Coverage directory'
+  displayName: 'Create code coverage directory'
 
+# Required for Schema merge tests.
 - task: Npm@1
-  displayName: 'install botframework-cli to set up for Schema merge tests.'
+  displayName: 'Install botframework-cli'
   inputs:
     command: custom
     verbose: false
     customCommand: 'install -g @microsoft/botframework-cli@next'
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test'
+  displayName: 'Test'
   inputs:
     command: test
     projects: |
      Tests/**/*Tests.csproj
-     
     arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
   condition: succeeded()
 
+# This task copies the code coverage file created by dotnet test into a well known location. 
+# In all checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
+# My attempts to override this and have it go directly to the CodeCoverage directory have all failed, so I'm just doing the copy here.  
+# (cmullins)
 - powershell: |
-    # This task copies the code coverage file created by dotnet test into a well known location. In all
-    # checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
-    # My attempts to override this and have it go directly to the CodeCoverage directory have
-    # all failed, so I'm just doing the copy here.  (cmullins)
-    
     Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
-
     echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
-  displayName: 'Copy .coverage Files to CodeCoverage folder'
+  displayName: 'Copy .coverage files'
   condition: succeeded()
 
 - task: PowerShell@2
-  displayName: 'Upload Coverage Files to Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet'
+  displayName: 'Upload to Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet'
   inputs:
     targetType: filePath
     filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
@@ -130,53 +128,47 @@ steps:
       }
     }
     echo "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
-
     Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
   name: evaluate_updated_libraries
-  displayName: 'Evaluate Updated Libraries'
+  displayName: 'Evaluate updated libraries'
+  enabled: false
 
 - powershell: |
     $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-
-    $(BotBuilderUpdatedDll).Split(",") | ForEach-Object {
+    # $(BotBuilderUpdatedDll).Split(",") | ForEach-Object {
+    ($env:BotBuilderDll).Split(",") | ForEach-Object {
       $library = $_.Trim()
       $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
     }
     $xml += "</packages>"
     New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
-    
-    $xml
-  displayName: 'Generate NuGet packages.config File'
+  displayName: 'Generate packages.config'
 
 - task: NuGetCommand@2
-  displayName: 'NuGet Install Packages'
+  displayName: 'NuGet Install'
   inputs:
     command: custom
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
 
 - powershell: |
     $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
-
     Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
-
     $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
-
     If (!(Test-Path "LibrariesToCompare\")) {
       New-Item -Path "LibrariesToCompare\" -ItemType Directory
     }
-
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
-
-  displayName: 'Prepare Nuget Libraries to Binary Compare'
+  displayName: 'Setup for Binaries Comparer'
 
 - task: CmdLine@1
-  displayName: 'NuGet LibrariesToCompare Folder'
+  displayName: 'Display LibrariesToCompare directory'
   inputs:
     filename: dir
     arguments: 'LibrariesToCompare\*.* /s'
+  enabled: false
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-  displayName: 'Compare Binaries'
+  displayName: 'Binaries Comparer'
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
@@ -184,20 +176,17 @@ steps:
     failOnIssue: true
     resolveFx: false
     generateLog: true
-    outputFilename: 'CompatResults.txt'
-    outputFolder: '$(Build.ArtifactStagingDirectory)'
+    outputFilename: 'results.txt'
+    outputFolder: '$(System.DefaultWorkingDirectory)/binaries-comparer'
     useBaseline: false
 
 - powershell: |
-    $FilePath = "$(Build.ArtifactStagingDirectory)\"
-    $FileName = "CompatResults.txt"
-
+    $FilePath = "$(System.DefaultWorkingDirectory)/binaries-comparer"
+    $FileName = "results.txt"
     $FileFullPath = $FilePath + $FileName
     $FileContent = @(Get-Content $FileFullPath)
-
     $result = ''
     $failed = $FALSE;
-
     ForEach ($line in $FileContent) {
       if ($line.StartsWith(':x:','CurrentCultureIgnoreCase')) {
         $failed = $TRUE
@@ -218,29 +207,24 @@ steps:
         break;
       }
     }
-
     Set-Content -Path $FileFullPath -Value $result
-    $result
-  displayName: 'Format CompatResults file'
+  displayName: 'Format Binaries Comparer results'
   condition: succeededOrFailed()
 
 - task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
-  displayName: 'Publish Compat Results to Github'
+  displayName: 'Publish Binaries Comparer results'
   inputs:
     userToken: '$(GitHubCommentApiKey)'
     bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
     getSubFolders: true
   condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'))
-
+  
+# Check for string in the logs in the current DevOps pipeline run.
+# Note: The task immediately before this one may not get checked because its log may not yet be available.
+# Calls the Azure DevOps REST API.
+# Enable OAuth token access in the pipeline agent job for $(System.Accesstoken) to populate.
 - powershell: |
-    # Check for string in the logs in the current DevOps pipeline run.
-    # 
-    # Note: The task immediately before this one may not get checked because its log may not yet be available.
-    # Calls the Azure DevOps REST API.
-    # Enable OAuth token access in the pipeline agent job for $(System.Accesstoken) to populate.
-
     $stringToCheckFor = '201 Created';
-    
     Start-Sleep -Milliseconds 1000 # Give time for the last log to become available
     
     $collectionUri = "$env:SYSTEM_COLLECTIONURI";  # e.g. 'https://fuselabs.visualstudio.com'
@@ -284,8 +268,7 @@ steps:
         $mess =  'Publish Compat Results failed. Is there a PR associated with this build? String "' + $stringToCheckFor + '" not found in the logs';
         throw $mess;
     }
-   
-  displayName: 'Verify Publish Compat Results success'
+  displayName: 'Verify publish'
   continueOnError: true
   condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'))
 
@@ -295,3 +278,4 @@ steps:
   displayName: 'Dir Workspace'
   continueOnError: true
   condition: succeededOrFailed()
+  enabled: false
