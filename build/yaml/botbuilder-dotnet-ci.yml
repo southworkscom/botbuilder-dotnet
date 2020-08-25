@@ -121,6 +121,13 @@ steps:
   displayName: 'Binaries Comparer setup'
   condition: succeeded()
 
+- powershell: |
+    Write-Host "contractsRootFolder: '$(ContractsPath)'"
+    Write-Host "contractsFileName: '$(Contracts)'"
+    Write-Host "implFolder: '$(ImplementationPath)'"
+  displayName: 'Binaries Comparer setup'
+  condition: succeeded()
+
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Binaries Comparer run'
   inputs:
