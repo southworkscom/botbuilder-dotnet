@@ -162,9 +162,9 @@ steps:
   - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
     displayName: 'Binaries Comparer run'
     inputs:
-      contractsRootFolder: '$(env:ContractsPath)'
-      contractsFileName: '$(env:Contracts)'
-      implFolder: '$(env:ImplementationPath)'
+      contractsRootFolder: '$(ContractsPath)'
+      contractsFileName: '$(Contracts)'
+      implFolder: '$(ImplementationPath)'
       failOnIssue: true
       resolveFx: false
       generateLog: true

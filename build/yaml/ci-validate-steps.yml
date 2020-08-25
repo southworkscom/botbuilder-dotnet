@@ -1,6 +1,8 @@
 variables:
   ImplementationPath: '$(System.DefaultWorkingDirectory)\implementation\'
   ContractsPath: '$(System.DefaultWorkingDirectory)\contracts\'
+  BinariesComparerResultFilePath: $(System.DefaultWorkingDirectory)\binaries-comparer\
+  BinariesComparerResultFilename: results.txt
     
 - powershell: |
     $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
@@ -36,16 +38,16 @@ variables:
   arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget'
 
 - powershell: |
-    New-Item -ItemType directory -Path $ImplementationPath -Force
+    New-Item -ItemType directory -Path "$(env:ImplementationPath)" -Force
     $env:BotBuilderDll.Split(",") | ForEach {
         $library = $_.Trim()
-        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
-        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
     }
-    If (!(Test-Path $(ContractsPath))) {
-      New-Item -Path $(ContractsPath) -ItemType Directory
+    If (!(Test-Path $(env:ContractsPath))) {
+      New-Item -Path $(env:ContractsPath) -ItemType Directory
     }
-    Copy-Item -Path "$(System.DefaultWorkingDirectory)\nuget\**\lib\netstandard2.0\*" -Destination $(ContractsPath) -Recurse -Force
+    Copy-Item -Path "$(System.DefaultWorkingDirectory)\nuget\**\lib\netstandard2.0\*" -Destination $(env:ContractsPath) -Recurse -Force
   displayName: 'Binaries Comparer setup'
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
@@ -63,7 +65,4 @@ variables:
 
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops#parameters-to-select-a-template-at-runtime
 - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
-  variables:
-    BinariesComparerResultFilePath: $(System.DefaultWorkingDirectory)\binaries-comparer\
-    BinariesComparerResultFilename: results.txt
   - template: ci-publish-steps.yml

@@ -5,7 +5,7 @@
 
 steps:
 - powershell: |
-    $FileReference = $BinariesComparerResultFilePath + $BinariesComparerResultFilename
+    $FileReference = "$(env:BinariesComparerResultFilePath)" + "$(env:$BinariesComparerResultFilename)"
     $FileContent = @(Get-Content $FileReference)
     $Result = ''
     $Failed = $FALSE;
