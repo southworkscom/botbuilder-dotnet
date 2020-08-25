@@ -138,7 +138,6 @@ steps:
     New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
     Write-Host "##vso[task.setvariable variable=Contracts](($Contracts) -replace ",", ".dll ") + ".dll"
   displayName: 'Contracts setup'
-  enabled: true
 
 - task: NuGetCommand@2
   displayName: 'Install contracts'
