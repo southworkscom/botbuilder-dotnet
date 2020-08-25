@@ -84,8 +84,8 @@ jobs:
         $library = $_.Trim()
         Write-Host $library
     
-        Get-ChildItem -Path "*/$library/bin/release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-        Get-ChildItem -Path "*/*/$library/bin/release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
       }
     displayName: 'Copy DLLs to outputLibraries folder'
 
@@ -126,7 +126,7 @@ jobs:
     inputs:
       command: test
       projects: |
-        Tests/**/*Tests.csproj
+        tests/**/*Tests.csproj
         
       arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
     condition: succeeded()
