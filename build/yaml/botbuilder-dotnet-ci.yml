@@ -110,8 +110,8 @@ steps:
   
 - powershell: |
     $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-    $Contracts = $(BotBuilderDll)
-    $Version = $(ApiCompatVersion)
+    $Contracts = "$(BotBuilderDll)"
+    $Version = "$(ApiCompatVersion)"
     if ("$(Build.Reason)" -eq 'PullRequest') {
       $Libraries = $Contracts.Split(",")
       $UpdatedLibraries = [System.Collections.ArrayList]@()
