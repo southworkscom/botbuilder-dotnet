@@ -104,14 +104,14 @@ steps:
   condition: succeeded()
 
 # To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
-  - task: PowerShell@2
-    displayName: 'Upload code coverage files'
-    inputs:
-      targetType: filePath
-      filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
-      arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
-    continueOnError: true
-    condition: succeeded()
+- task: PowerShell@2
+  displayName: 'Upload code coverage files'
+  inputs:
+    targetType: filePath
+    filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
+    arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
+  continueOnError: true
+  condition: succeeded()
   
 - powershell: |
     $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
