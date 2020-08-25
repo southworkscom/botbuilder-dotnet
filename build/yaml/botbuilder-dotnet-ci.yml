@@ -71,11 +71,6 @@ steps:
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
     logProjectEvents: false
-    
-- powershell: |
-    Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
-    New-Item CodeCoverage -ItemType Directory -Force
-  displayName: 'Create code coverage directory'
 
 # Required for Schema merge tests.
 - task: Npm@1
@@ -99,13 +94,16 @@ steps:
 # My attempts to override this and have it go directly to the CodeCoverage directory have all failed, so I'm just doing the copy here.  
 # (cmullins)
 - powershell: |
+    Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
+    New-Item CodeCoverage -ItemType Directory -Force
     Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
     echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
-  displayName: 'Copy .coverage files'
+  displayName: 'Copy code coverage files'
   condition: succeeded()
 
+# To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
 - task: PowerShell@2
-  displayName: 'Upload to Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet'
+  displayName: 'Upload code coverage files'
   inputs:
     targetType: filePath
     filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
@@ -129,7 +127,6 @@ steps:
     }
     echo "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
     Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
-  name: evaluate_updated_libraries
   displayName: 'Evaluate updated libraries'
   enabled: false
 
@@ -151,14 +148,15 @@ steps:
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
 
 - powershell: |
-    $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
+    # $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
+    $libraries = (($env:BotBuilderDll) -replace ",", ".dll ") + ".dll"
     Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
     $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
     If (!(Test-Path "LibrariesToCompare\")) {
       New-Item -Path "LibrariesToCompare\" -ItemType Directory
     }
     Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
-  displayName: 'Setup for Binaries Comparer'
+  displayName: 'Binaries Comparer setup'
 
 - task: CmdLine@1
   displayName: 'Display LibrariesToCompare directory'
@@ -168,7 +166,7 @@ steps:
   enabled: false
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-  displayName: 'Binaries Comparer'
+  displayName: 'Binaries Comparer run'
   inputs:
     contractsRootFolder: 'LibrariesToCompare\'
     contractsFileName: '$(librariesToCompare)'
@@ -208,22 +206,22 @@ steps:
       }
     }
     Set-Content -Path $FileFullPath -Value $result
-  displayName: 'Format Binaries Comparer results'
-  condition: succeededOrFailed()
+  displayName: 'Binaries Comparer format results'
+  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'))
 
 - task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
-  displayName: 'Publish Binaries Comparer results'
+  displayName: 'Binaries Comparer publish results'
   inputs:
     userToken: '$(GitHubCommentApiKey)'
     bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
     getSubFolders: true
   condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'))
   
-# Check for string in the logs in the current DevOps pipeline run.
-# Note: The task immediately before this one may not get checked because its log may not yet be available.
-# Calls the Azure DevOps REST API.
-# Enable OAuth token access in the pipeline agent job for $(System.Accesstoken) to populate.
 - powershell: |
+    # Check for string in the logs in the current DevOps pipeline run.
+    # Note: The task immediately before this one may not get checked because its log may not yet be available.
+    # Calls the Azure DevOps REST API.
+    # Enable OAuth token access in the pipeline agent job for $(System.Accesstoken) to populate.
     $stringToCheckFor = '201 Created';
     Start-Sleep -Milliseconds 1000 # Give time for the last log to become available
     
