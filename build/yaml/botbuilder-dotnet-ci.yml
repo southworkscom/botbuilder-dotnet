@@ -80,14 +80,12 @@ jobs:
   - powershell: |
       New-Item -ItemType directory -Path "outputLibraries\" -Force
       
-      $buildTarget = $env:BuildConfiguration.Split("-")[0];
-      
       $env:BotBuilderDll.Split(",") | ForEach {
         $library = $_.Trim()
         Write-Host $library
     
-        Get-ChildItem -Path "*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-        Get-ChildItem -Path "*/*/$library/bin/$buildTarget/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+        Get-ChildItem -Path "*/$library/bin/release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+        Get-ChildItem -Path "*/*/$library/bin/release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
       }
     displayName: 'Copy DLLs to outputLibraries folder'
 
@@ -97,8 +95,20 @@ jobs:
       artifactName: 'BotBuilderDLLs'
       targetPath: outputLibraries
 
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
+    inputs:
+      artifactName: 'BotBuilder-Folder'
+
 - job: Test
+  dependsOn: Build
   steps:
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download BotBuilder folder'
+    inputs:
+      artifactName: 'BotBuilder-Folder'
+      targetPath: '$(Build.SourcesDirectory)'
+
   - powershell: |
       Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
       New-Item CodeCoverage -ItemType Directory -Force
@@ -118,7 +128,7 @@ jobs:
       projects: |
         Tests/**/*Tests.csproj
         
-      arguments: '-v n --configuration release --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+      arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
     condition: succeeded()
 
   - powershell: |
