@@ -42,9 +42,9 @@ variables:
 # The .NET 4.X asp.net integrations libraries do not build and test on non-windows boxes.
 # If we drop support for .NET 4.x then we can drop to just Debug/Release.
 stages:
-- stage: Build
+- stage: Build_and_Test
   jobs:
-  - job: Release
+  - job: Build_Release
     steps:
     - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
       displayName: 'Display env vars'
@@ -98,9 +98,7 @@ stages:
         artifactName: 'BotBuilderDLLs'
         targetPath: outputLibraries
 
-- stage: Test
-  jobs:
-  - job: Release
+  - job: Test_Release
     steps:
     - powershell: |
         Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
