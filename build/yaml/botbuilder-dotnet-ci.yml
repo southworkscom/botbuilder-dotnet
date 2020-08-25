@@ -127,7 +127,7 @@ steps:
     contractsRootFolder: '$(ImplementationPath)'
     contractsFileName: '$(Contracts)'
     # implFolder does not accept trailing slash
-    implFolder: "$(ContractsPath)".substring(0 , ("$(ContractsPath)".length - 1))
+    implFolder: '$(System.DefaultWorkingDirectory)/implementation'
     failOnIssue: true
     resolveFx: false
     generateLog: true
