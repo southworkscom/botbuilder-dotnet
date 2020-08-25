@@ -103,7 +103,7 @@ steps:
   displayName: 'Copy code coverage files'
   condition: succeeded()
 
-  # To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
+# To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
   - task: PowerShell@2
     displayName: 'Upload code coverage files'
     inputs:
@@ -113,64 +113,64 @@ steps:
     continueOnError: true
     condition: succeeded()
   
-  - powershell: |
-      $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-      $Contracts = $env:BotBuilderDll
-      $Version = $env:ApiCompatVersion
-      if ("$(Build.Reason)" -eq 'PullRequest') {
-        $Libraries = $Contracts.Split(",")
-        $UpdatedLibraries = [System.Collections.ArrayList]@()
-        $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
-        foreach ($UpdatedFile in $UpdatedFiles) {
-          foreach ($Library in $Libraries) {
-            if($UpdatedFile -like ('*/' + $Library + '/*')){
-              $UpdatedLibraries.Add($Library)
-            }
+- powershell: |
+    $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+    $Contracts = $env:BotBuilderDll
+    $Version = $env:ApiCompatVersion
+    if ("$(Build.Reason)" -eq 'PullRequest') {
+      $Libraries = $Contracts.Split(",")
+      $UpdatedLibraries = [System.Collections.ArrayList]@()
+      $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
+      foreach ($UpdatedFile in $UpdatedFiles) {
+        foreach ($Library in $Libraries) {
+          if($UpdatedFile -like ('*/' + $Library + '/*')){
+            $UpdatedLibraries.Add($Library)
           }
         }
-        $Contracts = $UpdatedLibraries.Join(',')
       }
-      $Contracts.Split(",") | ForEach-Object {
-        $Library = $_.Trim()
-        $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
-      }
-      $Xml += "</packages>"
-      New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
-      Write-Host "##vso[task.setvariable variable=Contracts](($Contracts) -replace ",", ".dll ") + ".dll"
-    displayName: 'Contracts setup'
-    enabled: true
+      $Contracts = $UpdatedLibraries.Join(',')
+    }
+    $Contracts.Split(",") | ForEach-Object {
+      $Library = $_.Trim()
+      $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
+    }
+    $Xml += "</packages>"
+    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
+    Write-Host "##vso[task.setvariable variable=Contracts](($Contracts) -replace ",", ".dll ") + ".dll"
+  displayName: 'Contracts setup'
+  enabled: true
 
-  - task: NuGetCommand@2
-    displayName: 'Install contracts'
-    inputs:
-    command: custom
-    arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget-installed'
+- task: NuGetCommand@2
+  displayName: 'Install contracts'
+  inputs:
+  command: custom
+  arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget-installed'
 
-  - powershell: |
-      New-Item -ItemType directory -Path "$(env:ImplementationPath)" -Force
-      $env:BotBuilderDll.Split(",") | ForEach {
-          $library = $_.Trim()
-          Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
-          Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
-      }
-      If (!(Test-Path $(env:ContractsPath))) {
-        New-Item -Path $(env:ContractsPath) -ItemType Directory
-      }
-      Copy-Item -Path "nuget-installed\**\lib\netstandard2.0\*" -Destination "$(env:ContractsPath)" -Recurse -Force
-    displayName: 'Binaries Comparer setup'
+- powershell: |
+    New-Item -ItemType directory -Path "$(env:ImplementationPath)" -Force
+    $env:BotBuilderDll.Split(",") | ForEach {
+        $library = $_.Trim()
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination "$(env:ImplementationPath)" -Force
+    }
+    If (!(Test-Path $(env:ContractsPath))) {
+      New-Item -Path $(env:ContractsPath) -ItemType Directory
+    }
+    Copy-Item -Path "nuget-installed\**\lib\netstandard2.0\*" -Destination "$(env:ContractsPath)" -Recurse -Force
+  displayName: 'Binaries Comparer setup'
 
-  - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-    displayName: 'Binaries Comparer run'
-    inputs:
-      contractsRootFolder: '$(ContractsPath)'
-      contractsFileName: '$(Contracts)'
-      implFolder: '$(ImplementationPath)'
-      failOnIssue: true
-      resolveFx: false
-      generateLog: true
-      outputFilename: 'results.txt'
-      outputFolder: '$(System.DefaultWorkingDirectory)\binaries-comparer'
-      useBaseline: false
+- task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
+  displayName: 'Binaries Comparer run'
+  inputs:
+    contractsRootFolder: '$(ContractsPath)'
+    contractsFileName: '$(Contracts)'
+    implFolder: '$(ImplementationPath)'
+    failOnIssue: true
+    resolveFx: false
+    generateLog: true
+    outputFilename: 'results.txt'
+    outputFolder: '$(System.DefaultWorkingDirectory)\binaries-comparer'
+    useBaseline: false
 
 - powershell: |
     $FilePath = "$(System.DefaultWorkingDirectory)/binaries-comparer"
