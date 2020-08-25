@@ -43,7 +43,51 @@ variables:
 # If we drop support for .NET 4.x then we can drop to just Debug/Release.
 
 jobs:
-- job: Build
+- job: Release_21
+  steps:
+
+  - task: NuGetToolInstaller@0
+    displayName: 'Use NuGet 4.9.1'
+    inputs:
+      versionSpec: 4.9.1
+
+  - task: NuGetCommand@2
+    displayName: 'NuGet restore'
+    inputs:
+      restoreSolution: '$(Parameters.solution)'
+
+  - task: VSBuild@1
+    displayName: 'Build solution Microsoft.Bot.Builder.sln'
+    inputs:
+      solution: '$(Parameters.solution)'
+      vsVersion: 16.0
+      msbuildArgs: '$(MSBuildArguments)'
+      platform: '$(BuildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      logProjectEvents: false       
+
+  - task: Npm@1
+    displayName: 'install botframework-cli to set up for Schema merge tests.'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: 'install -g @microsoft/botframework-cli@next'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test (release) 2.1'
+    inputs:
+      command: test
+      projects: |
+        Tests/**/*Tests.csproj
+        !Tests/**/Microsoft.Bot.Builder.TestBot.Tests.csproj
+        !Tests/**/Microsoft.Bot.Builder.AI.Orchestrator.Tests.csproj
+      
+      arguments: '-v n  -f netcoreapp2.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+    condition: succeeded()
+
+  ## Release 3.1
+
+- job: Release_31
   steps:
   - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
     displayName: 'Display env vars'
@@ -95,17 +139,6 @@ jobs:
       artifactName: 'BotBuilderDLLs'
       targetPath: outputLibraries
 
-  # - task: PublishPipelineArtifact@0
-  #   displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
-  #   inputs:
-  #     artifactName: 'BotBuilder-Folder'
-
-  # - task: DownloadPipelineArtifact@1
-  #   displayName: 'Download BotBuilder folder'
-  #   inputs:
-  #     artifactName: 'BotBuilder-Folder'
-  #     targetPath: '$(Build.SourcesDirectory)'
-
   - powershell: |
       Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
       New-Item CodeCoverage -ItemType Directory -Force
@@ -119,13 +152,13 @@ jobs:
       customCommand: 'install -g @microsoft/botframework-cli@next'
 
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet test'
+    displayName: 'dotnet test (release) 3.1'
     inputs:
       command: test
       projects: |
-        tests/**/*Tests.csproj
-        
-      arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+        Tests/**/*Tests.csproj
+        !Tests/**/*21.Tests.csproj
+      arguments: '-v n  -f netcoreapp3.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
     condition: succeeded()
 
   - powershell: |
@@ -160,7 +193,7 @@ jobs:
 #   steps:
     
 - job: Api_Compat
-  dependsOn: Build
+  dependsOn: Release_31
   steps:
   - powershell: |
       if ("$(Build.Reason)" -eq 'PullRequest') {
