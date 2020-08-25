@@ -148,20 +148,22 @@ steps:
     arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
 
 - powershell: |
-    New-Item -ItemType directory -Path "implementation\" -Force
+    $ImplementationPath = '$(System.DefaultWorkingDirectory)\implementation\'
+    $ContractsPath = '$(System.DefaultWorkingDirectory)\contracts'
+    New-Item -ItemType directory -Path $ImplementationPath -Force
     $env:BotBuilderDll.Split(",") | ForEach {
         $library = $_.Trim()
-        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'implementation\' -Force
-        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'implementation\' -Force
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $ImplementationPath -Force
     }
     # $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
     $libraries = (($env:BotBuilderDll) -replace ",", ".dll ") + ".dll"
     Write-Host "##vso[task.setvariable variable=Contracts]$libraries"
     $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
-    If (!(Test-Path "contracts\")) {
-      New-Item -Path "contracts\" -ItemType Directory
+    If (!(Test-Path $ContractsPath)) {
+      New-Item -Path $ContractsPath -ItemType Directory
     }
-    Copy-Item -Path $path -Destination "contracts\" -Recurse -Force
+    Copy-Item -Path $path -Destination $ContractsPath -Recurse -Force
   displayName: 'Binaries Comparer setup'
 
 - task: CmdLine@1
@@ -174,9 +176,9 @@ steps:
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
   displayName: 'Binaries Comparer run'
   inputs:
-    contractsRootFolder: 'contracts\'
+    contractsRootFolder: '$(System.DefaultWorkingDirectory)\contracts'
     contractsFileName: '$(Contracts)'
-    implFolder: 'implementation\'
+    implFolder: '$(System.DefaultWorkingDirectory)/implementation/'
     failOnIssue: true
     resolveFx: false
     generateLog: true
@@ -219,7 +221,7 @@ steps:
   displayName: 'Binaries Comparer publish results'
   inputs:
     userToken: '$(GitHubCommentApiKey)'
-    bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
+    bodyFilePath: '$(System.DefaultWorkingDirectory)/binaries-comparer/results.txt'
     getSubFolders: true
   condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'))
   

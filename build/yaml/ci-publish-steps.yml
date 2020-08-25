@@ -1,0 +1,62 @@
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops#parameters-to-select-a-template-at-runtime
+# steps:
+# - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+#   - template: experimental.yml
+
+variables:
+  # BinariesComparerResultFilePath: Define in father | "$(System.DefaultWorkingDirectory)/binaries-comparer"
+  # BinariesComparerResultFilename: Define in father | "results.txt"
+  # GitHubCommentApiKey: Define in father
+
+steps:
+- powershell: |
+    $FileReference = $BinariesComparerResultFilePath + $BinariesComparerResultFilename
+    $FileContent = @(Get-Content $FileReference)
+    $Result = ''
+    $Failed = $FALSE;
+    ForEach ($line in $FileContent) {
+      if ($line.StartsWith(':x:','CurrentCultureIgnoreCase')) {
+        $Failed = $TRUE
+        $Result += ":x: Found an incompatibility in at least one of all modified libraries:`n"
+        $Result += $line.Replace(":x: ", "") + "`n"
+      } elseif ($Failed) {
+        $Result += $line + "`n"
+      } else {
+        $firstIndex =  $line.IndexOf('**') + 2
+        $lastIndex = $line.LastIndexOf('**')
+        $libraries = $line.Substring($firstIndex, $lastIndex - $firstIndex).Split(' ')
+        $Result = ":heavy_check_mark: Found no incompatibilities for all modified libraries:`n"
+        ForEach ($library in $libraries) {
+          $libraryName = $library.Replace('.dll','') 
+          $libraryName += " compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$libraryName/$(ApiCompatVersion))"
+          $Result += '- ' + $libraryName + "`n"
+        }
+        break;
+      }
+    }
+    Set-Content -Path $FileReference -Value $Result
+  displayName: 'Binaries Comparer format results'
+
+- task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
+  displayName: 'Binaries Comparer publish results'
+  inputs:
+    userToken: '$(GitHubCommentApiKey)'
+    bodyFilePath: '$(BinariesComparerResultFilePath)\$(BinariesComparerResultFilename)'
+    getSubFolders: true
+  condition: succeededOrFailed()
+  
+- task: PowerShell@2
+  displayName: 'Verify publish'
+  inputs:
+    targetType: filePath
+    filePath: '$(Build.SourcesDirectory)\build\VerifyGitHubPublish.ps1'
+  continueOnError: true
+  condition: succeeded()
+
+- script: |
+   cd ..
+   dir *.* /s
+  displayName: 'Dir Workspace'
+  continueOnError: true
+  condition: succeededOrFailed()
+  enabled: false
