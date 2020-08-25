@@ -242,7 +242,7 @@ steps:
     command: test
     projects: |
     Tests/**/*Tests.csproj
-    arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+  arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
   condition: succeeded()
 
 # This task copies the code coverage file created by dotnet test into a well known location. 
