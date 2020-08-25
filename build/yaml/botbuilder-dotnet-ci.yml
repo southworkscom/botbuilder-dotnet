@@ -151,7 +151,7 @@ stages:
       enabled: false
 
 - stage: API_Compatibility_Validation
-  dependsOn: Build
+  dependsOn: Build_and_Test
   jobs:
   - job: Release
     steps:
