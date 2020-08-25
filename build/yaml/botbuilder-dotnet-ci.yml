@@ -229,40 +229,40 @@ steps:
 
 # Required for Schema merge tests.
 - task: Npm@1
-displayName: 'Install botframework-cli'
-inputs:
-  command: custom
-  verbose: false
-  customCommand: 'install -g @microsoft/botframework-cli@next'
-condition: succeededOrFailed()
+  displayName: 'Install botframework-cli'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g @microsoft/botframework-cli@next'
+  condition: succeededOrFailed()
 
 - task: DotNetCoreCLI@2
-displayName: 'Test'
-inputs:
-  command: test
-  projects: |
-   Tests/**/*Tests.csproj
-  arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
-condition: succeeded()
+  displayName: 'Test'
+  inputs:
+    command: test
+    projects: |
+    Tests/**/*Tests.csproj
+    arguments: '-v n --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+  condition: succeeded()
 
 # This task copies the code coverage file created by dotnet test into a well known location. 
 # In all checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
 # My attempts to override this and have it go directly to the CodeCoverage directory have all failed, so I'm just doing the copy here.  
 # (cmullins)
 - powershell: |
-  Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
-  New-Item CodeCoverage -ItemType Directory -Force
-  Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
-  echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
-displayName: 'Copy code coverage files'
-condition: succeeded()
+    Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
+    New-Item CodeCoverage -ItemType Directory -Force
+    Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
+    echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
+  displayName: 'Copy code coverage files'
+  condition: succeeded()
 
 # To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
 - task: PowerShell@2
-displayName: 'Upload code coverage files'
-inputs:
-  targetType: filePath
-  filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
-  arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
-continueOnError: true
-condition: succeeded()
+  displayName: 'Upload code coverage files'
+  inputs:
+    targetType: filePath
+    filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
+    arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
+  continueOnError: true
+  condition: succeeded()
