@@ -95,19 +95,21 @@ jobs:
       artifactName: 'BotBuilderDLLs'
       targetPath: outputLibraries
 
-  - task: PublishPipelineArtifact@0
-    displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
-    inputs:
-      artifactName: 'BotBuilder-Folder'
+  # - task: PublishPipelineArtifact@0
+  #   displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
+  #   inputs:
+  #     artifactName: 'BotBuilder-Folder'
 
-- job: Test
-  dependsOn: Build
-  steps:
-  - task: DownloadPipelineArtifact@1
-    displayName: 'Download BotBuilder folder'
-    inputs:
-      artifactName: 'BotBuilder-Folder'
-      targetPath: '$(Build.SourcesDirectory)'
+  - bash: |
+      echo "This is job Foo."
+      echo "##vso[task.setvariable variable=doThing;isOutput=true]Yes" #set variable doThing to Yes
+    name: DetermineResult
+
+  # - task: DownloadPipelineArtifact@1
+  #   displayName: 'Download BotBuilder folder'
+  #   inputs:
+  #     artifactName: 'BotBuilder-Folder'
+  #     targetPath: '$(Build.SourcesDirectory)'
 
   - powershell: |
       Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
@@ -135,7 +137,7 @@ jobs:
       platform: '$(BuildPlatform)'
       configuration: '$(BuildConfiguration)'
       logProjectEvents: false       
-      
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
     inputs:
@@ -173,9 +175,12 @@ jobs:
       PathtoPublish: CodeCoverage
       ArtifactName: CodeCoverage
     enabled: false
-
+# - job: Test
+#   dependsOn: Build
+#   steps:
+    
 - job: Api_Compat
-  dependsOn: Build
+  condition: eq(dependencies.Build.outputs['DetermineResult.doThing'], 'Yes')
   steps:
   - powershell: |
       if ("$(Build.Reason)" -eq 'PullRequest') {
