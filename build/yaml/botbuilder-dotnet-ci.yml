@@ -3,38 +3,38 @@
 #
 
 # "name" here defines the build number format. Build number is accessed via $(Build.BuildNumber)
-name: $(Build.BuildId)
+# name: $(Build.BuildId)
 
-pool:
-  name: Hosted Windows 2019 with VS2019
-  demands:
-  - msbuild
-  - visualstudio
+# pool:
+#   name: Hosted Windows 2019 with VS2019
+#   demands:
+#   - msbuild
+#   - visualstudio
 
-# No "paths exclude" here: not supported by github required status checks.
-trigger: # ci trigger
-  branches:
-    include:
-     - main
+# # No "paths exclude" here: not supported by github required status checks.
+# trigger: # ci trigger
+#   branches:
+#     include:
+#      - main
 
-pr: # pr trigger
-  branches:
-    include:
-     - main
+# pr: # pr trigger
+#   branches:
+#     include:
+#      - main
 
-variables:
-  ApiCompatVersion: 4.6.3
-  BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
-  BuildConfiguration: Release-Windows
-  BuildPlatform: any cpu
-#  DotNetCoverallsToken: define this in Azure
-#  GitHubCommentApiKey: define this in Azure
-  IsBuildServer: true # This activates package versioning in the projects in Microsoft.Bot.Builder.sln.
-  MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
-  Parameters.solution: Microsoft.Bot.Builder.sln
-  PreviewPackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
-  ReleasePackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
-  runCodesignValidationInjection: false # Disables unnecessary CodeSign Validation step
+# variables:
+#   ApiCompatVersion: 4.6.3
+#   BotBuilderDll: Microsoft.Bot.Builder.AI.Luis,Microsoft.Bot.Builder.AI.QnA,Microsoft.Bot.Builder.ApplicationInsights,Microsoft.Bot.Builder.Azure,Microsoft.Bot.Builder.Dialogs,Microsoft.Bot.Builder.Integration.ApplicationInsights.Core,Microsoft.Bot.Builder.Integration.AspNet.Core,Microsoft.Bot.Builder.TemplateManager,Microsoft.Bot.Builder.Testing,Microsoft.Bot.Builder,Microsoft.Bot.Configuration,Microsoft.Bot.Connector,Microsoft.Bot.Schema,Microsoft.Bot.Streaming
+#   BuildConfiguration: Release-Windows
+#   BuildPlatform: any cpu
+# #  DotNetCoverallsToken: define this in Azure
+# #  GitHubCommentApiKey: define this in Azure
+#   IsBuildServer: true # This activates package versioning in the projects in Microsoft.Bot.Builder.sln.
+#   MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
+#   Parameters.solution: Microsoft.Bot.Builder.sln
+#   PreviewPackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
+#   ReleasePackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
+#   runCodesignValidationInjection: false # Disables unnecessary CodeSign Validation step
 
 # The following 2 stages run multi-configuration, multi-agent parallel jobs.
 # Debug-Windows/Release-Windows => Builds everything in Debug/Release + the ASP.NET Desktop.
