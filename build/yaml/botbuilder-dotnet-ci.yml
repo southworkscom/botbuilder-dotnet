@@ -417,7 +417,7 @@ jobs:
     - task: DotNetCoreCLI@2
       inputs:
         command: build
-        arguments: '-v n -f netcoreapp2.1 --configuration Release'
+        arguments: '-v n --configuration Release'
         projects: '$(Parameters.solution)'
     
     # - powershell: |
