@@ -1,108 +1,87 @@
-# TODO: Write logs
+variables:
+  ImplementationPath: $(System.DefaultWorkingDirectory)\implementation\
+  ContractsPath: $(System.DefaultWorkingDirectory)\contracts\
 
 steps:
 - powershell: |
-    if ("$(Build.Reason)" -eq 'PullRequest') {
-      $libraries = ($env:BotBuilderDll).Split(",")
-      $updatedLibraries = [System.Collections.ArrayList]@()
-      $updatedFiles = $(git diff HEAD HEAD~ --name-only)
-      foreach ($updatedFile in $updatedFiles) {
-        $updatedLibrary = ''
-        foreach ($library in $libraries) {
-          if($updatedFile -like ('*/' + $library + '/*')){
-            $updatedLibraries.Add($library)
-          }
+  $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+  $Contracts = "$(BotBuilderDll)"
+  $Version = "$(ApiCompatVersion)"
+  $Output = ""
+  if ("$(Build.Reason)" -eq 'PullRequest') {
+    $Libraries = $Contracts.Split(",")
+    $UpdatedLibraries = [System.Collections.ArrayList]@()
+    $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
+    foreach ($UpdatedFile in $UpdatedFiles) {
+      foreach ($Library in $Libraries) {
+        if($UpdatedFile -like ('*/' + $Library + '/*')){
+          $UpdatedLibraries.Add($Library)
         }
       }
     }
-    echo "##vso[task.setVariable variable=BotBuilderUpdatedDll]$updatedLibraries.Join(',')"
-
-    Write-Host ("Found " + $updatedLibraries.Count + " librar" + $(If ($updatedLibraries.Count -eq 1) {"y"} Else {"ies"}) + " to compare.")
-  name: evaluate_updated_libraries
-  displayName: 'Evaluate Updated Libraries'
-
-- task: DownloadPipelineArtifact@1
-  displayName: 'Download BotBuilderDLLs artifact'
-  condition: ne($(BotBuilderUpdatedDll), '')
-  inputs:
-    artifactName: 'BotBuilderDLLs-Debug-Windows-netcoreapp31'
-    targetPath: '$(System.ArtifactsDirectory)/Artifacts'
-
-- powershell: |
-    $xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-
-    $(BotBuilderUpdatedDll).Split(",") | ForEach-Object {
-      $library = $_.Trim()
-      $xml += "  <package id=""" + $library + """ version=""" + $env:ApiCompatVersion + """/>`n"
+    if ($UpdatedLibraries.count -gt 0){
+      $Contracts = $UpdatedLibraries.Join(',')
+    } else {
+      $Contracts = ""
     }
-    $xml += "</packages>"
-    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $xml -Force
-    
-    $xml
-  displayName: 'Generate NuGet packages.config File'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  }
+  if($Contracts.length -gt 0){
+    # Note: If $Contracts.length equals 0 Powershell's ForEach runs once.
+    $Contracts.Split(",") | ForEach-Object {
+      $Library = $_.Trim()
+      $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
+    }
+    $Xml += "</packages>"
+    New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
+    $Output = ($Contracts -replace ",", ".dll ") + ".dll"
+  }
+  Write-Host "##vso[task.setvariable variable=Contracts]$Output"
+displayName: 'Contracts setup'
+condition: succeeded()
 
 - task: NuGetCommand@2
-  displayName: 'NuGet Install Packages'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  displayName: 'Install contracts'
   inputs:
     command: custom
-    arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\DownloadedNuGet'
-
-- task: CmdLine@1
-  displayName: 'Run dir'
-  inputs:
-    filename: dir
-    arguments: '..\*.* /s'
-  enabled: false
+    arguments: 'install $(System.DefaultWorkingDirectory)\packages.config -OutputDirectory $(System.DefaultWorkingDirectory)\nuget-installed'
+  condition: and(succeeded(), ne(variables.Contracts, ''))
 
 - powershell: |
-    $libraries = ($(BotBuilderUpdatedDll) -replace ",", ".dll ") + ".dll"
-
-    Write-Host "##vso[task.setvariable variable=librariesToCompare]$libraries"
-
-    $path = "DownloadedNuGet\**\lib\netstandard2.0\*"
-
-    If (!(Test-Path "LibrariesToCompare\")) {
-      New-Item -Path "LibrariesToCompare\" -ItemType Directory
+    New-Item -Path $(ImplementationPath) -ItemType Directory -Force
+    "$(BotBuilderDll)".Split(",") | ForEach {
+        $library = $_.Trim()
+        Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
+        Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination $(ImplementationPath) -Force
     }
-
-    Copy-Item -Path $path -Destination "LibrariesToCompare\" -Recurse -Force
-
-  displayName: 'Prepare Nuget Libraries to Binary Compare'
-  condition: ne($(BotBuilderUpdatedDll), '')
-
-- task: CmdLine@1
-  displayName: 'NuGet LibrariesToCompare Folder'
-  condition: ne($(BotBuilderUpdatedDll), '')
-  inputs:
-    filename: dir
-    arguments: 'LibrariesToCompare\*.* /s'
+    If (!(Test-Path $(ContractsPath))) {
+      New-Item -Path $(ContractsPath) -ItemType Directory
+    }
+    Copy-Item -Path "nuget-installed\**\lib\netstandard2.0\*" -Destination $(ContractsPath) -Recurse -Force
+  displayName: 'Binaries Comparer setup'
+  condition: and(succeeded(), ne(variables.Contracts, ''))
 
 - task: SOUTHWORKS.binaries-comparer.custom-build-release-task.binaries-comparer@0
-  displayName: 'Compare Binaries'
-  condition: ne($(BotBuilderUpdatedDll), '')
+  displayName: 'Binaries Comparer run'
   inputs:
-    contractsRootFolder: 'LibrariesToCompare\'
-    contractsFileName: '$(librariesToCompare)'
-    implFolder: '$(System.ArtifactsDirectory)/Artifacts'
+    contractsRootFolder: '$(ImplementationPath)'
+    contractsFileName: '$(Contracts)'
+    # implFolder does not accept trailing slash
+    implFolder: '$(System.DefaultWorkingDirectory)/implementation'
     failOnIssue: true
     resolveFx: false
     generateLog: true
-    outputFilename: 'CompatResults.txt'
-    outputFolder: '$(Build.ArtifactStagingDirectory)'
+    outputFilename: 'results.txt'
+    outputFolder: '$(System.DefaultWorkingDirectory)/binaries-comparer/'
     useBaseline: false
+  condition: and(succeeded(), ne(variables.Contracts, ''))
 
 - powershell: |
-    $FilePath = "$(Build.ArtifactStagingDirectory)\"
-    $FileName = "CompatResults.txt"
-
+    $FilePath = "$(System.DefaultWorkingDirectory)/binaries-comparer/"
+    $FileName = "results.txt"
     $FileFullPath = $FilePath + $FileName
     $FileContent = @(Get-Content $FileFullPath)
-
     $result = ''
     $failed = $FALSE;
-
     ForEach ($line in $FileContent) {
       if ($line.StartsWith(':x:','CurrentCultureIgnoreCase')) {
         $failed = $TRUE
@@ -123,95 +102,18 @@ steps:
         break;
       }
     }
-        
-
-
     Set-Content -Path $FileFullPath -Value $result
-    $result
-  displayName: 'Format CompatResults file'
-  condition: and(succeededOrFailed(), ne($(BotBuilderUpdatedDll), ''))
-
-- task: SOUTHWORKS.github-pr-comment.custom-publish-comment-task.github-pr-comment@0
-  displayName: 'Publish Compat Results to Github'
-  inputs:
-    userToken: '$(GitHubCommentApiKey)'
-    bodyFilePath: '$(Build.ArtifactStagingDirectory)\'
-    getSubFolders: true
-  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'), ne($(BotBuilderUpdatedDll), ''))
-
-- powershell: |
-   # Check for string in the logs in the current DevOps pipeline run.
-   # 
-   # Note: The task immediately before this one may not get checked because its log may not yet be available.
-   # Calls the Azure DevOps REST API.
-   # Enable OAuth token access in the pipeline agent job for $(System.Accesstoken) to populate.
-
-   $stringToCheckFor = '201 Created';
-   
-   Start-Sleep -Milliseconds 1000 # Give time for the last log to become available
-   
-   $collectionUri = "$env:SYSTEM_COLLECTIONURI";  # e.g. 'https://fuselabs.visualstudio.com'
-   $teamProjectId = "$env:SYSTEM_TEAMPROJECTID";  # e.g. '86659c66-c9df-418a-a371-7de7aed35064' = SDK_v4
-   
-   # Get the current build ID.
-   $buildId = "$env:BUILD_BUILDID";
-   Write-Host 'Build ID = ' $buildId;
-   
-   # Get the log containers for the run.
-   $uri = "$collectionUri/$teamProjectId/_apis/build/builds/$buildId/logs";
-   
-   $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)"));
-   $header = @{authorization = "Basic $token"};
-   
-   $runLogContainers = Invoke-RestMethod "$uri" -Method Get -ContentType "application/json" -Headers $header;
-   
-   # Get the log from each log container.
-   Write-Host 'Checking the logs:';
-   $found = $false;
-   foreach ($container in $runLogContainers.value) {
-       $container.id;
-       $uri = $container.url;
-       $uri;
-       $log = Invoke-RestMethod "$uri" -Method Get -ContentType "application/json" -Headers $header;
-       
-       # Search for our string.
-       if (!$found -and $log.Contains($stringToCheckFor)) {
-           $found = $true;
-           $log;
-           $mess = 'String "' + $stringToCheckFor + '" found in log #' + $container.id;
-           Write-Host $mess;
-       } else {
-           ($log -split '\r?\n')[0] + '...';  # Print first line
-       }
-   }
-   
-   # If not found, throw an error.
-   if (!$found) {
-       Write-Host;
-       $mess =  'Publish Compat Results failed. Is there a PR associated with this build? String "' + $stringToCheckFor + '" not found in the logs';
-       throw $mess;
-   }
-   
-  displayName: 'Verify Publish Compat Results success'
-  continueOnError: true
-  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'), ne($(BotBuilderUpdatedDll), ''))
-
-- script: |
-   cd ..
-   dir /s
-  displayName: 'Dir workspace'
-  continueOnError: true
-  condition: succeededOrFailed()
-
+  displayName: 'Binaries Comparer format results'
+  condition: and(succeededOrFailed(), eq(variables['Build.Reason'], 'PullRequest'), ne(variables.Contracts, ''))
 
 # - task: PublishBuildArtifacts@1
-#   displayName: 'Publish CompatResults to artifact'
+#   displayName: 'Publish Compat Results artifact'
 #   inputs:
-#     ArtifactName: 'BotBuilderDLLs.CompatResults'
+#     ArtifactName: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults'
 
 # - script: |
-#    cd ..
-#    dir /s
+#     cd ..
+#     dir /s
 #   displayName: 'Dir workspace'
 #   continueOnError: true
 #   condition: succeededOrFailed()
