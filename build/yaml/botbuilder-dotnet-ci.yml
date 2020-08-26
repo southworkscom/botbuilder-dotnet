@@ -460,7 +460,7 @@ jobs:
 
     - task: ExtractFiles@1
       inputs:
-        archiveFilePatterns: $(Build.ArtifactStagingDirectory)/Artifacts/Built-Solution.zip
+        archiveFilePatterns: $(Build.ArtifactStagingDirectory)/Built-Solution.zip
         destinationFolder: '$(Build.ArtifactStagingDirectory)/Artifacts/'
         cleanDestinationFolder: false 
 
