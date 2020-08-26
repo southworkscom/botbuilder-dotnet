@@ -382,8 +382,8 @@ variables:
   ImplementationPath: $(System.DefaultWorkingDirectory)\implementation\
   ContractsPath: $(System.DefaultWorkingDirectory)\contracts\
 
-- jobs:
-  job: Build
+jobs:
+  - job: Build
     steps:
     - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
       displayName: 'Display environment variables'
@@ -436,7 +436,7 @@ variables:
         artifactName: 'BotBuilderDLLs'
         targetPath: outputLibraries
 
-  job: Test_Release_21
+  - job: Test_Release_21
     steps:
     - task: VSBuild@1
       displayName: 'Build'
@@ -471,7 +471,7 @@ variables:
         arguments: '-v n  -f netcoreapp2.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
       condition: succeeded()
 
-  job: Test_Release_31
+  - job: Test_Release_31
     steps:
     - task: VSBuild@1
       displayName: 'Build'
@@ -527,7 +527,7 @@ variables:
       continueOnError: true
       condition: succeeded()
 
-  # job: Api_Compat
+  # - job: Api_Compat
   #   dependsOn: Build
   #   steps:
   #   - powershell: |
