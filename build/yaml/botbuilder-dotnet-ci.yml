@@ -397,11 +397,11 @@ jobs:
         tags: 'Version=$(ReleasePackageVersion)'
       continueOnError: true
 
-    - task: NuGetCommand@2
-      displayName: 'NuGet restore'
-      inputs:
-        restoreSolution: '$(Parameters.solution)'
-      condition: succeeded()
+    # - task: NuGetCommand@2
+    #   displayName: 'NuGet restore'
+    #   inputs:
+    #     restoreSolution: '$(Parameters.solution)'
+    #   condition: succeeded()
 
     # - task: VSBuild@1
     #   displayName: 'Build'
@@ -415,6 +415,13 @@ jobs:
     #   condition: succeeded()
 
     - task: DotNetCoreCLI@2
+      displayName: 'NuGet restore'
+      inputs:
+        command: restore
+        projects: '$(Parameters.solution)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
       inputs:
         command: build
         arguments: '-v n --configuration Release'
