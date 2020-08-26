@@ -243,16 +243,26 @@ jobs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
     
-    - task: VSBuild@1
+    # - task: VSBuild@1
+    #   displayName: 'Build'
+    #   inputs:
+    #     solution: '$(Parameters.solution)'
+    #     vsVersion: 16.0
+    #     msbuildArgs: '$(MSBuildArguments)'
+    #     platform: '$(BuildPlatform)'
+    #     configuration: '$(BuildConfiguration)'
+    #     logProjectEvents: false
+    #   condition: succeeded()
+      
+    - task: DotNetCoreCLI@2
       displayName: 'Build'
       inputs:
-        solution: '$(Parameters.solution)'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
-        configuration: '$(BuildConfiguration)'
-        logProjectEvents: false
-      condition: succeeded()
+        command: build
+        arguments: '-f netcoreapp2.1 --configuration Release'
+        projects: |
+          Tests/**/*Tests.csproj
+          !Tests/**/Microsoft.Bot.Builder.TestBot.Tests.csproj
+          !Tests/**/Microsoft.Bot.Builder.AI.Orchestrator.Tests.csproj
 
     # Required for Schema merge tests.
     - task: Npm@1
@@ -286,16 +296,24 @@ jobs:
           restoreSolution: '$(Parameters.solution)'
         condition: succeeded()
       
-      - task: VSBuild@1
+      # - task: VSBuild@1
+      #   displayName: 'Build'
+      #   inputs:
+      #     solution: '$(Parameters.solution)'
+      #     vsVersion: 16.0
+      #     msbuildArgs: '$(MSBuildArguments)'
+      #     platform: '$(BuildPlatform)'
+      #     configuration: '$(BuildConfiguration)'
+      #     logProjectEvents: false
+      #   condition: succeeded()
+      - task: DotNetCoreCLI@2
         displayName: 'Build'
         inputs:
-          solution: '$(Parameters.solution)'
-          vsVersion: 16.0
-          msbuildArgs: '$(MSBuildArguments)'
-          platform: '$(BuildPlatform)'
-          configuration: '$(BuildConfiguration)'
-          logProjectEvents: false
-        condition: succeeded()
+          command: build
+          arguments: '-f netcoreapp3.1 --configuration Release'
+          projects: |
+            Tests/**/*Tests.csproj
+            !Tests/**/*21.Tests.csproj
 
       # Required for Schema merge tests.
       - task: Npm@1
