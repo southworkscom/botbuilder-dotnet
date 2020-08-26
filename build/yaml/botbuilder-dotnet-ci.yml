@@ -464,50 +464,56 @@ jobs:
         artifactName: 'Built-Solution'
         targetPath: $(Build.ArtifactStagingDirectory)/Built-Solution.zip
 
-  # - task: DownloadPipelineArtifact@1
-  #   displayName: 'Download built solution'
-  #   inputs:
-  #     artifactName: 'Built-Solution'
-  #     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
-  # - job: Test_Release_21
-  #   steps:
-  #   - task: NuGetCommand@2
-  #     displayName: 'NuGet restore'
-  #     inputs:
-  #       restoreSolution: '$(Parameters.solution)'
+  - job: Test_Release_21
+    steps:
+    - task: DownloadPipelineArtifact@1
+      displayName: 'Download built solution'
+      inputs:
+        artifactName: 'Built-Solution'
+        targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
-  #   - task: VSBuild@1
-  #     displayName: 'Build'
-  #     inputs:
-  #       solution: '$(Parameters.solution)'
-  #       vsVersion: 16.0
-  #       msbuildArgs: '$(MSBuildArguments)'
-  #       platform: '$(BuildPlatform)'
-  #       configuration: '$(BuildConfiguration)'
-  #       logProjectEvents: false
-  #     condition: succeeded()
+    - task: ExtractFiles@1
+      inputs:
+        destinationFolder: '$(Build.SourcesDirectory)'
+        cleanDestinationFolder: false 
 
-  #   # Required for Schema merge tests.
-  #   - task: Npm@1
-  #     displayName: 'Install botframework-cli'
-  #     inputs:
-  #       command: custom
-  #       verbose: false
-  #       customCommand: 'install -g @microsoft/botframework-cli@next'
-  #     condition: succeededOrFailed()
+    # - task: NuGetCommand@2
+    #   displayName: 'NuGet restore'
+    #   inputs:
+    #     restoreSolution: '$(Parameters.solution)'
 
-  #   - task: DotNetCoreCLI@2
-  #     displayName: 'Test'
-  #     inputs:
-  #       command: test
-  #       projects: |
-  #         Tests/**/*Tests.csproj
-  #         !Tests/**/Microsoft.Bot.Builder.TestBot.Tests.csproj
-  #         !Tests/**/Microsoft.Bot.Builder.AI.Orchestrator.Tests.csproj
+    # - task: VSBuild@1
+    #   displayName: 'Build'
+    #   inputs:
+    #     solution: '$(Parameters.solution)'
+    #     vsVersion: 16.0
+    #     msbuildArgs: '$(MSBuildArguments)'
+    #     platform: '$(BuildPlatform)'
+    #     configuration: '$(BuildConfiguration)'
+    #     logProjectEvents: false
+    #   condition: succeeded()
+
+    # Required for Schema merge tests.
+    - task: Npm@1
+      displayName: 'Install botframework-cli'
+      inputs:
+        command: custom
+        verbose: false
+        customCommand: 'install -g @microsoft/botframework-cli@next'
+      condition: succeededOrFailed()
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Test'
+      inputs:
+        command: test
+        projects: |
+          Tests/**/*Tests.csproj
+          !Tests/**/Microsoft.Bot.Builder.TestBot.Tests.csproj
+          !Tests/**/Microsoft.Bot.Builder.AI.Orchestrator.Tests.csproj
         
-  #       arguments: '-v n  -f netcoreapp2.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
-  #     condition: succeeded()
+        arguments: '-v n  -f netcoreapp2.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+      condition: succeeded()
 
   # - job: Test_Release_31
   #   steps:
