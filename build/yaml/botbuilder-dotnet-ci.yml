@@ -458,16 +458,6 @@ jobs:
         rootFolderOrFile: 'tests/' 
         archiveFile: '$(Build.ArtifactStagingDirectory)/Built-Solution.zip' 
 
-    - task: ExtractFiles@1
-      inputs:
-        archiveFilePatterns: $(Build.ArtifactStagingDirectory)/Built-Solution.zip
-        destinationFolder: '$(Build.ArtifactStagingDirectory)/Artifacts/'
-        cleanDestinationFolder: false 
-
-    - powershell: |
-        Copy-Item -Path $(Build.ArtifactStagingDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Recurse -Force
-      displayName: 'Replace Tests folder'
-
     - task: PublishPipelineArtifact@0
       displayName: 'Publish built solution'
       inputs:
@@ -491,8 +481,7 @@ jobs:
         cleanDestinationFolder: false 
 
     - powershell: |
-        Remove-Item –Path $(Build.SourcesDirectory)/tests
-        Move-Item -Path $(System.ArtifactsDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Force
+        Copy-Item -Path $(System.ArtifactsDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Recurse -Force
       displayName: 'Replace Tests folder'
 
     # - task: NuGetCommand@2
@@ -518,7 +507,7 @@ jobs:
         command: custom
         verbose: false
         customCommand: 'install -g @microsoft/botframework-cli@next'
-      condition: succeededOrFailed()
+      condition: succeeded()
 
     - task: DotNetCoreCLI@2
       displayName: 'Test'
