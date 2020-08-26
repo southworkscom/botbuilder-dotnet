@@ -410,7 +410,7 @@ jobs:
         vsVersion: 16.0
         msbuildArgs: '$(MSBuildArguments)'
         platform: '$(BuildPlatform)'
-        configuration: 'release'
+        configuration: '$(BuildConfiguration)'
         logProjectEvents: false
       condition: succeeded()
     
@@ -438,7 +438,6 @@ jobs:
       displayName: 'NuGet restore'
       inputs:
         restoreSolution: '$(Parameters.solution)'
-      condition: succeeded()
 
     - task: VSBuild@1
       displayName: 'Build'
@@ -447,7 +446,7 @@ jobs:
         vsVersion: 16.0
         msbuildArgs: '$(MSBuildArguments)'
         platform: '$(BuildPlatform)'
-        configuration: 'release'
+        configuration: '$(BuildConfiguration)'
         logProjectEvents: false
       condition: succeeded()
 
@@ -487,7 +486,7 @@ jobs:
         vsVersion: 16.0
         msbuildArgs: '$(MSBuildArguments)'
         platform: '$(BuildPlatform)'
-        configuration: 'release'
+        configuration: '$(BuildConfiguration)'
         logProjectEvents: false
       condition: succeeded()
 
