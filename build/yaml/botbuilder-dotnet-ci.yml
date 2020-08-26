@@ -403,13 +403,13 @@ jobs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
 
-    - task: VSBuild@1
+    - task: MSBuild@1
       displayName: 'Build'
       inputs:
         solution: '**/libraries/**/*.csproj'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
+        msbuildVersion: 16.0
+        msbuildArguments: '$(MSBuildArguments)'
+        platform: 'AnyCPU'
         configuration: 'release'
         logProjectEvents: false
       condition: succeeded()
@@ -440,13 +440,13 @@ jobs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
 
-    - task: VSBuild@1
+    - task: MSBuild@1
       displayName: 'Build'
       inputs:
         solution: '**/tests/**/*21.Tests.csproj'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
+        msbuildVersion: 16.0
+        msbuildArguments: '$(MSBuildArguments)'
+        platform: 'AnyCPU'
         configuration: 'release'
         logProjectEvents: false
       condition: succeeded()
@@ -479,14 +479,14 @@ jobs:
       inputs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
-      
-    - task: VSBuild@1
+
+    - task: MSBuild@1
       displayName: 'Build'
       inputs:
         solution: '**/tests/**/*Tests.csproj'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
+        msbuildVersion: 16.0
+        msbuildArguments: '$(MSBuildArguments)'
+        platform: 'AnyCPU'
         configuration: 'release'
         logProjectEvents: false
       condition: succeeded()
