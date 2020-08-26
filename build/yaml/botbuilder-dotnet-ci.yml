@@ -477,8 +477,12 @@ jobs:
     - task: ExtractFiles@1
       inputs:
         archiveFilePatterns: $(System.ArtifactsDirectory)/Artifacts/Built-Solution.zip
-        destinationFolder: '$(Build.SourcesDirectory)'
+        destinationFolder: '$(System.ArtifactsDirectory)/Artifacts/'
         cleanDestinationFolder: false 
+
+    - powershell: |
+        Move-Item -Path $(System.ArtifactsDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Force
+      displayName: 'Replace Tests folder'
 
     # - task: NuGetCommand@2
     #   displayName: 'NuGet restore'
