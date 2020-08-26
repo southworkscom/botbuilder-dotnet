@@ -473,25 +473,25 @@ jobs:
 
   - job: Test_Release_31
     steps:
-    - task: NuGetCommand@2
-      displayName: 'NuGet restore'
-      inputs:
-        restoreSolution: '$(Parameters.solution)'
-      condition: succeeded()
-
-    # - task: DotNetCoreCLI@2
-    #   displayName: dotnet restore
+    # - task: NuGetCommand@2
+    #   displayName: 'NuGet restore'
     #   inputs:
-    #     command: restore
-    #     projects: 'tests/**/*.csproj'
-    #     feedsToUse: 'select'
-    #     vstsFeed: '<projectName>/<feedName>'
-    #     includeNuGetOrg: true
+    #     restoreSolution: '$(Parameters.solution)'
+    #   condition: succeeded()
+
+    - task: DotNetCoreCLI@2
+      displayName: dotnet restore
+      inputs:
+        command: restore
+        projects: 'tests/**/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: '<projectName>/<feedName>'
+        includeNuGetOrg: true
 
     - task: VSBuild@1
       displayName: 'Build'
       inputs:
-        solution: 'tests/**/*.csproj'
+        solution: '$(Parameters.solution)'
         vsVersion: 16.0
         msbuildArgs: '$(MSBuildArguments)'
         platform: '$(BuildPlatform)'
