@@ -473,13 +473,13 @@ jobs:
       condition: succeeded()
 
   - job: Test_Release_31
+    steps:
     - task: NuGetCommand@2
       displayName: 'NuGet restore'
       inputs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
-
-    steps:
+      
     - task: VSBuild@1
       displayName: 'Build'
       inputs:
