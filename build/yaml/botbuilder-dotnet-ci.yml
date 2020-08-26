@@ -90,7 +90,7 @@ steps:
         $Contracts = ""
       }
     }
-    if($Contracts.length gt 0){
+    if($Contracts.length -gt 0){
       # Note: If $Contracts.length equals 0 Powershell's ForEach runs once.
       $Contracts.Split(",") | ForEach-Object {
         $Library = $_.Trim()
