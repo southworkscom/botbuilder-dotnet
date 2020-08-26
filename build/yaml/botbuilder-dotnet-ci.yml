@@ -521,6 +521,14 @@ jobs:
         arguments: '-v n -f netcoreapp2.1 --configuration Release --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
       condition: succeeded()
 
+    - script: |
+        cd ..
+        dir *.* /s
+      displayName: 'Dir workspace'
+      continueOnError: true
+      condition: succeededOrFailed()
+
+
   # - job: Test_Release_31
   #   steps:
   #   - task: NuGetCommand@2
