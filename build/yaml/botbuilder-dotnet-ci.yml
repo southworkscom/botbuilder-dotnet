@@ -465,8 +465,7 @@ jobs:
         cleanDestinationFolder: false 
 
     - powershell: |
-        Remove-Item –Path $(Build.SourcesDirectory)/tests
-        Move-Item -Path $(Build.ArtifactStagingDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Force
+        Copy-Item -Path $(Build.ArtifactStagingDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Recurse -Force
       displayName: 'Replace Tests folder'
 
     - task: PublishPipelineArtifact@0
