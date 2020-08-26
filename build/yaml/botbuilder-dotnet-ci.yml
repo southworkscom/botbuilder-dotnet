@@ -476,6 +476,7 @@ jobs:
 
     - task: ExtractFiles@1
       inputs:
+        archiveFilePatterns: $(System.ArtifactsDirectory)/Artifacts/Built-Solution.zip
         destinationFolder: '$(Build.SourcesDirectory)'
         cleanDestinationFolder: false 
 
