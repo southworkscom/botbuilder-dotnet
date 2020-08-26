@@ -478,6 +478,15 @@ jobs:
       inputs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
+
+    # - task: DotNetCoreCLI@2
+    #   displayName: dotnet restore
+    #   inputs:
+    #     command: restore
+    #     projects: 'tests/**/*.csproj'
+    #     feedsToUse: 'select'
+    #     vstsFeed: '<projectName>/<feedName>'
+    #     includeNuGetOrg: true
       
     - task: MSBuild@1
       displayName: 'Build'
@@ -485,7 +494,7 @@ jobs:
         solution: 'tests/**/*.csproj'
         msbuildVersion: 16.0
         msbuildArguments: '$(MSBuildArguments)'
-        platform: 'AnyCPU'
+        platform: '$(BuildPlatform)'
         configuration: '$(BuildConfiguration)'
         logProjectEvents: false
       condition: succeeded()
