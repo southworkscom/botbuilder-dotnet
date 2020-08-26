@@ -397,14 +397,11 @@ jobs:
         tags: 'Version=$(ReleasePackageVersion)'
       continueOnError: true
 
-    # - task: NuGetToolInstaller@0
-    #   displayName: 'Install NuGet'
-
-    # - task: NuGetCommand@2
-    #   displayName: 'NuGet restore'
-    #   inputs:
-    #     restoreSolution: '$(Parameters.solution)'
-    #   condition: succeeded()
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: '$(Parameters.solution)'
+      condition: succeeded()
 
     - task: VSBuild@1
       displayName: 'Build'
@@ -415,7 +412,6 @@ jobs:
         platform: '$(BuildPlatform)'
         configuration: 'release'
         logProjectEvents: false
-        restoreNugetPackages: true
       condition: succeeded()
     
     - powershell: |
@@ -438,6 +434,12 @@ jobs:
 
   - job: Test_Release_21
     steps:
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: '$(Parameters.solution)'
+      condition: succeeded()
+
     - task: VSBuild@1
       displayName: 'Build'
       inputs:
@@ -447,7 +449,6 @@ jobs:
         platform: '$(BuildPlatform)'
         configuration: 'release'
         logProjectEvents: false
-        restoreNugetPackages: true
       condition: succeeded()
 
     # Required for Schema merge tests.
@@ -472,6 +473,12 @@ jobs:
       condition: succeeded()
 
   - job: Test_Release_31
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: '$(Parameters.solution)'
+      condition: succeeded()
+
     steps:
     - task: VSBuild@1
       displayName: 'Build'
@@ -482,7 +489,6 @@ jobs:
         platform: '$(BuildPlatform)'
         configuration: 'release'
         logProjectEvents: false
-        restoreNugetPackages: true
       condition: succeeded()
 
     # Required for Schema merge tests.
