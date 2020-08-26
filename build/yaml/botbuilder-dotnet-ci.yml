@@ -466,6 +466,7 @@ jobs:
 
 
   - job: Test_Release_21
+    dependsOn: Build
     steps:
     - task: DownloadPipelineArtifact@1
       displayName: 'Download built solution'
