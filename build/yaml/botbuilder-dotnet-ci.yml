@@ -403,16 +403,21 @@ jobs:
         restoreSolution: '$(Parameters.solution)'
       condition: succeeded()
 
-    - task: VSBuild@1
-      displayName: 'Build'
+    # - task: VSBuild@1
+    #   displayName: 'Build'
+    #   inputs:
+    #     solution: '$(Parameters.solution)'
+    #     vsVersion: 16.0
+    #     msbuildArgs: '$(MSBuildArguments)'
+    #     platform: '$(BuildPlatform)'
+    #     configuration: '$(BuildConfiguration)'
+    #     logProjectEvents: false
+    #   condition: succeeded()
+
+    - task: DotNetCoreCLI@2
       inputs:
-        solution: '$(Parameters.solution)'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
-        configuration: '$(BuildConfiguration)'
-        logProjectEvents: false
-      condition: succeeded()
+        command: build
+        projects: '$(Parameters.solution)'
     
     # - powershell: |
     #     New-Item -ItemType directory -Path "outputLibraries\" -Force
@@ -518,7 +523,7 @@ jobs:
           !Tests/**/Microsoft.Bot.Builder.TestBot.Tests.csproj
           !Tests/**/Microsoft.Bot.Builder.AI.Orchestrator.Tests.csproj
         
-        arguments: '-v n -f netcoreapp2.1 --configuration Release --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+        arguments: '-v n -f netcoreapp2.1 --configuration --no-build Release --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
       condition: succeeded()
 
     - script: |
