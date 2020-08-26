@@ -65,6 +65,15 @@ jobs:
       logProjectEvents: false
     condition: succeeded()
 
+  # Required for Schema merge tests.
+  - task: Npm@1
+  displayName: 'Install botframework-cli'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g @microsoft/botframework-cli@next'
+  condition: succeededOrFailed()
+
   - task: DotNetCoreCLI@2
     displayName: 'Test 2.1'
     inputs:
@@ -271,14 +280,14 @@ jobs:
     continueOnError: true
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   
-  # Required for Schema merge tests.
-  - task: Npm@1
-    displayName: 'Install botframework-cli'
-    inputs:
-      command: custom
-      verbose: false
-      customCommand: 'install -g @microsoft/botframework-cli@next'
-    condition: succeededOrFailed()
+  # # Required for Schema merge tests.
+  # - task: Npm@1
+  #   displayName: 'Install botframework-cli'
+  #   inputs:
+  #     command: custom
+  #     verbose: false
+  #     customCommand: 'install -g @microsoft/botframework-cli@next'
+  #   condition: succeededOrFailed()
   
   - task: DotNetCoreCLI@2
     displayName: 'Test 3.1'
