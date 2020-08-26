@@ -383,54 +383,92 @@ variables:
   ContractsPath: $(System.DefaultWorkingDirectory)\contracts\
 
 jobs:
-  # - job: Build
-  #   steps:
-  #   - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
-  #     displayName: 'Display environment variables'
-  #     enabled: false
+  - job: Build
+    steps:
+    - powershell: 'gci env:* | sort-object name | Format-Table -AutoSize -Wrap'
+      displayName: 'Display environment variables'
+      enabled: false
 
-  #   # Variables ReleasePackageVersion and PreviewPackageVersion are consumed by projects in Microsoft.Bot.Builder.sln.
-  #   # For the signed build, they should be settable at queue time. To set that up, define the variables in Azure on the Variables tab.
-  #   - task: colinsalmcorner.colinsalmcorner-buildtasks.tag-build-task.tagBuildOrRelease@0
-  #     displayName: 'Tag build with package version'
-  #     inputs:
-  #       tags: 'Version=$(ReleasePackageVersion)'
-  #     continueOnError: true
+    # Variables ReleasePackageVersion and PreviewPackageVersion are consumed by projects in Microsoft.Bot.Builder.sln.
+    # For the signed build, they should be settable at queue time. To set that up, define the variables in Azure on the Variables tab.
+    - task: colinsalmcorner.colinsalmcorner-buildtasks.tag-build-task.tagBuildOrRelease@0
+      displayName: 'Tag build with package version'
+      inputs:
+        tags: 'Version=$(ReleasePackageVersion)'
+      continueOnError: true
 
-  #   - task: NuGetCommand@2
-  #     displayName: 'NuGet restore'
-  #     inputs:
-  #       restoreSolution: '$(Parameters.solution)'
-  #     condition: succeeded()
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: '$(Parameters.solution)'
+      condition: succeeded()
 
-  #   - task: VSBuild@1
-  #     displayName: 'Build'
-  #     inputs:
-  #       solution: '$(Parameters.solution)'
-  #       vsVersion: 16.0
-  #       msbuildArgs: '$(MSBuildArguments)'
-  #       platform: '$(BuildPlatform)'
-  #       configuration: '$(BuildConfiguration)'
-  #       logProjectEvents: false
-  #     condition: succeeded()
+    - task: VSBuild@1
+      displayName: 'Build'
+      inputs:
+        solution: '$(Parameters.solution)'
+        vsVersion: 16.0
+        msbuildArgs: '$(MSBuildArguments)'
+        platform: '$(BuildPlatform)'
+        configuration: '$(BuildConfiguration)'
+        logProjectEvents: false
+      condition: succeeded()
     
-  #   - powershell: |
-  #       New-Item -ItemType directory -Path "outputLibraries\" -Force
+    # - powershell: |
+    #     New-Item -ItemType directory -Path "outputLibraries\" -Force
         
-  #       $env:BotBuilderDll.Split(",") | ForEach {
-  #         $library = $_.Trim()
-  #         Write-Host $library
+    #     $env:BotBuilderDll.Split(",") | ForEach {
+    #       $library = $_.Trim()
+    #       Write-Host $library
       
-  #         Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-  #         Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
-  #       }
-  #     displayName: 'Copy DLLs to outputLibraries folder'
+    #       Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+    #       Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+    #     }
+    #   displayName: 'Copy DLLs to outputLibraries folder'
 
-  #   - task: PublishPipelineArtifact@0
-  #     displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
-  #     inputs:
-  #       artifactName: 'BotBuilderDLLs'
-  #       targetPath: outputLibraries
+    # - task: PublishPipelineArtifact@0
+    #   displayName: 'Publish Microsoft.Bot.Builder DLLs artifact'
+    #   inputs:
+    #     artifactName: 'BotBuilderDLLs'
+    #     targetPath: outputLibraries
+
+    # - powershell: |
+    #     New-Item -ItemType directory -Path "outputLibraries\" -Force
+        
+    #     $env:BotBuilderDll.Split(",") | ForEach {
+    #       $library = $_.Trim()
+    #       Write-Host $library
+      
+    #       Get-ChildItem -Path "*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+    #       Get-ChildItem -Path "*/*/$library/bin/Release/netstandard2.0/$library.dll" -Recurse | Copy-Item -Destination 'outputLibraries\' -Force
+    #     }
+    #   displayName: 'Copy DLLs to outputLibraries folder'
+
+    # - powershell: |
+    #     $compress = @{
+    #       Path = "$(System.DefaultWorkingDirectory)/TODO/example.docx", "$(System.DefaultWorkingDirectory)/TODO/*.vsd"
+    #       CompressionLevel = "Fastest"
+    #       DestinationPath = "$(System.DefaultWorkingDirectory)/Built-Solution.zip"
+    #     }
+    #     Compress-Archive @compress
+    #   displayname: Compress build
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: 'tests/' 
+        archiveFile: '$(Build.ArtifactStagingDirectory)/Built-Solution.zip' 
+
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish built solution'
+      inputs:
+        artifactName: 'Built-Solution'
+        targetPath: $(Build.ArtifactStagingDirectory)/Built-Solution.zip
+
+  # - task: DownloadPipelineArtifact@1
+  #   displayName: 'Download built solution'
+  #   inputs:
+  #     artifactName: 'Built-Solution'
+  #     targetPath: '$(System.ArtifactsDirectory)/Artifacts'
 
   # - job: Test_Release_21
   #   steps:
@@ -471,75 +509,66 @@ jobs:
   #       arguments: '-v n  -f netcoreapp2.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
   #     condition: succeeded()
 
-  - job: Test_Release_31
-    steps:
-    # - task: NuGetCommand@2
-    #   displayName: 'NuGet restore'
-    #   inputs:
-    #     restoreSolution: '$(Parameters.solution)'
-    #   condition: succeeded()
+  # - job: Test_Release_31
+  #   steps:
+  #   - task: NuGetCommand@2
+  #     displayName: 'NuGet restore'
+  #     inputs:
+  #       restoreSolution: '$(Parameters.solution)'
+  #     condition: succeeded()
 
-    - task: DotNetCoreCLI@2
-      displayName: dotnet restore
-      inputs:
-        command: restore
-        projects: 'tests/**/*.csproj'
-        feedsToUse: 'select'
-        vstsFeed: '<projectName>/<feedName>'
-        includeNuGetOrg: true
+  #   - task: VSBuild@1
+  #     displayName: 'Build'
+  #     inputs:
+  #       solution: '$(Parameters.solution)'
+  #       vsVersion: 16.0
+  #       msbuildArgs: '$(MSBuildArguments)'
+  #       platform: '$(BuildPlatform)'
+  #       configuration: '$(BuildConfiguration)'
+  #       logProjectEvents: false
+  #     condition: succeeded()
 
-    - task: VSBuild@1
-      displayName: 'Build'
-      inputs:
-        solution: '$(Parameters.solution)'
-        vsVersion: 16.0
-        msbuildArgs: '$(MSBuildArguments)'
-        platform: '$(BuildPlatform)'
-        configuration: '$(BuildConfiguration)'
-        logProjectEvents: false
-      condition: succeeded()
+  #   # Required for Schema merge tests.
+  #   - task: Npm@1
+  #     displayName: 'Install botframework-cli'
+  #     inputs:
+  #       command: custom
+  #       verbose: false
+  #       customCommand: 'install -g @microsoft/botframework-cli@next'
+  #     condition: succeeded()
 
-    # Required for Schema merge tests.
-    - task: Npm@1
-      displayName: 'Install botframework-cli'
-      inputs:
-        command: custom
-        verbose: false
-        customCommand: 'install -g @microsoft/botframework-cli@next'
-      condition: succeeded()
+  #   - task: DotNetCoreCLI@2
+  #     displayName: 'Test'
+  #     inputs:
+  #       command: test
+  #       projects: |
+  #         Tests/**/*Tests.csproj
+  #         !Tests/**/*21.Tests.csproj
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Test'
-      inputs:
-        command: test
-        projects: |
-          Tests/**/*Tests.csproj
-          !Tests/**/*21.Tests.csproj
+  #       arguments: '-v n  -f netcoreapp3.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
+  #     condition: succeeded()
 
-        arguments: '-v n  -f netcoreapp3.1 --configuration release --no-build --no-restore --filter "TestCategory!=IgnoreInAutomatedBuild&TestCategory!=FunctionalTests" --collect:"Code Coverage" --settings $(Build.SourcesDirectory)\CodeCoverage.runsettings'
-      condition: succeeded()
+  #   # This task copies the code coverage file created by dotnet test into a well known location. 
+  #   # In all checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
+  #   # My attempts to override this and have it go directly to the CodeCoverage directory have all failed, so I'm just doing the copy here.  
+  #   # (cmullins)
+  #   - powershell: |
+  #       Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
+  #       New-Item CodeCoverage -ItemType Directory -Force
+  #       Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
+  #       echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
+  #     displayName: 'Copy code coverage files'
+  #     condition: succeeded()
 
-    # This task copies the code coverage file created by dotnet test into a well known location. 
-    # In all checks I've done, dotnet test ALWAYS outputs the coverage file to the temp directory. 
-    # My attempts to override this and have it go directly to the CodeCoverage directory have all failed, so I'm just doing the copy here.  
-    # (cmullins)
-    - powershell: |
-        Remove-Item CodeCoverage -Force -Recurse -ErrorAction Ignore
-        New-Item CodeCoverage -ItemType Directory -Force
-        Get-ChildItem -Path "D:\a\_temp" -Include "*.coverage" -Recurse | Copy-Item -Destination CodeCoverage
-        echo '##vso[task.setvariable variable=CoverallsToken]$(DotNetCoverallsToken)'
-      displayName: 'Copy code coverage files'
-      condition: succeeded()
-
-    # To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
-    - task: PowerShell@2
-      displayName: 'Upload code coverage files'
-      inputs:
-        targetType: filePath
-        filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
-        arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
-      continueOnError: true
-      condition: succeeded()
+  #   # To Coveralls.io https://coveralls.io/github/microsoft/botbuilder-dotnet
+  #   - task: PowerShell@2
+  #     displayName: 'Upload code coverage files'
+  #     inputs:
+  #       targetType: filePath
+  #       filePath: '$(Build.SourcesDirectory)\build\PublishToCoveralls.ps1'
+  #       arguments: '-pathToCoverageFiles "$(Build.SourcesDirectory)\CodeCoverage" -serviceName "master CI-PR"'
+  #     continueOnError: true
+  #     condition: succeeded()
 
   # - job: Api_Compat
   #   dependsOn: Build
