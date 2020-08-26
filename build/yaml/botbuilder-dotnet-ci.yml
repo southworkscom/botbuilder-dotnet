@@ -71,41 +71,41 @@ jobs:
         logProjectEvents: false
       condition: succeeded()
     
-      - powershell: |
-          $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-          $Contracts = "$(BotBuilderDll)"
-          $Version = "$(ApiCompatVersion)"
-          $Output = ""
-          if ("$(Build.Reason)" -eq 'PullRequest') {
-            $Libraries = $Contracts.Split(",")
-            $UpdatedLibraries = [System.Collections.ArrayList]@()
-            $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
-            foreach ($UpdatedFile in $UpdatedFiles) {
-              foreach ($Library in $Libraries) {
-                if($UpdatedFile -like ('*/' + $Library + '/*')){
-                  $UpdatedLibraries.Add($Library)
-                }
+    - powershell: |
+        $Xml = "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+        $Contracts = "$(BotBuilderDll)"
+        $Version = "$(ApiCompatVersion)"
+        $Output = ""
+        if ("$(Build.Reason)" -eq 'PullRequest') {
+          $Libraries = $Contracts.Split(",")
+          $UpdatedLibraries = [System.Collections.ArrayList]@()
+          $UpdatedFiles = $(git diff HEAD HEAD~ --name-only)
+          foreach ($UpdatedFile in $UpdatedFiles) {
+            foreach ($Library in $Libraries) {
+              if($UpdatedFile -like ('*/' + $Library + '/*')){
+                $UpdatedLibraries.Add($Library)
               }
             }
-            if ($UpdatedLibraries.count -gt 0){
-              $Contracts = $UpdatedLibraries.Join(',')
-            } else {
-              $Contracts = ""
-            }
           }
-          if($Contracts.length -gt 0){
-            # Note: If $Contracts.length equals 0 Powershell's ForEach runs once.
-            $Contracts.Split(",") | ForEach-Object {
-              $Library = $_.Trim()
-              $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
-            }
-            $Xml += "</packages>"
-            New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
-            $Output = ($Contracts -replace ",", ".dll ") + ".dll"
+          if ($UpdatedLibraries.count -gt 0){
+            $Contracts = $UpdatedLibraries.Join(',')
+          } else {
+            $Contracts = ""
           }
-          Write-Host "##vso[task.setvariable variable=Contracts]$Output"
-        displayName: 'Contracts setup'
-        condition: succeeded()
+        }
+        if($Contracts.length -gt 0){
+          # Note: If $Contracts.length equals 0 Powershell's ForEach runs once.
+          $Contracts.Split(",") | ForEach-Object {
+            $Library = $_.Trim()
+            $Xml += "  <package id=""" + $Library + """ version=""" + $Version + """/>`n"
+          }
+          $Xml += "</packages>"
+          New-Item -Path $(System.DefaultWorkingDirectory) -Name "packages.config" -ItemType "file" -Value $Xml -Force
+          $Output = ($Contracts -replace ",", ".dll ") + ".dll"
+        }
+        Write-Host "##vso[task.setvariable variable=Contracts]$Output"
+      displayName: 'Contracts setup'
+      condition: succeeded()
     
     - task: NuGetCommand@2
       displayName: 'Install contracts'
