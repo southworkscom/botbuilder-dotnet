@@ -458,6 +458,17 @@ jobs:
         rootFolderOrFile: 'tests/' 
         archiveFile: '$(Build.ArtifactStagingDirectory)/Built-Solution.zip' 
 
+    - task: ExtractFiles@1
+      inputs:
+        archiveFilePatterns: $(Build.ArtifactStagingDirectory)/Artifacts/Built-Solution.zip
+        destinationFolder: '$(Build.ArtifactStagingDirectory)/Artifacts/'
+        cleanDestinationFolder: false 
+
+    - powershell: |
+        Remove-Item –Path $(Build.SourcesDirectory)/tests
+        Move-Item -Path $(Build.ArtifactStagingDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Force
+      displayName: 'Replace Tests folder'
+
     - task: PublishPipelineArtifact@0
       displayName: 'Publish built solution'
       inputs:
@@ -481,6 +492,7 @@ jobs:
         cleanDestinationFolder: false 
 
     - powershell: |
+        Remove-Item –Path $(Build.SourcesDirectory)/tests
         Move-Item -Path $(System.ArtifactsDirectory)/Artifacts/tests -Destination $(Build.SourcesDirectory) -Force
       displayName: 'Replace Tests folder'
 
