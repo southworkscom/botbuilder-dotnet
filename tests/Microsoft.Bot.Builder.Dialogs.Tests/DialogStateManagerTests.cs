@@ -689,7 +689,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
 
             var dm = new DialogManager(new TestDialog())
             {
-                ExpireAfter = 1000
+                ExpireAfter = 100
             };
 
             await new TestFlow((TestAdapter)adapter, (turnContext, cancellationToken) =>
@@ -700,7 +700,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
                 .AssertReply("unknown")
             .Send("yo")
                 .AssertReply("havedata")
-            .Delay(TimeSpan.FromSeconds(1.1))
+            .Delay(TimeSpan.FromMilliseconds(200))
             .Send("yo")
                 .AssertReply("unknown", "Should have expired conversation and ended up with yo=>unknown")
             .Send("yo")
