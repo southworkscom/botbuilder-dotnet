@@ -368,7 +368,6 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.Tests
                     RelatesTo = context.Activity.RelatesTo,
                 };
                 await context.SendActivityAsync(typingActivity);
-                await Task.Delay(500);
                 await context.SendActivityAsync("echo:" + context.Activity.Text);
             })
                 .Send("foo")
@@ -412,7 +411,6 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.Tests
                     RelatesTo = context.Activity.RelatesTo,
                 };
                 await context.SendActivityAsync(typingActivity);
-                await Task.Delay(500);
                 await context.SendActivityAsync("echo:" + context.Activity.Text);
             })
                 .Send("foo")
@@ -455,7 +453,6 @@ namespace Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.Tests
                     RelatesTo = context.Activity.RelatesTo,
                 };
                 await context.SendActivityAsync(typingActivity);
-                await Task.Delay(500);
                 await context.SendActivityAsync("echo:" + context.Activity.Text);
             })
                 .Send("foo")
