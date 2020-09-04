@@ -63,7 +63,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Regex"/> instance.
+        /// Gets the <see cref="Regex"/> instance.
         /// </summary>
         /// <value>
         /// The <see cref="Regex"/> instance.

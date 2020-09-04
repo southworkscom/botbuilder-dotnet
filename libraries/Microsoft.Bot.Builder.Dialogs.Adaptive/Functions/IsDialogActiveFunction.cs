@@ -33,7 +33,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Functions
         public const string Alias = "isActionActive";
 
         /// <summary>
-        /// Initializes a new instance of <see cref="IsDialogActiveFunction"/>.
+        /// Initializes a new instance of the <see cref="IsDialogActiveFunction"/> class.
         /// </summary>
         public IsDialogActiveFunction()
             : base(Name, Function, ReturnType.Boolean)
