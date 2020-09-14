@@ -70,23 +70,6 @@ namespace Microsoft.Bot.Builder.TemplateManager.Tests
         }
 
         [TestMethod]
-        public void TemplateManager_MultiTemplate()
-        {
-            var templateManager = new TemplateManager();
-            Assert.AreEqual(templateManager.List().Count, 0, "nothing registered yet");
-            var templateEngine1 = new DictionaryRenderer(templates1);
-            var templateEngine2 = new DictionaryRenderer(templates2);
-            templateManager.Register(templateEngine1);
-            Assert.AreEqual(templateManager.List().Count, 1, "one registered");
-
-            templateManager.Register(templateEngine1);
-            Assert.AreEqual(templateManager.List().Count, 1, "only  one registered");
-
-            templateManager.Register(templateEngine2);
-            Assert.AreEqual(templateManager.List().Count, 2, "two registered");
-        }
-
-        [TestMethod]
         public async Task DictionaryTemplateEngine_SimpleStringBinding()
         {
             var engine = new DictionaryRenderer(templates1);
@@ -211,26 +194,6 @@ namespace Microsoft.Bot.Builder.TemplateManager.Tests
                 })
                 .Send("stringTemplate2").AssertReply("fr: Yo joe")
                 .Send("activityTemplate").AssertReply("(Activity)fr: joe")
-                .StartTestAsync();
-        }
-
-        [TestMethod]
-        public async Task TemplateManager_useTemplateEngine()
-        {
-            TestAdapter adapter = new TestAdapter(TestAdapter.CreateConversation(TestContext.TestName))
-                                .Use(new TranscriptLoggerMiddleware(new TraceTranscriptLogger(traceActivity: false)));
-
-            var templateManager = new TemplateManager()
-                .Register(new DictionaryRenderer(templates1))
-                .Register(new DictionaryRenderer(templates2));
-
-            await new TestFlow(adapter, async (context, cancellationToken) =>
-                {
-                    var templateId = context.Activity.AsMessageActivity().Text.Trim();
-                    await templateManager.ReplyWith(context, templateId, new { name = "joe" });
-                })
-                .Send("stringTemplate").AssertReply("default: joe")
-                .Send("activityTemplate").AssertReply("(Activity)default: joe")
                 .StartTestAsync();
         }
     }
