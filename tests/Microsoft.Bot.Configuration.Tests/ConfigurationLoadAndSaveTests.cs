@@ -74,9 +74,9 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName);
 
-            var config2 = await BotConfiguration.LoadAsync(OutputBotFileName);
+            var loadedConfig = await BotConfiguration.LoadAsync(OutputBotFileName);
 
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -85,8 +85,8 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = BotConfiguration.Load(testBotFileName);
             config.SaveAs(OutputBotFileName);
 
-            var config2 = BotConfiguration.Load(OutputBotFileName);
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            var loadedConfig = BotConfiguration.Load(OutputBotFileName);
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -113,8 +113,8 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName, secret);
             
-            var config2 = await BotConfiguration.LoadFromFolderAsync(".", secret);
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            var loadedConfig = await BotConfiguration.LoadFromFolderAsync(".", secret);
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -124,8 +124,8 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = BotConfiguration.Load(testBotFileName);
             config.SaveAs(OutputBotFileName, secret);
             
-            var config2 = BotConfiguration.LoadFromFolder(".", secret);
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            var loadedConfig = BotConfiguration.LoadFromFolder(".", secret);
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -146,8 +146,8 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName);
             
-            var config2 = await BotConfiguration.LoadFromFolderAsync(".");
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            var loadedConfig = await BotConfiguration.LoadFromFolderAsync(".");
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -156,8 +156,8 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = BotConfiguration.Load(testBotFileName);
             config.SaveAs(OutputBotFileName);
             
-            var config2 = BotConfiguration.LoadFromFolder(".");
-            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
+            var loadedConfig = BotConfiguration.LoadFromFolder(".");
+            Assert.Equal(JsonConvert.SerializeObject(loadedConfig), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -191,18 +191,18 @@ namespace Microsoft.Bot.Configuration.Tests
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName, secret);
 
-            var config2 = await BotConfiguration.LoadAsync(OutputBotFileName, secret);
+            var loadedConfig = await BotConfiguration.LoadAsync(OutputBotFileName, secret);
             try
             {
-                await config2.SaveAsAsync(OutputBotFileName);
+                await loadedConfig.SaveAsAsync(OutputBotFileName);
                 throw new XunitException("Save() should have thrown due to no secret");
             }
             catch
             {
             }
 
-            config2.ClearSecret();
-            await config2.SaveAsAsync(OutputBotFileName, secret);
+            loadedConfig.ClearSecret();
+            await loadedConfig.SaveAsAsync(OutputBotFileName, secret);
         }
 
         [Fact]
@@ -217,14 +217,14 @@ namespace Microsoft.Bot.Configuration.Tests
             Assert.True(config.Padlock?.Length > 0);
 
             // load with secret
-            var config2 = await BotConfiguration.LoadAsync("savesecret.bot", secret);
-            Assert.True(config2.Padlock?.Length > 0);
-            Assert.Equal(config.Padlock, config2.Padlock);
+            var loadedConfig = await BotConfiguration.LoadAsync("savesecret.bot", secret);
+            Assert.True(loadedConfig.Padlock?.Length > 0);
+            Assert.Equal(config.Padlock, loadedConfig.Padlock);
 
             // make sure these were decrypted
             for (var i = 0; i < config.Services.Count; i++)
             {
-                Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
+                Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
 
                 switch (config.Services[i].Type)
                 {
@@ -233,7 +233,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.AppInsights:
                         {
-                            var appInsights = (AppInsightsService)config2.Services[i];
+                            var appInsights = (AppInsightsService)loadedConfig.Services[i];
                             Assert.Contains("0000", appInsights.InstrumentationKey);
                             Assert.Equal("00000000-0000-0000-0000-000000000007", appInsights.ApplicationId);
                             Assert.Equal("testKey1", appInsights.ApiKeys["key1"]);
@@ -244,7 +244,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.BlobStorage:
                         {
-                            var blobStorage = (BlobStorageService)config2.Services[i];
+                            var blobStorage = (BlobStorageService)loadedConfig.Services[i];
                             Assert.Equal("UseDevelopmentStorage=true;", blobStorage.ConnectionString);
                             Assert.Equal("testContainer", blobStorage.Container);
                         }
@@ -253,7 +253,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.CosmosDB:
                         {
-                            var cosmosDb = (CosmosDbService)config2.Services[i];
+                            var cosmosDb = (CosmosDbService)loadedConfig.Services[i];
                             Assert.Equal("https://localhost:8081/", cosmosDb.Endpoint);
                             Assert.Equal("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==", cosmosDb.Key);
                             Assert.Equal("testDatabase", cosmosDb.Database);
@@ -264,7 +264,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.Dispatch:
                         {
-                            var dispatch = (DispatchService)config2.Services[i];
+                            var dispatch = (DispatchService)loadedConfig.Services[i];
                             Assert.Contains("0000", dispatch.AuthoringKey);
                             Assert.Contains("0000", dispatch.SubscriptionKey);
                         }
@@ -273,7 +273,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.Endpoint:
                         {
-                            var endpoint = (EndpointService)config2.Services[i];
+                            var endpoint = (EndpointService)loadedConfig.Services[i];
                             Assert.Equal("testpassword", endpoint.AppPassword);
                         }
 
@@ -284,7 +284,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.Luis:
                         {
-                            var luis = (LuisService)config2.Services[i];
+                            var luis = (LuisService)loadedConfig.Services[i];
                             Assert.Contains("0000", luis.AuthoringKey);
                             Assert.Contains("0000", luis.SubscriptionKey);
                         }
@@ -293,7 +293,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.QnA:
                         {
-                            var qna = (QnAMakerService)config2.Services[i];
+                            var qna = (QnAMakerService)loadedConfig.Services[i];
                             Assert.Contains("0000", qna.KbId);
                             Assert.Contains("0000", qna.EndpointKey);
                             Assert.Contains("0000", qna.SubscriptionKey);
@@ -303,7 +303,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.Generic:
                         {
-                            var generic = (GenericService)config2.Services[i];
+                            var generic = (GenericService)loadedConfig.Services[i];
                             Assert.Equal("https://bing.com", generic.Url);
                             Assert.Equal("testKey1", generic.Configuration["key1"]);
                             Assert.Equal("testKey2", generic.Configuration["key2"]);
@@ -317,7 +317,7 @@ namespace Microsoft.Bot.Configuration.Tests
             }
 
             // encrypt in memory copy
-            config2.Encrypt(secret);
+            loadedConfig.Encrypt(secret);
 
             // make sure these are all true
             for (var i = 0; i < config.Services.Count; i++)
@@ -326,7 +326,7 @@ namespace Microsoft.Bot.Configuration.Tests
                 {
                     case ServiceTypes.AppInsights:
                         {
-                            var appInsights = (AppInsightsService)config2.Services[i];
+                            var appInsights = (AppInsightsService)loadedConfig.Services[i];
                             Assert.DoesNotContain("0000", appInsights.InstrumentationKey);
                             Assert.Equal("00000000-0000-0000-0000-000000000007", appInsights.ApplicationId);
                             Assert.NotEqual("testKey1", appInsights.ApiKeys["key1"]);
@@ -337,7 +337,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.BlobStorage:
                         {
-                            var azureStorage = (BlobStorageService)config2.Services[i];
+                            var azureStorage = (BlobStorageService)loadedConfig.Services[i];
                             Assert.NotEqual("UseDevelopmentStorage=true;", azureStorage.ConnectionString);
                             Assert.Equal("testContainer", azureStorage.Container);
                         }
@@ -346,7 +346,7 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.CosmosDB:
                         {
-                            var cosmosdb = (CosmosDbService)config2.Services[i];
+                            var cosmosdb = (CosmosDbService)loadedConfig.Services[i];
                             Assert.Equal("https://localhost:8081/", cosmosdb.Endpoint);
                             Assert.NotEqual("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==", cosmosdb.Key);
                             Assert.Equal("testDatabase", cosmosdb.Database);
@@ -356,13 +356,13 @@ namespace Microsoft.Bot.Configuration.Tests
                         break;
 
                     case ServiceTypes.Bot:
-                        Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
+                        Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
                         break;
 
                     case ServiceTypes.Dispatch:
                         {
-                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
-                            var dispatch = (DispatchService)config2.Services[i];
+                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
+                            var dispatch = (DispatchService)loadedConfig.Services[i];
                             Assert.DoesNotContain("0000", dispatch.AuthoringKey);
                             Assert.DoesNotContain("0000", dispatch.SubscriptionKey);
                         }
@@ -371,8 +371,8 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.Endpoint:
                         {
-                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
-                            var endpoint = (EndpointService)config2.Services[i];
+                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
+                            var endpoint = (EndpointService)loadedConfig.Services[i];
                             Assert.Contains("0000", endpoint.AppId);
                             Assert.DoesNotContain("testpassword", endpoint.AppPassword);
                         }
@@ -380,13 +380,13 @@ namespace Microsoft.Bot.Configuration.Tests
                         break;
 
                     case ServiceTypes.File:
-                        Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
+                        Assert.Equal(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
                         break;
 
                     case ServiceTypes.Luis:
                         {
-                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
-                            var luis = (LuisService)config2.Services[i];
+                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
+                            var luis = (LuisService)loadedConfig.Services[i];
                             Assert.DoesNotContain("0000", luis.AuthoringKey);
                             Assert.DoesNotContain("0000", luis.SubscriptionKey);
                         }
@@ -395,8 +395,8 @@ namespace Microsoft.Bot.Configuration.Tests
 
                     case ServiceTypes.QnA:
                         {
-                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(config2.Services[i]));
-                            var qna = (QnAMakerService)config2.Services[i];
+                            Assert.NotEqual(JsonConvert.SerializeObject(config.Services[i]), JsonConvert.SerializeObject(loadedConfig.Services[i]));
+                            var qna = (QnAMakerService)loadedConfig.Services[i];
                             Assert.Contains("0000", qna.KbId);
                             Assert.DoesNotContain("0000", qna.EndpointKey);
                             Assert.DoesNotContain("0000", qna.SubscriptionKey);
@@ -405,7 +405,7 @@ namespace Microsoft.Bot.Configuration.Tests
                         break;
                     case ServiceTypes.Generic:
                         {
-                            var generic = (GenericService)config2.Services[i];
+                            var generic = (GenericService)loadedConfig.Services[i];
                             Assert.Equal("https://bing.com", generic.Url);
                             Assert.NotEqual("testKey1", generic.Configuration["key1"]);
                             Assert.NotEqual("testKey2", generic.Configuration["key2"]);
