@@ -112,7 +112,9 @@ namespace Microsoft.Bot.Configuration.Tests
             var secret = BotConfiguration.GenerateKey();
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName, secret);
-            await BotConfiguration.LoadFromFolderAsync(".", secret);
+            
+            var config2 = await BotConfiguration.LoadFromFolderAsync(".", secret);
+            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -121,7 +123,9 @@ namespace Microsoft.Bot.Configuration.Tests
             var secret = BotConfiguration.GenerateKey();
             var config = BotConfiguration.Load(testBotFileName);
             config.SaveAs(OutputBotFileName, secret);
-            BotConfiguration.LoadFromFolder(".", secret);
+            
+            var config2 = BotConfiguration.LoadFromFolder(".", secret);
+            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -141,7 +145,9 @@ namespace Microsoft.Bot.Configuration.Tests
         {
             var config = await BotConfiguration.LoadAsync(testBotFileName);
             await config.SaveAsAsync(OutputBotFileName);
-            await BotConfiguration.LoadFromFolderAsync(".");
+            
+            var config2 = await BotConfiguration.LoadFromFolderAsync(".");
+            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
@@ -149,7 +155,9 @@ namespace Microsoft.Bot.Configuration.Tests
         {
             var config = BotConfiguration.Load(testBotFileName);
             config.SaveAs(OutputBotFileName);
-            BotConfiguration.LoadFromFolder(".");
+            
+            var config2 = BotConfiguration.LoadFromFolder(".");
+            Assert.Equal(JsonConvert.SerializeObject(config2), JsonConvert.SerializeObject(config));
         }
 
         [Fact]
