@@ -6,7 +6,7 @@
 name: $(Build.BuildId)
 
 pool:
-  name: Hosted Windows 2019 with VS2019
+  vmImage: 'macOS-10.15'
 
 #Testing pr tigger twice s
 #Test 2
