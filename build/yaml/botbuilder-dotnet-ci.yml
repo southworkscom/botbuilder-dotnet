@@ -10,10 +10,12 @@ pool:
   demands:
   - msbuild
   - visualstudio
+
 #Testing pr tigger twice
 #Test 2
 # trigger: none # ci trigger is set in ADO
 # pr: none # pr trigger is set in ADO
+
 
 variables:
   ApiCompatVersion: 4.6.3
