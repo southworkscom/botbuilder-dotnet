@@ -5,8 +5,6 @@
 # "name" here defines the build number format. Build number is accessed via $(Build.BuildNumber)
 name: $(Build.BuildId)
 
-pool:
-  vmImage: 'macOS-10.15'
 
 #Testing pr tigger twice s
 #Test 2
