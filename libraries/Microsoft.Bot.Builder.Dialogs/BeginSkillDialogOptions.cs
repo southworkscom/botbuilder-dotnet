@@ -14,7 +14,7 @@ namespace Microsoft.Bot.Builder.Dialogs
         /// Gets or sets the <see cref="Activity"/> to send to the skill.
         /// </summary>
         /// <value>ddd
-        /// The <see cref="Activity"/>d ds ddda ddddssd 
+        /// The <see cref="Activity"/>d ds ddda ddddssd ddd
         /// </value>s
         public Activity Activity { get; set; }
     }
