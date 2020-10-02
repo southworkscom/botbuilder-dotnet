@@ -10,7 +10,7 @@ pool:
   demands:
   - msbuild
   - visualstudio
-
+#Testing pr tigger twice
 trigger: none # ci trigger is set in ADO
 pr: none # pr trigger is set in ADO
 
