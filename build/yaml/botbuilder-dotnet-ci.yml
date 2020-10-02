@@ -6,7 +6,7 @@
 name: $(Build.BuildId)
 
 pool:
-  name: Hosted Ubuntu 1604
+  name: Hosted Windows 2019 with VS2019
 
 #Testing pr tigger twice s
 #Test 2
