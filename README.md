@@ -6,8 +6,11 @@ This repository contains code for the .NET version of the [Microsoft Bot Framewo
 
 This SDK enables developers to model conversation and build sophisticated bot applications using .NET. SDKs for [JavaScript](https://github.com/Microsoft/botbuilder-js), [Python](https://github.com/Microsoft/botbuilder-python) and [Java (preview)](https://github.com/Microsoft/botbuilder-java) are also available.
 
-To get started building bots using the SDK, see the [Azure Bot Service Documentation](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0).
+sss
 
+
+
+To get started building bots using the SDK, see the [Azure Bot Service Documentation](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0).
 For more information jump to a section below.asdss ss teet sss
 sss
 * [Build status](#build-status)
