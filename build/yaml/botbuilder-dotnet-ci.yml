@@ -5,6 +5,8 @@
 # "name" here defines the build number format. Build number is accessed via $(Build.BuildNumber)
 name: $(Build.BuildId)
 
+pool:
+  name: Hosted Ubuntu 1604
 
 #Testing pr tigger twice s
 #Test 2
