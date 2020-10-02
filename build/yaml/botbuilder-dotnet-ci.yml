@@ -8,6 +8,8 @@ name: $(Build.BuildId)
 #Testing pr tigger twice s
 #Test 2
 #test again  2
+pr:
+- test/trigger-twice-azure-pipelines
 
 stages:
 - stage: Build
