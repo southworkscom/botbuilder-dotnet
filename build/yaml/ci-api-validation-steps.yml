@@ -30,7 +30,7 @@ steps:
     outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
     outputFolder: '$(Build.ArtifactStagingDirectory)'
     useBaseline: true
-    baselineFile: 'InspectionMiddleware'
+    baselineFile: 'libraries/Microsoft.Bot.Builder/Inspection/InspectionMiddleware.cs'
 
 - powershell: |
     $FileName = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
