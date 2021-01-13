@@ -29,7 +29,8 @@ steps:
     generateLog: true
     outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
     outputFolder: '$(Build.ArtifactStagingDirectory)'
-    useBaseline: false
+    useBaseline: true
+    baselineFile: 'InspectionMiddleware'
 
 - powershell: |
     $FileName = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
