@@ -36,9 +36,10 @@ namespace Microsoft.Bot.Builder
         /// <param name="credentials">The authentication credentials.</param>
         /// <param name="logger">A logger.</param>
         /// <param name="testNewParam">TestNewParam.</param>
-        public InspectionMiddleware(InspectionState inspectionState, UserState userState = null, ConversationState conversationState = null, MicrosoftAppCredentials credentials = null, ILogger<InspectionMiddleware> logger = null, String testNewParam = null)
+        public InspectionMiddleware(InspectionState inspectionState, UserState userState = null, ConversationState conversationState = null, MicrosoftAppCredentials credentials = null, ILogger<InspectionMiddleware> logger = null, string testNewParam = null)
             : base(logger)
         {
+            Console.WriteLine(testNewParam);
             _inspectionState = inspectionState ?? throw new ArgumentNullException(nameof(inspectionState));
             _userState = userState;
             _conversationState = conversationState;
