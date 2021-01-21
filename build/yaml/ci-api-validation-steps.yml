@@ -1,5 +1,5 @@
 parameters:
-  excludeClasses: []
+  excludeClasses: ''
 
 steps:
 - task: DownloadPipelineArtifact@1
