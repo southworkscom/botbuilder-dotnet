@@ -59,6 +59,7 @@ steps:
 
 - powershell: |
     $filePath = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
+    $nugetLink = "compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion)).";
     Write-Host "Compatibility Check:`n"; 
 
     if (-not (Test-Path $filePath)) {
@@ -104,18 +105,20 @@ steps:
       # Creates new file content.
       if ($issues) {
         $newFile = @();
-        $newfile += (":x: $($issues.Length) $header compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion)).");
+        $newfile += ":x: $($issues.Length) $header $nugetLink";
         $newFile += '<details>';
+        $newFile += [Environment]::NewLine;
         $newFile += '```';
         $newfile += $issues;
         $newFile += '```';
+        $newFile += [Environment]::NewLine;
         $newFile += '</details>';
         
         $newFile = $newFile -join [Environment]::NewLine;
         Write-Host "##vso[task.complete result=Failed;]";
       }
       else {
-        $newFile = ":heavy_check_mark: No Binary Compatibility issues for **$(BotBuilderDll)**";
+        $newFile = ":heavy_check_mark: No Binary Compatibility issues for **$(BotBuilderDll)** $nugetLink";
       }
 
       $baseline = $newFile;
