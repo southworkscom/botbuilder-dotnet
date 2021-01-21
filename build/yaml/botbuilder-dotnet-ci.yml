@@ -131,7 +131,6 @@ stages:
       parameters:
         excludeClasses:
           Microsoft.Bot.Builder.AdapterExtensions
-          Microsoft.Bot.Builder.InspectionMiddleware
 
   - job: post_results_to_gitHub
     dependsOn: check_api_for
