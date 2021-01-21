@@ -14,13 +14,15 @@ namespace Microsoft.Bot.Builder
         /// </summary>
         /// <param name="botAdapter">The adapter on which to register the storage object.</param>
         /// <param name="storage">The storage object to register.</param>
+        /// <param name="test">The 2storage object to register.</param>
         /// <returns>The updated adapter.</returns>
         /// <remarks>
         /// To get the storage object, use the turn context's <see cref="ITurnContext.TurnState"/>
         /// property's <see cref="TurnContextStateCollection.Get{T}()"/> method.
         /// </remarks>
-        public static BotAdapter UseStorage(this BotAdapter botAdapter, IStorage storage)
+        public static BotAdapter UseStorage(this BotAdapter botAdapter, IStorage storage, string test = null)
         {
+            Console.WriteLine(test);
             return botAdapter.Use(new RegisterClassMiddleware<IStorage>(storage ?? throw new ArgumentNullException(nameof(storage))));
         }
 

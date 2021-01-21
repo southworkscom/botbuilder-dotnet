@@ -21,8 +21,9 @@ namespace Microsoft.Bot.Builder
         // To detect redundant calls to Dispose()
         private bool _disposed = false;
 
-        public InspectionSession(ConversationReference conversationReference, MicrosoftAppCredentials credentials, HttpClient httpClient, ILogger logger)
+        public InspectionSession(ConversationReference conversationReference, MicrosoftAppCredentials credentials, HttpClient httpClient, ILogger logger, string test = null)
         {
+            Console.WriteLine(test);
             _conversationReference = conversationReference;
             _logger = logger;
             _connectorClient = new ConnectorClient(new Uri(_conversationReference.ServiceUrl), credentials, httpClient, disposeHttpClient: httpClient == null);
