@@ -84,14 +84,16 @@ steps:
       # Filter out issues based on Class name.
       $issues = @(
         $issues | Where-Object {
-          $line = $_
+          $line = $_;
           if (-not $line.Trim()) {
-            return $false
+            return $false;
           }
-          foreach ($class in $excludeClasses) {
-            $pattern = "'$class";
-            if ($line -match $pattern) { 
-              return $false;
+          if ($excludeClasses) {
+            foreach ($class in $excludeClasses) {
+              $pattern = "'$class";
+              if ($line -match $pattern) { 
+                return $false;
+              }
             }
           }
           return $true;
