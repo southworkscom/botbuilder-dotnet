@@ -1,3 +1,6 @@
+parameters:
+  excludeClasses: []
+
 steps:
 - task: DownloadPipelineArtifact@1
   displayName: 'Download BotBuilderDLLs artifact'
@@ -24,7 +27,7 @@ steps:
     contractsRootFolder: 'DownloadedNuGet\$(BotBuilderDll).$(ApiCompatVersion)\lib\netstandard2.0'
     contractsFileName: '$(BotBuilderDll).dll'
     implFolder: '$(System.ArtifactsDirectory)/Artifacts'
-    failOnIssue: true
+    failOnIssue: false
     resolveFx: false
     generateLog: true
     outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
@@ -52,6 +55,64 @@ steps:
 #     }
 #   displayName: 'Insert nuget link into ApiCompat results file.'
 #   condition: succeededOrFailed()
+
+- powershell: |
+    $filePath = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
+
+    if (-not (Test-Path $filePath)) {
+      $content = "The binary compatibility report for library '$(BotBuilderDll)' wasn't generated. This may have happened because the NuGet library '$(BotBuilderDll)' for version '$(ApiCompatVersion)' was unavailable or a connectivity issue."
+      New-Item -Path '$(Build.ArtifactStagingDirectory)' -Name '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt' -ItemType "file" -Value $content
+      return;
+    }
+
+    $baseline = Get-Content $filePath -Raw;
+
+    # When the Api Compat task has Binary compatibility issues, this process will filter out the Classes to skip the validation.
+    if ($baseline.ToString().StartsWith(':x:')) {
+      $excludeClasses = "${{ parameters.excludeClasses }}".Split();
+
+      $content = ($baseline -split '<details\>|<\/details\>');
+      $header = $content[0].SubString($content[0].IndexOf('Binary') - 1).Trim();
+      $issues = $content[1].Trim();
+      $issues = ($issues -replace '```', '').Trim().Split([Environment]::NewLine);
+
+      $issues = @(
+        $issues | Where-Object {
+          $line = $_
+          foreach ($class in $excludeClasses) {
+            $pattern = "'$class";
+            if ($line -match $pattern) { 
+              return $false;
+            }
+          }
+          return $true;
+        } | ForEach-Object { $_.Trim() }
+      )
+
+      if ($issues) {
+        $newFile = @();
+        $newfile += (":x: $($issues.Length) $header compared against [version $(ApiCompatVersion)](https://www.nuget.org/packages/$(BotBuilderDll)/$(ApiCompatVersion)).");
+        $newFile += '<details>';
+        $newFile += '```';
+        $newfile += $issues;
+        $newFile += '```';
+        $newFile += '</details>';
+        
+        $newFile = $newFile -join [Environment]::NewLine;
+        Write-Host "##vso[task.complete result=Failed;]";
+      }
+      else {
+        $newFile = ":heavy_check_mark: No Binary Compatibility issues for **$(BotBuilderDll)**";
+      }
+
+      $baseline = $newFile;
+    }
+
+    [system.io.file]::WriteAllText($filePath, $baseline);
+    Write-Host "Compatibility Check:"; 
+    $baseline;
+  displayName: 'Evaluate Compatibility Check'
+  condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Compat Results artifact'
