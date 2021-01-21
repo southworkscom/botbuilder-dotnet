@@ -69,7 +69,7 @@ steps:
     }
 
     $baseline = Get-Content $filePath -Raw;
-    Write-Host "`n[Compare Binaries] Generated issues:`n"; 
+    Write-Host "`n[Compare Binaries] Original Result:`n"; 
     $baseline;
 
     # When the Api Compat task has Binary compatibility issues, this process will filter out the Classes
@@ -120,8 +120,7 @@ steps:
 
       $baseline = $newFile;
       [system.io.file]::WriteAllText($filePath, $baseline);
-
-      Write-Host "`n[Class Exclusion] Generated issues:`n"; 
+      Write-Host "`n[Class Exclusion] Processed Result:`n"; 
       $baseline;
     }
 
