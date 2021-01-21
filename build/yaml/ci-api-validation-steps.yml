@@ -56,6 +56,7 @@ steps:
 #   displayName: 'Insert nuget link into ApiCompat results file.'
 #   condition: succeededOrFailed()
 
+
 - powershell: |
     $filePath = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
     Write-Host "Compatibility Check:`n"; 
