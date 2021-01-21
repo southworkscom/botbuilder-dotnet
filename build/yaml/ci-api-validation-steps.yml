@@ -65,13 +65,17 @@ steps:
       return;
     }
 
+    $excludeClasses = "${{ parameters.excludeClasses }}".Split();
+
+    if (-not $excludeClasses) {
+      return;
+    }
+
     $baseline = Get-Content $filePath -Raw;
 
     # When the Api Compat task has Binary compatibility issues, this process will filter out the Classes
     # and then validates if still exists remaining issues.
     if ($baseline.ToString().StartsWith(':x:')) {
-      $excludeClasses = "${{ parameters.excludeClasses }}".Split();
-
       $content = ($baseline -split '<details\>|<\/details\>');
       $header = $content[0].SubString($content[0].IndexOf('Binary') - 1).Trim();
       $issues = $content[1].Trim();
