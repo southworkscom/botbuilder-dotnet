@@ -80,7 +80,7 @@ steps:
       
       if ($excludeClasses) {
         Write-Host "`nList of classes to exclude:"; 
-        $excludeClasses | ForEach-Object { "  - " + $_.Trim() }
+        $excludeClasses | ForEach-Object { "  - " + $_ }
       }
       else {
         Write-Host "`nThere are no classes to exclude."; 
