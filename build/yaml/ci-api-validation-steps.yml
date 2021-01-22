@@ -78,9 +78,17 @@ steps:
     # and then validates if still exists remaining issues.
     if ($baseline.ToString().Trim().StartsWith(':x:')) {
       Write-Host "`n[Class exclusion]"; 
-      $excludeClasses = "$excludeClasses".Trim().Split(',');
-      Write-Host "`nList of classes to exclude:"; 
-      $excludeClasses | ForEach-Object { "  - " + $_.Trim() };
+      $excludeClasses = "$excludeClasses".Trim().Split(',') 
+        | Where-Object { ($_.Trim().Length -gt 0) } 
+        | ForEach-Object { "  - " + $_.Trim() };
+      
+      if ($excludeClasses) {
+        Write-Host "`nList of classes to exclude:"; 
+        $excludeClasses
+      }
+      else {
+        Write-Host "`nThere are no classes to exclude."; 
+      }
       
       $content = ($baseline -split '<details\>|<\/details\>');
       $header = $content[0].SubString($content[0].IndexOf('Binary') - 1).Trim();
@@ -130,7 +138,7 @@ steps:
       Write-Host "`nProcessed result:"; 
       $baseline;
     }
-  displayName: 'Evaluate Compatibility Check'
+  displayName: 'Compatibility Check'
   condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
