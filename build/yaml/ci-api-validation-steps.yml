@@ -32,8 +32,6 @@ steps:
     generateLog: true
     outputFilename: '$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt'
     outputFolder: '$(Build.ArtifactStagingDirectory)'
-    useBaseline: true
-    baselineFile: 'libraries/Microsoft.Bot.Builder/Inspection/InspectionMiddleware.cs'
 
 # - powershell: |
 #     $FileName = "$(Build.ArtifactStagingDirectory)\$(BotBuilderDll).$(ApiCompatVersion).CompatResults.txt"
@@ -78,7 +76,7 @@ steps:
     # and then validates if still exists remaining issues.
     if ($baseline.ToString().Trim().StartsWith(':x:')) {
       Write-Host "`n[Class exclusion]"; 
-      $excludeClasses = "$excludeClasses".Trim().Split(',') | Where-Object { ($_.Trim().Length -gt 0) } | ForEach-Object { "  - " + $_.Trim() };
+      $excludeClasses = "$($env:ApiCompatExcludeClasses)".Trim().Split(',') | Where-Object { ($_.Trim().Length -gt 0) } | ForEach-Object { "  - " + $_.Trim() };
       
       if ($excludeClasses) {
         Write-Host "`nList of classes to exclude:"; 
