@@ -43,11 +43,18 @@
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Microsoft.Bot.Schema" Condition=" '$(ReleasePackageVersion)' == '' " Version="$(LocalPackageVersion)" />
-    <PackageReference Include="Microsoft.Bot.Schema" Condition=" '$(ReleasePackageVersion)' != '' " Version="$(ReleasePackageVersion)" />
+    <PackageReference IncludeD="Microsoft.Bot.Schema" Condition=" '$(ReleasePackageVersion)' != '' " Version="$(ReleasePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Bot.Schema\Microsoft.Bot.Schema.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Connector.dll" />
+    <ContractDependencyPaths Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Schema.dll" />
+  </ItemGroup>
 </Project>

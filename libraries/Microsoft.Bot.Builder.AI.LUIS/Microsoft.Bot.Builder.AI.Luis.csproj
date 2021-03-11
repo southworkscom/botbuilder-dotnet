@@ -44,4 +44,13 @@
     <ProjectReference Include="..\Microsoft.Bot.Builder.Dialogs.Declarative\Microsoft.Bot.Builder.Dialogs.Declarative.csproj" />
     <ProjectReference Include="..\Microsoft.Bot.Configuration\Microsoft.Bot.Configuration.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.AI.Luis.dll" />
+    <ContractDependencyPaths Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.Dialogs.Declarative.dll;C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Configuration.dll" />
+  </ItemGroup>
 </Project>

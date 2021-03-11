@@ -30,4 +30,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Bot.Builder.Dialogs\Microsoft.Bot.Builder.Dialogs.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.Testing.dll" />
+    <ContractDependencyPaths Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.Dialogs.dll" />
+  </ItemGroup>
 </Project>

@@ -43,4 +43,13 @@
     <ProjectReference Include="..\..\Microsoft.Bot.Builder.ApplicationInsights\Microsoft.Bot.Builder.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\Microsoft.Bot.Configuration\Microsoft.Bot.Configuration.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.Integration.ApplicationInsights.Core.dll" />
+    <ContractDependencyPaths Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.dll;C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.ApplicationInsights.dll;C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Configuration.dll" />
+  </ItemGroup>
 </Project>
