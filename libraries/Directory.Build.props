@@ -20,6 +20,14 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ResolvedMatchingContract Include="C:\Users\JoelMut\Documents\repos\new\bb-dotnet\outputLibraries\$(AssemblyName).dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="5.0.0-beta.20224.2" PrivateAssets="All" />
+  </ItemGroup>
+
   <!-- This ensures that Directory.Build.props in parent folders are merged with this one -->
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 </Project>
