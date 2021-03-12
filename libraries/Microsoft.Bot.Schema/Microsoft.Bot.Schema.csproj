@@ -33,6 +33,9 @@
     <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Schema.dll" />
+    <ResolvedMatchingContract Include="$(SolutionDir)\LastMajorVersionBinary\Microsoft.Bot.Schema.dll" />
   </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)nuget-download.ps1 $(SolutionDir) $(TargetName)" />
+  </Target>
 </Project>

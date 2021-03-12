@@ -32,7 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ResolvedMatchingContract Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.ApplicationInsights.dll" />
-    <ContractDependencyPaths Include="C:\Users\JoelMut\Desktop\powershell\dotnet\nuget-dlls\Microsoft.Bot.Builder.dll" />
+    <ResolvedMatchingContract Include="$(SolutionDir)\LastMajorVersionBinary\Microsoft.Bot.Builder.ApplicationInsights.dll" />
+    <ContractDependencyPaths Include="$(SolutionDir)\LastMajorVersionBinary\Microsoft.Bot.Builder.dll" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)nuget-download.ps1 $(SolutionDir) $(TargetName)" />
+  </Target>
 </Project>

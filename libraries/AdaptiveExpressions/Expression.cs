@@ -226,11 +226,9 @@ namespace AdaptiveExpressions
         /// </summary>
         /// <param name="property">property expression.</param>
         /// <param name="value">value object.</param>
-        /// <param name="test">value object2.</param>
         /// <returns>New expression.</returns>
-        public static Expression SetPathToValue(Expression property, object value, string test = "")
+        public static Expression SetPathToValue(Expression property, object value)
         {
-            Console.WriteLine(test);
             if (value is Expression)
             {
                 return Expression.MakeExpression(ExpressionType.SetPathToValue, property, (Expression)value);

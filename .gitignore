@@ -294,3 +294,6 @@ appsettings.Development.json
 /.vscode/launch.json
 /outputpackages
 /tests/Microsoft.Bot.Builder.Dialogs.Adaptive.Tests/Tests/ComposerBugs
+
+# Exclude generated .dlls LastMajorVersionBinary folder
+LastMajorVersionBinary/
