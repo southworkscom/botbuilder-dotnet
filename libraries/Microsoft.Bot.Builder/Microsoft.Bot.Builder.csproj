@@ -38,16 +38,6 @@
     <Folder Include="Inspection\" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <ResolvedMatchingContract Include="C:\repos\new\botbuilder-dotnet\LastBuild\Microsoft.Bot.Builder.dll" />
-  </ItemGroup>-->
-
-  <!--<ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
-  </ItemGroup>-->
-
-  
-
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="1.0.0-beta.21161.1" PrivateAssets="All" />
   </ItemGroup>
@@ -56,6 +46,6 @@
     <ContractDependencyPaths Include="$(SolutionDir)\LastMajorVersionBinary\Microsoft.Bot.Connector.dll;$(SolutionDir)\LastMajorVersionBinary\Microsoft.Bot.Streaming.dll" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)nuget-download.ps1 $(SolutionDir) $(TargetName)" />
+    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)nuget-download.ps1 $(SolutionDir) $(TargetName) $(ApiCompatContractsVersion)" />
   </Target>
 </Project>

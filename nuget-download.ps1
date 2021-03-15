@@ -30,21 +30,26 @@
 
 $SolutionDir = $args[0]
 $Dll = $args[1]
+
+# Replace with the first line after adding the version in all script executions in the csproj
+$Version = $args[2]
 $Version = "4.6.3"
 
 $LastVersionFolder = "$($SolutionDir)LastMajorVersionBinary"
-$TempDLLFolder = "$LastVersionFolder\Temp\$Dll"
+$TempDLLFolder = "$LastVersionFolder\$Dll"
 
-$Xml =  "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
-$Xml += "  <package id=""" + $Dll + """ version=""" + $Version + """/>`n"
-$Xml += "</packages>"
+if (-not(Test-Path -Path "$LastVersionFolder\$Dll.dll" -PathType Leaf)) {
+    $Xml =  "<?xml version=""1.0"" encoding=""utf-8""?>`n<packages>`n"
+    $Xml += "  <package id=""" + $Dll + """ version=""" + $Version + """/>`n"
+    $Xml += "</packages>"
 
-New-Item -Path "$TempDLLFolder" -Name "packages.config" -ItemType "file" -Value $Xml -Force
+    New-Item -Path "$TempDLLFolder" -Name "packages.config" -ItemType "file" -Value $Xml -Force
 
-nuget install "$TempDLLFolder\packages.config" -OutputDirectory $TempDLLFolder
+    nuget install "$TempDLLFolder\packages.config" -OutputDirectory $TempDLLFolder
 
-# nuget install $Dll -Version $Version -OutputDirectory $TempDLLFolder
+    # nuget install $Dll -Version $Version -OutputDirectory $TempDLLFolder
 
-Copy-Item -Path "$TempDLLFolder\**\lib\**\*.dll" -Destination  $LastVersionFolder -Recurse -Force
+    Copy-Item -Path "$TempDLLFolder\**\lib\**\*.dll" -Destination  $LastVersionFolder -Recurse -Force
 
-Remove-item -Path $TempDLLFolder -Recurse -Force
+    Remove-item -Path $TempDLLFolder -Recurse -Force
+}

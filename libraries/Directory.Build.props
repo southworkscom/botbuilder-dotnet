@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GeneratePackageOnBuild>$(GeneratePackages)</GeneratePackageOnBuild>
+    <ApiCompatContractsVersion>4.6.3</ApiCompatContractsVersion>
   </PropertyGroup>
 
   <ItemGroup>
