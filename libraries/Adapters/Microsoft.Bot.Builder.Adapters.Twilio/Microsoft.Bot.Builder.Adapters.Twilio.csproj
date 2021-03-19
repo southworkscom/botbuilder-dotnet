@@ -10,6 +10,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Microsoft.Bot.Builder.Adapters.Twilio</PackageId>
     <Description>Library for connecting bots with Twilio SMS API.</Description>
     <Summary>This library implements C# classes for Twilio adapter.</Summary>
   </PropertyGroup>
@@ -34,5 +35,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\integration\Microsoft.Bot.Builder.Integration.AspNet.Core\Microsoft.Bot.Builder.Integration.AspNet.Core.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)build\ExecuteApiCompat.ps1 -Path $(SolutionDir) -Name $(PackageId) -Version $(Version)" />
+  </Target>
 
 </Project>

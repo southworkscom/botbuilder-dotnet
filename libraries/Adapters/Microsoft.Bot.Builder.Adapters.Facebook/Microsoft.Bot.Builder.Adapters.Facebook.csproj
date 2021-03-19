@@ -10,6 +10,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Microsoft.Bot.Builder.Adapters.Facebook</PackageId>
     <Description>Library for connecting bots with Facebook.</Description>
     <Summary>This library implements C# classes for the Facebook adapter.</Summary>
   </PropertyGroup>
@@ -27,5 +28,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\integration\Microsoft.Bot.Builder.Integration.AspNet.Core\Microsoft.Bot.Builder.Integration.AspNet.Core.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)build\ExecuteApiCompat.ps1 -Path $(SolutionDir) -Name $(PackageId) -Version $(Version)" />
+  </Target>
 
 </Project>
