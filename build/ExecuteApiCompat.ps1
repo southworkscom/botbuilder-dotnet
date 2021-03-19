@@ -127,14 +127,15 @@ $DownloadApiCompat = {
             Write-Host "Downloading zip"
             
             try {
-                Invoke-RestMethod -Method "GET" -Uri $ApiCompatDownloadRequestUri -OutFile ".\$ZipFile"
+                (New-Object System.Net.WebClient).DownloadFile($ApiCompatDownloadRequestUri, $ZipPath)
+                #Invoke-RestMethod -Method "GET" -Uri $ApiCompatDownloadRequestUri -OutFile ".\$ZipFile"
             } catch { 
+                Write-Error "Download attempt failed"
                 Write-Error $_
                 exit 1 
             }
             
             $Zip = [ZipFile]::OpenRead($ZipPath)
-            Start-Sleep -Seconds 30
             
             # Extract files
             $Zip.Entries.Where{ $_.FullName -match "$TargetEntry.*[^/]$" }.ForEach{
@@ -146,6 +147,8 @@ $DownloadApiCompat = {
             
             # Remove downloaded zip file.
             Remove-Item $ZipFile
+
+            Write-Host "$ZipFile successfully downloaded and extracted" -ForegroundColor green
         } catch {
             Write-Warning "CHECK AVAILABILITY FROM CATCH"
             &$CheckApiCompatAvailability
@@ -217,8 +220,20 @@ $PackageDestination = if (Test-Path "$ApiCompatPath\Contracts\NugetDlls" -PathTy
 Copy-Item $Package -Destination $PackageDestination
 
 # Download ApiCompat
-if (!(Test-Path "$ApiCompatPath\tools")) {
-    &$DownloadApiCompat
+# Create a Mutex to prevent race conditions while downloading apiCompat.zip
+$mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
+$mutex = New-Object 'Threading.Mutex' $false, $mutexName
+
+#Grab the mutex. Will block until this process has it.
+$mutex.WaitOne();
+
+try
+{
+    if (!(Test-Path "$ApiCompatPath\tools")) {
+        &$DownloadApiCompat
+    }
+} finally {
+    $mutex.ReleaseMutex()
 }
 
 # Run ApiCompat
