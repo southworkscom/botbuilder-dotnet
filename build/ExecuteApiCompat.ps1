@@ -19,7 +19,7 @@ $ApiCompatPath = "$Path\ApiCompat"
 $InstallResult = $false
 $ApiCompatDownloadRequestUri = 'https://pkgs.dev.azure.com/dnceng/public/_apis/packaging/feeds/dotnet-eng/nuget/packages/Microsoft.DotNet.ApiCompat/versions/6.0.0-beta.21168.3/content?api-version=6.0-preview.1'
 
-$DownloadLatestVersion = {
+$DownloadLatestPackageVersion = {
     Write-Host ">> Attempting to install latest version`n" -ForegroundColor cyan
     
     # Get latest version suffix
@@ -41,7 +41,7 @@ $DownloadLatestVersion = {
     }
 }
 
-$DownloadFixedVersions = {
+$DownloadFixedPackageVersions = {
     # Remove version sufix if any
     $script:LocalVersion = $Version
     $script:Version = $Version -replace '-local'
@@ -79,7 +79,7 @@ $DownloadFixedVersions = {
         } else {
             # If specific versions failed, download latest
             Write-Host ">> Failed`n" -ForegroundColor red
-            &$DownloadLatestVersion
+            &$DownloadLatestPackageVersion
         }
     } else {
         Write-Host ">> Success`n" -ForegroundColor green
@@ -127,6 +127,7 @@ $DownloadApiCompat = {
             Write-Host "Downloading zip"
             
             try {
+                # TODO: Maybe we could add some retries here
                 (New-Object System.Net.WebClient).DownloadFile($ApiCompatDownloadRequestUri, $ZipPath)
                 #Invoke-RestMethod -Method "GET" -Uri $ApiCompatDownloadRequestUri -OutFile ".\$ZipFile"
             } catch { 
@@ -146,16 +147,16 @@ $DownloadApiCompat = {
             $Zip.Dispose()
             
             # Remove downloaded zip file.
-            Remove-Item $ZipFile
+            Remove-Item $ZipFile # TODO: We should add a trap or some condition to be absolutely sure that this file is removed even if script is terminated
 
             Write-Host "$ZipFile successfully downloaded and extracted" -ForegroundColor green
         } catch {
             Write-Warning "CHECK AVAILABILITY FROM CATCH"
-            &$CheckApiCompatAvailability
+            &$CheckApiCompatAvailability # TODO: Maybe we can remove this because we added a mutex before the download phase
         }
     } else {
         Write-Warning "CHECK AVAILABILITY FROM ELSE"
-        &$CheckApiCompatAvailability
+        &$CheckApiCompatAvailability # TODO: Maybe we can remove this because we added a mutex before the download phase
     }
     cd $Path
 }
@@ -192,15 +193,15 @@ $CopyLocalDllToDestination = 'Copy-Item $Dll -Destination $DllDestination'
 $DllName = [IO.Path]::GetFileNameWithoutExtension($Dll)
 
 if ([string]::IsNullOrEmpty($Version)) {
-    &$DownloadLatestVersion
+    &$DownloadLatestPackageVersion
 } else {
-    &$DownloadFixedVersions
+    &$DownloadFixedPackageVersions
 }
 
 # No reason to continue if package could not be installed
 if (!$InstallResult) {
     Write-Error "Failed to download package $DllName with version $Version`n"
-    exit 0
+    exit 0 # TODO: Should be exit != 0?
 }
 
 # Package to compare to has been downloaded, proceed to copy local version for comparisson
@@ -221,22 +222,24 @@ Copy-Item $Package -Destination $PackageDestination
 
 
 # TODO: Move all these mutex to a function
-# TODO: If mutex approach works, remove redundant code that checks for file/directory creation in download and extract apiCompat.zip
-# TODO: Add a trap or some other logic to prevent a zipfile from being downloaded and NOT extracted if script is terminated
+# TODO: If mutex approach works, remove redundant code that checks for file/directory creation in 'download and extract apiCompat.zip'.
+# TODO: Add a trap or some other logic to prevent a zipfile from being downloaded and NOT extracted/deleted if script is terminated
 
 # Download ApiCompat
-if (!(Test-Path "$ApiCompatPath\tools")) {
-    # Create a Mutex to prevent race conditions while downloading apiCompat.zip
-    $mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
-    $mutex = New-Object 'Threading.Mutex' $false, $mutexName
+# Create a Mutex to prevent race conditions while downloading apiCompat.zip
+$mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
+$mutex = New-Object 'Threading.Mutex' $false, $mutexName
 
-    #Grab the mutex. Will block until this process has it.
-    $mutex.WaitOne() | Out-Null;
-    try {
+# Grab the mutex. Will block until this process has it.
+# All processes will wait for the mutex to be freed to prevent cases were 'tools' folder exists but has not finished extracting.
+# If download and extraction of ApiCompat.zip is done, the other processes will exit by the if condition and wait a minimum amount of time.
+$mutex.WaitOne() | Out-Null;
+try {
+    if (!(Test-Path "$ApiCompatPath\tools")) {
         &$DownloadApiCompat
-    } finally {
-        $mutex.ReleaseMutex()
     }
+} finally {
+    $mutex.ReleaseMutex()
 }
 
 # Run ApiCompat
