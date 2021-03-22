@@ -169,7 +169,7 @@ $WriteToLog = {
     $mutex = New-Object 'Threading.Mutex' $false, $mutexName
     
     #Grab the mutex. Will block until this process has it.
-    $mutex.WaitOne();
+    $mutex.WaitOne() | Out-Null;
     
     try
     {
@@ -221,24 +221,21 @@ Copy-Item $Package -Destination $PackageDestination
 
 
 # TODO: Move all these mutex to a function
-# TODO: Check 'true' being writen to console when using mutex
 # TODO: If mutex approach works, remove redundant code that checks for file/directory creation in download and extract apiCompat.zip
 
 # Download ApiCompat
-# Create a Mutex to prevent race conditions while downloading apiCompat.zip
-$mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
-$mutex = New-Object 'Threading.Mutex' $false, $mutexName
+if (!(Test-Path "$ApiCompatPath\tools")) {
+    # Create a Mutex to prevent race conditions while downloading apiCompat.zip
+    $mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
+    $mutex = New-Object 'Threading.Mutex' $false, $mutexName
 
-#Grab the mutex. Will block until this process has it.
-$mutex.WaitOne();
-
-try
-{
-    if (!(Test-Path "$ApiCompatPath\tools")) {
+    #Grab the mutex. Will block until this process has it.
+    $mutex.WaitOne() | Out-Null;
+    try {
         &$DownloadApiCompat
+    } finally {
+        $mutex.ReleaseMutex()
     }
-} finally {
-    $mutex.ReleaseMutex()
 }
 
 # Run ApiCompat
