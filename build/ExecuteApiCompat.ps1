@@ -222,6 +222,7 @@ Copy-Item $Package -Destination $PackageDestination
 
 # TODO: Move all these mutex to a function
 # TODO: If mutex approach works, remove redundant code that checks for file/directory creation in download and extract apiCompat.zip
+# TODO: Add a trap or some other logic to prevent a zipfile from being downloaded and NOT extracted if script is terminated
 
 # Download ApiCompat
 if (!(Test-Path "$ApiCompatPath\tools")) {
