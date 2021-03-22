@@ -219,6 +219,11 @@ $Package = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\*.dll" -F
 $PackageDestination = if (Test-Path "$ApiCompatPath\Contracts\NugetDlls" -PathType Container) { "$ApiCompatPath\Contracts\NugetDlls" } else { New-item -Name "NugetDlls" -Type "directory" -Path $ApiCompatPath\Contracts }
 Copy-Item $Package -Destination $PackageDestination
 
+
+# TODO: Move all these mutex to a function
+# TODO: Check 'true' being writen to console when using mutex
+# TODO: If mutex approach works, remove redundant code that checks for file/directory creation in download and extract apiCompat.zip
+
 # Download ApiCompat
 # Create a Mutex to prevent race conditions while downloading apiCompat.zip
 $mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
