@@ -16,15 +16,17 @@ if (![string]::IsNullOrEmpty($Path)) {
 }
 
 $ApiCompatPath = "$Path\ApiCompat"
+$ZipFile = "ApiCompat.zip"
+$ZipPath = "$ApiCompatPath\$ZipFile"
 $InstallResult = $false
 $ApiCompatDownloadRequestUri = 'https://pkgs.dev.azure.com/dnceng/public/_apis/packaging/feeds/dotnet-eng/nuget/packages/Microsoft.DotNet.ApiCompat/versions/6.0.0-beta.21168.3/content?api-version=6.0-preview.1'
 
-$DownloadLatestPackageVersion = {
-    Write-Host ">> Attempting to install latest version`n" -ForegroundColor cyan
-    
+$DownloadLatestPackageVersion = {    
     # Get latest version suffix
     $DllData = nuget search $DllName -PreRelease
     $LatestVersion = [regex]::match($DllData,"(?<=$DllName \| ).*?(?=\s)").Value
+
+    Write-Host ">> Attempting to install latest version $LatestVersion" -ForegroundColor cyan
     
     # Store command into a variable to handle error output from nuget
     $NugetInstallCommand = 'nuget install $DllName -OutputDirectory "$Path\ApiCompat\Contracts" -Version $LatestVersion'
@@ -34,7 +36,7 @@ $DownloadLatestPackageVersion = {
     
     $script:InstallResult = ($InstallCommandOutput -match 'Added package' -or $InstallCommandOutput -match 'already installed')
     if ($InstallResult) {
-        Write-Host ">> Success`n" -ForegroundColor green        
+        Write-Host ">> Successfully installed latest version: $LatestVersion" -ForegroundColor green        
         
         # Update version with latest suffix
         $script:Version = $LatestVersion
@@ -46,7 +48,7 @@ $DownloadFixedPackageVersions = {
     $script:LocalVersion = $Version
     $script:Version = $Version -replace '-local'
     
-    Write-Host ">> Attempting to download GA specific version = $Version`n" -ForegroundColor cyan
+    Write-Host ">> Attempting to download GA specific version = $Version" -ForegroundColor cyan
     
     # Install corresponding nuget package to "Contracts" folder    
     # Store command into a variable to handle error output from nuget
@@ -60,8 +62,8 @@ $DownloadFixedPackageVersions = {
     
     # If GA version doesn't exist, attempt to download specific preview version
     if(!$InstallResult) {
-        Write-Host ">> Failed`n" -ForegroundColor red
-        Write-Host ">> Attempting to install specific preview version = $Version-preview`n" -ForegroundColor cyan
+        Write-Host ">> Failed installing GA specific version: $Version. Trying different approach..." -ForegroundColor red
+        Write-Host ">> Attempting to install specific preview version = $Version-preview" -ForegroundColor cyan
         
         # Store command into a variable to handle error output from nuget
         $NugetInstallCommand = 'nuget install $DllName -Version "$Version-preview" -OutputDirectory "$Path\ApiCompat\Contracts" -Verbosity detailed'
@@ -72,42 +74,18 @@ $DownloadFixedPackageVersions = {
         
         # If specific preview version doesn't exist, attempt to download latest version (including preview)
         if ($InstallResult) {
-            Write-Host ">> Success`n" -ForegroundColor green
+            Write-Host ">> successfully installed preview version: $Version-preview" -ForegroundColor green
             
             # If previous install is successful, we append -preview to version.
             $script:Version = "$Version-preview"
         } else {
             # If specific versions failed, download latest
-            Write-Host ">> Failed`n" -ForegroundColor red
+            Write-Host ">> Failed installing specific preview version: $Version-preview. Trying different approach..." -ForegroundColor red
             &$DownloadLatestPackageVersion
         }
     } else {
-        Write-Host ">> Success`n" -ForegroundColor green
+        Write-Host ">> Success" -ForegroundColor green
     }
-}
-
-$CheckApiCompatAvailability = {
-    $Result = $false
-    
-    # It exists, but might be being downloaded/extracted by another process. Wait for that process to finish
-    1..10 | ForEach-Object {
-        if ((Test-Path "$ApiCompatPath\tools") -and !(Test-Path "$ApiCompatPath\$ZipFile" -PathType Leaf)) {
-            # Zipfile has been extracted
-            $Result = $true
-            # If I place this break here, for some reason the whole script stops running :(
-            # break
-        } else {
-            Write-Warning "Attempting to get lock of $ZipFile"
-            Start-Sleep -Seconds 6
-        }
-    }
-
-    if (!$Result) {
-        Write-Error "Timed out attempting to reach unzipped files from $ZipFile"
-        exit 2
-    }
-
-    Write-Host "Successfully reached unzipped files from $ZipFile"
 }
 
 $DownloadApiCompat = {
@@ -115,8 +93,6 @@ $DownloadApiCompat = {
     cd $ApiCompatPath
     
     # Get Zipfile for ApiCompat
-    $ZipFile = "ApiCompat.zip"
-    $ZipPath = "$ApiCompatPath\$ZipFile"
     $DestinationPath= "$Path\ApiCompat"
     $TargetEntry = "netcoreapp3.1"
     
@@ -145,19 +121,14 @@ $DownloadApiCompat = {
                 [ZipFileExtensions]::ExtractToFile($_, $NewFile)
             }
             $Zip.Dispose()
-            
-            # Remove downloaded zip file.
-            Remove-Item $ZipFile # TODO: We should add a trap or some condition to be absolutely sure that this file is removed even if script is terminated
 
             Write-Host "$ZipFile successfully downloaded and extracted" -ForegroundColor green
-        } catch {
-            Write-Warning "CHECK AVAILABILITY FROM CATCH"
-            &$CheckApiCompatAvailability # TODO: Maybe we can remove this because we added a mutex before the download phase
+        } finally {
+            # Remove downloaded zip file.
+            Remove-Item $ZipFile
         }
-    } else {
-        Write-Warning "CHECK AVAILABILITY FROM ELSE"
-        &$CheckApiCompatAvailability # TODO: Maybe we can remove this because we added a mutex before the download phase
     }
+
     cd $Path
 }
 
@@ -221,12 +192,11 @@ $PackageDestination = if (Test-Path "$ApiCompatPath\Contracts\NugetDlls" -PathTy
 Copy-Item $Package -Destination $PackageDestination
 
 
-# TODO: Move all these mutex to a function
-# TODO: If mutex approach works, remove redundant code that checks for file/directory creation in 'download and extract apiCompat.zip'.
-# TODO: Add a trap or some other logic to prevent a zipfile from being downloaded and NOT extracted/deleted if script is terminated
+# TODO: Move all these mutex to a function?
 
 # Download ApiCompat
 # Create a Mutex to prevent race conditions while downloading apiCompat.zip
+# Important notice: All threads should wait for download and extraction to finish before moving past this point.
 $mutexName = "DownloadApiCompatMutex" # A unique name shared/used across all processes.
 $mutex = New-Object 'Threading.Mutex' $false, $mutexName
 
@@ -235,6 +205,11 @@ $mutex = New-Object 'Threading.Mutex' $false, $mutexName
 # If download and extraction of ApiCompat.zip is done, the other processes will exit by the if condition and wait a minimum amount of time.
 $mutex.WaitOne() | Out-Null;
 try {
+    # Clean possible orphan files from aborted previous run.
+    if (Test-Path $ZipPath -PathType Leaf) {
+        Remove-Item $ZipPath
+    }
+
     if (!(Test-Path "$ApiCompatPath\tools")) {
         &$DownloadApiCompat
     }
