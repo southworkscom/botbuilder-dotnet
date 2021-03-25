@@ -5,7 +5,9 @@ param
     [string]$Path,
     [Parameter(Mandatory=$True)]
     [string]$Name,
-    [string]$Version
+    [string]$Version,
+    [Parameter(Mandatory=$True)]
+    [string]$ApiCompatVersion
 )
 
 if (![string]::IsNullOrEmpty($Path)) {
@@ -19,7 +21,8 @@ $ApiCompatPath = "$Path\ApiCompat"
 $ZipFile = "ApiCompat.zip"
 $ZipPath = "$ApiCompatPath\$ZipFile"
 $InstallResult = $false
-$ApiCompatDownloadRequestUri = 'https://pkgs.dev.azure.com/dnceng/public/_apis/packaging/feeds/dotnet-eng/nuget/packages/Microsoft.DotNet.ApiCompat/versions/6.0.0-beta.21168.3/content?api-version=6.0-preview.1'
+$ApiCompatDownloadRequestUri = "https://pkgs.dev.azure.com/dnceng/public/_apis/packaging/feeds/dotnet-eng/nuget/packages/Microsoft.DotNet.ApiCompat/versions/$ApiCompatVersion/content"
+# ApiCompat versions can be seen here -> https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
 $DownloadLatestPackageVersion = {    
     # Get latest version suffix
@@ -100,7 +103,7 @@ $DownloadApiCompat = {
     if (!(Test-Path "$ApiCompatPath\ApiCompat.zip" -PathType Leaf)) {
         try { 
             # Download
-            Write-Host "Downloading zip"
+            Write-Host "Downloading ApiCompat version $ApiCompatVersion as zip"
             
             try {
                 # TODO: Maybe we could add some retries here
