@@ -221,7 +221,7 @@ try {
 }
 
 # Run ApiCompat
-$ApiCompatResult = (.\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.exe "$ApiCompatPath\Contracts\NugetDlls\$DllName.dll" --impl-dirs "$ApiCompatPath\Implementations\$DllName.dll") -replace 'TypesMustExist', "`nTypesMustExist"
+$ApiCompatResult = (.\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.exe "$ApiCompatPath\Contracts\$PackageName" --impl-dirs "$ApiCompatPath\Implementations\$DllName.dll") -replace 'TypesMustExist', "`nTypesMustExist"
 $OutputDirectory = if (Test-Path "$ApiCompatPath\ApiCompatResult.txt") { "$ApiCompatPath\ApiCompatResult.txt" } else { New-item -Name "ApiCompatResult.txt" -Type "file" -Path $ApiCompatPath }
 Write-Host ">> Saving ApiCompat output to $OutputDirectory`n" -ForegroundColor cyan
 
