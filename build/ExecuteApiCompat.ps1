@@ -211,6 +211,9 @@ try {
     # Clean possible orphan files from aborted previous run.
     if (Test-Path $ZipPath -PathType Leaf) {
         Remove-Item $ZipPath
+        if (Test-Path "$ApiCompatPath\tools") {
+            Remove-Item -Recurse -Force "$ApiCompatPath\tools"
+        }
     }
 
     if (!(Test-Path "$ApiCompatPath\tools")) {
