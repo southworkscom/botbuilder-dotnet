@@ -16,6 +16,8 @@
 
   .EXAMPLE
   PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -ApiCompatVersion 6.0.0-beta.21179.2
+
+  TODO: This needs improvement
 #>
 
 using namespace System.IO.Compression
@@ -30,6 +32,7 @@ param
     [string]$ApiCompatVersion
 )
 
+# Get path from param or use current
 if (![string]::IsNullOrEmpty($Path)) {
     Set-Location -Path $Path
     $Path = $Path.TrimEnd('\')
@@ -118,7 +121,6 @@ $DownloadApiCompat = {
     
     # Get Zipfile for ApiCompat
     $DestinationPath= "$Path\ApiCompat"
-    $TargetEntry = "netcoreapp3.1"
     
     # If file doesn't exist, download it
     if (!(Test-Path "$ApiCompatPath\ApiCompat.zip" -PathType Leaf)) {
@@ -127,9 +129,7 @@ $DownloadApiCompat = {
             Write-Host "Downloading ApiCompat version $ApiCompatVersion as zip"
             
             try {
-                # TODO: Maybe we could add some retries here
                 (New-Object System.Net.WebClient).DownloadFile($ApiCompatDownloadRequestUri, $ZipPath)
-                #Invoke-RestMethod -Method "GET" -Uri $ApiCompatDownloadRequestUri -OutFile ".\$ZipFile"
             } catch { 
                 Write-Error "Download attempt failed"
                 Write-Error $_
@@ -137,14 +137,25 @@ $DownloadApiCompat = {
             }
             
             $Zip = [ZipFile]::OpenRead($ZipPath)
-            
             # Extract files
-            $Zip.Entries.Where{ $_.FullName -match "$TargetEntry.*[^/]$" }.ForEach{
-                $NewFile = [IO.FileInfo]($DestinationPath,$_.FullName -join "/")
-                $NewFile.Directory.Create()
-                [ZipFileExtensions]::ExtractToFile($_, $NewFile)
+            try {
+                # Get parent folder from latest apiCompat framework version
+                $ZipApiCompatParentFolder = $zip.Entries | where {$_.Name -like 'Microsoft.DotNet.ApiCompat.exe'} | Select -Last 1
+                $ZipApiCompatParentFolder = split-path -parent $ZipApiCompatParentFolder 
+                $ZipApiCompatParentFolder = split-path -leaf $ZipApiCompatParentFolder
+
+                # Extract all files in latest framework version folder
+                $Zip.Entries.Where{ $_.FullName -match "$ZipApiCompatParentFolder.*[^/]$" }.ForEach{
+                    $NewFile = [IO.FileInfo]($DestinationPath,$_.FullName -join "/")
+                    $NewFile.Directory.Create()
+                    [ZipFileExtensions]::ExtractToFile($_, $NewFile)
+                }
+            } catch {
+                Write-Error "Failed to extract files from $ZipPath"
+                exit 6
+            } finally {
+                $Zip.Dispose()
             }
-            $Zip.Dispose()
 
             Write-Host "$ZipFile successfully downloaded and extracted" -ForegroundColor green
         } finally {
@@ -167,8 +178,7 @@ $WriteToLog = {
     #Grab the mutex. Will block until this process has it.
     $mutex.WaitOne() | Out-Null;
     
-    try
-    {
+    try {
         # Now it is safe to write to log file
         Add-Content $OutputDirectory $ResultMessage
     } finally {
@@ -208,8 +218,6 @@ $PackageName = "$DllName.$Version"
 
 $ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select -First 1
 
-# TODO: Move all these mutex to a function?
-
 # Download ApiCompat
 # Create a Mutex to prevent race conditions while downloading apiCompat.zip
 # Important notice: All threads should wait for download and extraction to finish before moving past this point.
@@ -222,6 +230,7 @@ $mutex = New-Object 'Threading.Mutex' $false, $mutexName
 $mutex.WaitOne() | Out-Null;
 
 try {
+    # TODO: We should add a check that compares apicompat parameter version and installed version (\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.runtimeconfig.json) and re-download if they differ.
     # Clean possible orphan files from aborted previous run.
     if (Test-Path $ZipPath -PathType Leaf) {
         Remove-Item $ZipPath
@@ -251,6 +260,7 @@ Write-Host ">> Saving ApiCompat output to $OutputDirectory" -ForegroundColor cya
 # Add result to txt file for better accessibility
 &$WriteToLog
 
+# Check result from ApiCompat comparison
 if ($ApiCompatResult -notlike "*Total Issues: 0*") {
     Write-Error ">> ApiCompat failed matching implementation and contract."
     exit 4 # ApiCompat failed
