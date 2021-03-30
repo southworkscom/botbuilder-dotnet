@@ -1,3 +1,23 @@
+<#
+  .PARAMETER Path
+  Specifies the path to project root folder.
+
+  .PARAMETER Name
+  Specifies the name for the specific project we are building.
+
+  .PARAMETER Version
+  Specifies the version we want to match our build to.
+
+  .PARAMETER ApiCompatVersion
+  Specifies the version of ApiCompat we want to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
+
+  .EXAMPLE
+  PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -Version 4.11.0 -ApiCompatVersion 6.0.0-beta.21179.2
+
+  .EXAMPLE
+  PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -ApiCompatVersion 6.0.0-beta.21179.2
+#>
+
 using namespace System.IO.Compression
 
 param
@@ -180,7 +200,7 @@ if ([string]::IsNullOrEmpty($Version)) {
 # No reason to continue if package could not be installed
 if (!$InstallResult) {
     Write-Error "Failed to download package $DllName with version $Version`n"
-    exit 0 # TODO: Should be exit != 0?
+    exit 2
 }
 
 # Get specific dll file from nuget package
@@ -226,3 +246,8 @@ Write-Host ">> Saving ApiCompat output to $OutputDirectory`n" -ForegroundColor c
 
 # Add result to txt file for better accessibility
 &$WriteToLog
+
+if ($ApiCompatResult -notlike "*Total Issues: 0*") {
+    Write-Error ">> ApiCompat failed matching implementation and contract."
+    exit 4 # ApiCompat failed
+}
