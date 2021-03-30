@@ -157,9 +157,9 @@ $WriteToLog = {
 }
 
 # Get specific dll file from built solution
-$Dll = Get-ChildItem "$Path\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -first 1
+$Dll = Get-ChildItem "$Path\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -First 1
 if ([string]::IsNullOrEmpty($Dll)){
-    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -first 1
+    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -First 1
 
     if ([string]::IsNullOrEmpty($Dll)) {
         Write-Error ">> Local dll was not found. Try building your project or solution."
@@ -186,7 +186,7 @@ if (!$InstallResult) {
 # Get specific dll file from nuget package
 $PackageName = "$DllName.$Version"
 
-$ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select -first 1
+$ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select -First 1
 
 # TODO: Move all these mutex to a function?
 
@@ -218,11 +218,15 @@ try {
     $mutex.ReleaseMutex()
 }
 
+# Get ApiCompat executable from downloaded folder
+$ApiCompatExe = Get-ChildItem "$ApiCompatPath\tools\**\Microsoft.DotNet.ApiCompat.exe" | Select -Last 1
+
 # Run ApiCompat
-$ApiCompatResult = (.\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.exe "$ContractPath" --impl-dirs "$ImplementationPath" --resolve-fx)  -replace " in the contract.", " in the contract.`n" -replace "${Name}:", "${Name}:`n"
+$ApiCompatCommand = "& `"$ApiCompatExe`" $ContractPath --impl-dirs $ImplementationPath --resolve-fx"
+$ApiCompatResult = (Invoke-Expression $ApiCompatCommand)  -replace " in the contract.", " in the contract.`n" -replace "${Name}:", "${Name}:`n"
 $OutputDirectory = if (Test-Path "$ApiCompatPath\ApiCompatResult.txt") { "$ApiCompatPath\ApiCompatResult.txt" } else { New-item -Name "ApiCompatResult.txt" -Type "file" -Path $ApiCompatPath }
 
-Write-Host ">> Saving ApiCompat output to $OutputDirectory`n" -ForegroundColor cyan
+Write-Host ">> Saving ApiCompat output to $OutputDirectory" -ForegroundColor cyan
 
 # Add result to txt file for better accessibility
 &$WriteToLog
