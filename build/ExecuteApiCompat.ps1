@@ -18,9 +18,12 @@ if (![string]::IsNullOrEmpty($Path)) {
 }
 
 $ApiCompatPath = "$Path\ApiCompat"
+
 $ZipFile = "ApiCompat.zip"
 $ZipPath = "$ApiCompatPath\$ZipFile"
+
 $InstallResult = $false
+
 $ApiCompatDownloadRequestUri = "https://pkgs.dev.azure.com/dnceng/public/_apis/packaging/feeds/dotnet-eng/nuget/packages/Microsoft.DotNet.ApiCompat/versions/$ApiCompatVersion/content"
 # ApiCompat versions can be seen here -> https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
@@ -28,6 +31,7 @@ $DownloadLatestPackageVersion = {
     # Get latest version suffix
     $DllData = nuget search $DllName -PreRelease
     $LatestVersion = [regex]::match($DllData,"(?<=$DllName \| ).*?(?=\s)").Value
+    $script:Version = $LatestVersion
 
     Write-Host ">> Attempting to install latest version $LatestVersion" -ForegroundColor cyan
     
@@ -40,9 +44,6 @@ $DownloadLatestPackageVersion = {
     $script:InstallResult = ($InstallCommandOutput -match 'Added package' -or $InstallCommandOutput -match 'already installed')
     if ($InstallResult) {
         Write-Host ">> Successfully installed latest version: $LatestVersion" -ForegroundColor green        
-        
-        # Update version with latest suffix
-        $script:Version = $LatestVersion
     }
 }
 
@@ -136,7 +137,7 @@ $DownloadApiCompat = {
 }
 
 $WriteToLog = {
-    $ResultMessage = "$DllName LOCAL: $LocalVersion | UPSTREAM: $Version => $ApiCompatResult"
+    $ResultMessage = " $DllName LOCAL: $LocalVersion | UPSTREAM: $Version => $ApiCompatResult"
     Write-Host $ResultMessage -ForegroundColor green
     
     # Create a Mutex for all process to be able to share same log file
@@ -156,14 +157,18 @@ $WriteToLog = {
 }
 
 # Get specific dll file from built solution
-$Dll = Get-ChildItem "$Path\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName }
+$Dll = Get-ChildItem "$Path\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -first 1
 if ([string]::IsNullOrEmpty($Dll)){
-    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName }
+    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -first 1
+
+    if ([string]::IsNullOrEmpty($Dll)) {
+        Write-Error ">> Local dll was not found. Try building your project or solution."
+        exit 3
+    }
 }
 
-# Prepare copy statement to move dll to "Implementations" folder for comparing later
-$DllDestination = if (Test-Path "$ApiCompatPath\Implementations" -PathType Container) { "$ApiCompatPath\Implementations" } else { New-item -Name "Implementations" -Type "directory" -Path $ApiCompatPath }
-$CopyLocalDllToDestination = 'Copy-Item $Dll -Destination $DllDestination'
+$ImplementationPath = split-path -parent $Dll
+
 $DllName = [IO.Path]::GetFileNameWithoutExtension($Dll)
 
 if ([string]::IsNullOrEmpty($Version)) {
@@ -178,22 +183,10 @@ if (!$InstallResult) {
     exit 0 # TODO: Should be exit != 0?
 }
 
-# Package to compare to has been downloaded, proceed to copy local version for comparisson
-try { 
-    Invoke-Expression $CopyLocalDllToDestination 
-} catch { 
-    Write-Error ">> Local dll was not found. Try building your project or solution."
-    exit 3
-}
-
-Write-Host ">> Dll '$Name' successfully copied to $ApiCompatPath\Implementations`n" -ForegroundColor cyan
-
 # Get specific dll file from nuget package
 $PackageName = "$DllName.$Version"
-$Package = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\*.dll" -Filter "*.dll" -Recurse
-$PackageDestination = if (Test-Path "$ApiCompatPath\Contracts\NugetDlls" -PathType Container) { "$ApiCompatPath\Contracts\NugetDlls" } else { New-item -Name "NugetDlls" -Type "directory" -Path $ApiCompatPath\Contracts }
-Copy-Item $Package -Destination $PackageDestination
 
+$ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select -first 1
 
 # TODO: Move all these mutex to a function?
 
@@ -207,10 +200,12 @@ $mutex = New-Object 'Threading.Mutex' $false, $mutexName
 # All processes will wait for the mutex to be freed to prevent cases were 'tools' folder exists but has not finished extracting.
 # If download and extraction of ApiCompat.zip is done, the other processes will exit by the if condition and wait a minimum amount of time.
 $mutex.WaitOne() | Out-Null;
+
 try {
     # Clean possible orphan files from aborted previous run.
     if (Test-Path $ZipPath -PathType Leaf) {
         Remove-Item $ZipPath
+
         if (Test-Path "$ApiCompatPath\tools") {
             Remove-Item -Recurse -Force "$ApiCompatPath\tools"
         }
@@ -224,8 +219,9 @@ try {
 }
 
 # Run ApiCompat
-$ApiCompatResult = (.\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.exe "$ApiCompatPath\Contracts\$PackageName" --impl-dirs "$ApiCompatPath\Implementations\$DllName.dll") -replace 'TypesMustExist', "`nTypesMustExist"
+$ApiCompatResult = (.\ApiCompat\tools\netcoreapp3.1\Microsoft.DotNet.ApiCompat.exe "$ContractPath" --impl-dirs "$ImplementationPath" --resolve-fx)  -replace " in the contract.", " in the contract.`n" -replace "${Name}:", "${Name}:`n"
 $OutputDirectory = if (Test-Path "$ApiCompatPath\ApiCompatResult.txt") { "$ApiCompatPath\ApiCompatResult.txt" } else { New-item -Name "ApiCompatResult.txt" -Type "file" -Path $ApiCompatPath }
+
 Write-Host ">> Saving ApiCompat output to $OutputDirectory`n" -ForegroundColor cyan
 
 # Add result to txt file for better accessibility
