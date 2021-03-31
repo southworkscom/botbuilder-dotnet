@@ -44,5 +44,4 @@
   <ItemGroup>
     <Folder Include="Generated\" />
   </ItemGroup>
-
 </Project>

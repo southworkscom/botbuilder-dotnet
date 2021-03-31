@@ -11,7 +11,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>Microsoft.Bot.Builder.Azure.Blobs</PackageId>
     <Description>Classes for using Azure Storage Blobs with the Microsoft Bot Builder SDK</Description>
     <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
@@ -33,5 +32,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Bot.Builder\Microsoft.Bot.Builder.csproj" />
   </ItemGroup>
-
 </Project>
