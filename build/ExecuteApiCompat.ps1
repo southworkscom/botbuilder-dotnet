@@ -19,8 +19,8 @@
   Specifies the version of ApiCompat we want to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
   .OUTPUTS
-  Console output of related information.
-  Creates an incremental output file where all differences between APIs are stored. path: ./ApiCompat/ApiCompatResult.txt
+  Debugging information is printed on console.
+  Creates an incremental log file where all differences between APIs are stored. path: ./ApiCompat/ApiCompatResult.log
 
   .EXAMPLE
   PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -Version 4.11.0 -ApiCompatVersion 6.0.0-beta.21179.2
@@ -262,7 +262,7 @@ $ApiCompatExe = Get-ChildItem "$ApiCompatPath\tools\**\Microsoft.DotNet.ApiCompa
 # Run ApiCompat
 $ApiCompatCommand = "& `"$ApiCompatExe`" $ContractPath --impl-dirs $ImplementationPath --resolve-fx"
 $ApiCompatResult = (Invoke-Expression $ApiCompatCommand)  -replace " in the contract.", " in the contract.`n" -replace "${Name}:", "${Name}:`n"
-$OutputDirectory = if (Test-Path "$ApiCompatPath\ApiCompatResult.txt") { "$ApiCompatPath\ApiCompatResult.txt" } else { New-item -Name "ApiCompatResult.txt" -Type "file" -Path $ApiCompatPath }
+$OutputDirectory = if (Test-Path "$ApiCompatPath\ApiCompatResult.log") { "$ApiCompatPath\ApiCompatResult.log" } else { New-item -Name "ApiCompatResult.log" -Type "file" -Path $ApiCompatPath }
 
 Write-Host ">> Saving ApiCompat output to $OutputDirectory" -ForegroundColor cyan
 
