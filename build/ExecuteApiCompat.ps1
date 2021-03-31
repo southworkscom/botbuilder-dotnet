@@ -1,4 +1,11 @@
 <#
+  .SYNOPSIS
+  Runs ApiCompat tool against built libraries. Fails if there are breaking changes between them.
+
+  .DESCRIPTION
+  Takes the name of a project, a version to compare to (or fetches latest) and a version of apiCompat to use
+  to match API definitions between provided version and current build for provided project name.
+
   .PARAMETER Path
   Specifies the path to project root folder.
 
@@ -11,13 +18,16 @@
   .PARAMETER ApiCompatVersion
   Specifies the version of ApiCompat we want to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
+  .OUTPUTS
+  Console output of related information.
+  Creates an incremental output file where all differences between APIs are stored. path: ./ApiCompat/ApiCompatResult.txt
+
   .EXAMPLE
   PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -Version 4.11.0 -ApiCompatVersion 6.0.0-beta.21179.2
 
   .EXAMPLE
   PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -ApiCompatVersion 6.0.0-beta.21179.2
 
-  TODO: This needs improvement
 #>
 
 using namespace System.IO.Compression
