@@ -72,7 +72,6 @@ $DownloadLatestPackageVersion = {
 
 $DownloadFixedPackageVersions = {
     # Remove version sufix if any
-    $script:LocalVersion = $Version
     $script:Version = $Version -replace '-local'
     
     Write-Host ">> Attempting to download GA specific version = $Version" -ForegroundColor cyan
@@ -168,7 +167,7 @@ $DownloadApiCompat = {
 }
 
 $WriteToLog = {
-    $ResultMessage = " $DllName LOCAL: $LocalVersion | UPSTREAM: $Version => $ApiCompatResult"
+    $ResultMessage = " Binary Compatibility compared against version: $Version => $ApiCompatResult"
     Write-Host $ResultMessage -ForegroundColor green
     
     # Create a Mutex for all process to be able to share same log file
