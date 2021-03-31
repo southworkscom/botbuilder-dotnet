@@ -46,7 +46,7 @@
     <ProjectReference Include="..\Microsoft.Bot.Builder.Dialogs.Adaptive\Microsoft.Bot.Builder.Dialogs.Adaptive.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Exec Command="PowerShell -NoProfile -ExecutionPolicy unrestricted $(SolutionDir)build\ExecuteApiCompat.ps1 -Path $(SolutionDir) -Name $(PackageId) -ApiCompatVersion $(ApiCompatVersion)" />
   </Target>
 </Project>

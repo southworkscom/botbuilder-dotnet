@@ -20,7 +20,7 @@ variables:
   BuildConfiguration: Debug-Windows
   BuildPlatform: any cpu
   IsBuildServer: true # This activates package versioning in the projects in Microsoft.Bot.Builder.sln.
-  MSBuildArguments: -p:SignAssembly=false -p:delaySign=false -p:postBuildEvent=""
+  MSBuildArguments: -p:SignAssembly=false -p:delaySign=false
   Parameters.solution: Microsoft.Bot.Builder.sln
   PreviewPackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
   ReleasePackageVersion: 4.9.0-preview-$(Build.BuildNumber) # This is consumed by projects in Microsoft.Bot.Builder.sln.
