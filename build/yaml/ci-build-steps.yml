@@ -12,7 +12,7 @@ steps:
   inputs:
     restoreSolution: '$(Parameters.solution)'
 
-- task: VSBuild@1
+- task: MSBuild@1
   displayName: 'Build solution Microsoft.Bot.Builder.sln'
   inputs:
     solution: '$(Parameters.solution)'
