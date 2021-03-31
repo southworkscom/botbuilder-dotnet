@@ -1,39 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version Condition=" '$(IsBuildServer)' == '' ">$(LocalPackageVersion)</Version>
-    <Version Condition=" '$(IsBuildServer)' != '' ">$(PreviewPackageVersion)</Version>
-    <PackageVersion Condition=" '$(IsBuildServer)' == '' ">$(LocalPackageVersion)</PackageVersion>
-    <PackageVersion Condition=" '$(IsBuildServer)' != '' ">$(PreviewPackageVersion)</PackageVersion>
+    <Version Condition=" '$(PreviewPackageVersion)' == '' ">$(LocalPackageVersion)</Version>
+    <Version Condition=" '$(PreviewPackageVersion)' != '' ">$(PreviewPackageVersion)</Version>
+    <PackageVersion Condition=" '$(PreviewPackageVersion)' == '' ">$(LocalPackageVersion)</PackageVersion>
+    <PackageVersion Condition=" '$(PreviewPackageVersion)' != '' ">$(PreviewPackageVersion)</PackageVersion>
     <Configurations>Debug;Release</Configurations>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Microsoft.Bot.Builder.AI.Orchestrator.xml</DocumentationFile>
-    <!-- TODO: Remove the Platforms element below once we support Any CPU for Orchestrator -->
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
     <!-- TODO: Change TargetFramework to netstandard2.0 once Orchestrator supports it -->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Microsoft.Bot.Builder.AI.Orchestrator</PackageId>
     <Description>This library implements .NET support for Orchestrator</Description>
     <Summary>This library implements .NET support for Orchestrator</Summary>
     <ContentTargetFolders>content</ContentTargetFolders>
     <PackageTags>msbot-component;msbot-recognizer</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>Full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <!-- TODO: Remove the PlatformTarget element below once we support Any CPU for Orchestrator -->
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-  <!-- TODO: Remove the PropertyGroup below once we support Any CPU for Orchestrator -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>Full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
