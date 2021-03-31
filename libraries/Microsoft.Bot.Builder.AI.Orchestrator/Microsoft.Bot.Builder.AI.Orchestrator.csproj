@@ -19,6 +19,7 @@
     <Description>This library implements .NET support for Orchestrator</Description>
     <Summary>This library implements .NET support for Orchestrator</Summary>
     <ContentTargetFolders>content</ContentTargetFolders>
+    <PackageTags>msbot-component;msbot-recognizer</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -44,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.BotFramework.Orchestrator" Version="4.10.0-daily.20200810.155802" />
+    <PackageReference Include="Microsoft.BotFramework.Orchestrator" Version="4.13.0-rc0" />
   </ItemGroup>
 
   <ItemGroup>
