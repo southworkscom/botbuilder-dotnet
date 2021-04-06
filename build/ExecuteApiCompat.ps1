@@ -18,6 +18,12 @@
   .PARAMETER ApiCompatVersion
   Specifies the version of ApiCompat to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
+  .PARAMETER DebugBuild
+  Specifies to retrieve the Dll files from the 'Debug' build configuration folder. If the parameter is not specified, this will be the default configuration value.
+
+  .PARAMETER ReleaseBuild
+  Specifies to retrieve the Dll files from the 'Release' build configuration folder. If the parameter is not specified, 'Debug' will be the default configuration value.
+
   .OUTPUTS
   Debugging information is printed on console.
   Creates an incremental log file where all differences between APIs are stored. path: ./ApiCompat/ApiCompatResult.log
@@ -26,12 +32,16 @@
   PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -Version 4.11.0 -ApiCompatVersion 6.0.0-beta.21179.2
 
   .EXAMPLE
-  PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -ApiCompatVersion 6.0.0-beta.21179.2
+  PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -Version 4.11.0 -ApiCompatVersion 6.0.0-beta.21179.2 -DebugBuild
+
+  .EXAMPLE
+  PS> .\ExecuteApiCompat.ps1 -Path 'C:\Code\botbuilder-dotnet' -Name 'Microsoft.Bot.Builder' -ApiCompatVersion 6.0.0-beta.21179.2 -ReleaseBuild
 
 #>
 
 using namespace System.IO.Compression
 
+[CmdletBinding(DefaultParameterSetName = 'DefaultConfiguration')]
 param
 ( 
     [string]$Path,
@@ -40,10 +50,10 @@ param
     [string]$Version,
     [Parameter(Mandatory=$True)]
     [string]$ApiCompatVersion,
-    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="DebugConfiguration")]
+    [Parameter(Mandatory=$True, ParameterSetName="DebugConfiguration")]
     [switch]$DebugBuild,
     [Parameter(Mandatory=$True, ParameterSetName="ReleaseConfiguration")]
-    [switch]$ReleaseBuild = $False
+    [switch]$ReleaseBuild
 )
 
 # Get path from param or use current
@@ -57,8 +67,10 @@ if (![string]::IsNullOrEmpty($Path)) {
 $BuildConfiguration = ""
 if ($DebugBuild -eq $True) {
     $BuildConfiguration = "Debug"
-} else {
+} elseif ($ReleaseBuild -eq $True) {
     $BuildConfiguration = "Release"
+} else {
+    $BuildConfiguration = 'Debug'
 }
 
 $ApiCompatPath = "$Path\ApiCompat"
