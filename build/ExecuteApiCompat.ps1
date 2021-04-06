@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-  Runs ApiCompat tool against built libraries. Fails if there are breaking changes between them.
+  Runs ApiCompat tool against built libraries. Fails if there are breaking changes between the current implementation and the published contracts.
 
   .DESCRIPTION
   Takes the name of a project, a version to compare to (or fetches latest) and a version of apiCompat to use
@@ -13,10 +13,10 @@
   Specifies the name for the specific project we are building.
 
   .PARAMETER Version
-  Specifies the version we want to match our build to.
+  Specifies the version of the library to compare the implementation with..
 
   .PARAMETER ApiCompatVersion
-  Specifies the version of ApiCompat we want to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
+  Specifies the version of ApiCompat to use. You can see available versions here https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&view=versions&package=Microsoft.DotNet.ApiCompat&protocolType=NuGet
 
   .OUTPUTS
   Debugging information is printed on console.
@@ -66,7 +66,7 @@ $DownloadLatestPackageVersion = {
     $LatestVersion = [regex]::match($DllData,"(?<=$DllName \| ).*?(?=\s)").Value
     $script:Version = $LatestVersion
 
-    Write-Host ">> Attempting to install latest version $LatestVersion" -ForegroundColor cyan
+    Write-Host ">> Attempting to download latest version $LatestVersion" -ForegroundColor cyan
     
     # Store command into a variable to handle error output from nuget
     $NugetInstallCommand = 'nuget install $DllName -OutputDirectory "$Path\ApiCompat\Contracts" -Version $LatestVersion'
@@ -76,7 +76,7 @@ $DownloadLatestPackageVersion = {
     
     $script:InstallResult = ($InstallCommandOutput -match 'Added package' -or $InstallCommandOutput -match 'already installed')
     if ($InstallResult) {
-        Write-Host ">> Successfully installed latest version: $LatestVersion" -ForegroundColor green        
+        Write-Host ">> Successfully downloaded latest version: $LatestVersion" -ForegroundColor green        
     }
 }
 
@@ -98,8 +98,8 @@ $DownloadFixedPackageVersions = {
     
     # If GA version doesn't exist, attempt to download specific preview version
     if(!$InstallResult) {
-        Write-Host ">> Failed installing GA specific version: $Version. Trying different approach..." -ForegroundColor red
-        Write-Host ">> Attempting to install specific preview version = $Version-preview" -ForegroundColor cyan
+        Write-Host ">> Failed download GA specific version: $Version. Downloading specific preview version..." -ForegroundColor red
+        Write-Host ">> Attempting to download specific preview version = $Version-preview" -ForegroundColor cyan
         
         # Store command into a variable to handle error output from nuget
         $NugetInstallCommand = 'nuget install $DllName -Version "$Version-preview" -OutputDirectory "$Path\ApiCompat\Contracts" -Verbosity detailed'
@@ -110,13 +110,13 @@ $DownloadFixedPackageVersions = {
         
         # If specific preview version doesn't exist, attempt to download latest version (including preview)
         if ($InstallResult) {
-            Write-Host ">> successfully installed preview version: $Version-preview" -ForegroundColor green
+            Write-Host ">> Successfully downloaded preview version: $Version-preview" -ForegroundColor green
             
             # If previous install is successful, we append -preview to version.
             $script:Version = "$Version-preview"
         } else {
             # If specific versions failed, download latest
-            Write-Host ">> Failed installing specific preview version: $Version-preview. Trying different approach..." -ForegroundColor red
+            Write-Host ">> Failed downloading specific preview version: $Version-preview. Downloading latest available version..." -ForegroundColor red
             &$DownloadLatestPackageVersion
         }
     } else {
