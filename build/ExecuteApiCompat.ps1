@@ -39,7 +39,11 @@ param
     [string]$Name,
     [string]$Version,
     [Parameter(Mandatory=$True)]
-    [string]$ApiCompatVersion
+    [string]$ApiCompatVersion,
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="DebugConfiguration")]
+    [switch]$DebugBuild,
+    [Parameter(Mandatory=$True, ParameterSetName="ReleaseConfiguration")]
+    [switch]$ReleaseBuild = $False
 )
 
 # Get path from param or use current
@@ -48,6 +52,13 @@ if (![string]::IsNullOrEmpty($Path)) {
     $Path = $Path.TrimEnd('\')
 } else {
     $Path = Get-Location
+}
+
+$BuildConfiguration = ""
+if ($DebugBuild -eq $True) {
+    $BuildConfiguration = "Debug"
+} else {
+    $BuildConfiguration = "Release"
 }
 
 $ApiCompatPath = "$Path\ApiCompat"
@@ -126,7 +137,7 @@ $DownloadFixedPackageVersions = {
 
 $DownloadApiCompat = {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-    cd $ApiCompatPath
+    Set-Location $ApiCompatPath
     
     # Get Zipfile for ApiCompat
     $DestinationPath= "$Path\ApiCompat"
@@ -149,7 +160,7 @@ $DownloadApiCompat = {
             # Extract files
             try {
                 # Get parent folder from latest apiCompat framework version
-                $ZipApiCompatParentFolder = $zip.Entries | where {$_.Name -like 'Microsoft.DotNet.ApiCompat.exe'} | Select -Last 1
+                $ZipApiCompatParentFolder = $zip.Entries | Where-Object {$_.Name -like 'Microsoft.DotNet.ApiCompat.exe'} | Select-Object -Last 1
                 $ZipApiCompatParentFolder = split-path -parent $ZipApiCompatParentFolder 
                 $ZipApiCompatParentFolder = split-path -leaf $ZipApiCompatParentFolder
 
@@ -173,7 +184,7 @@ $DownloadApiCompat = {
         }
     }
 
-    cd $Path
+    Set-Location $Path
 }
 
 $WriteToLog = {
@@ -196,9 +207,9 @@ $WriteToLog = {
 }
 
 # Get specific dll file from built solution
-$Dll = Get-ChildItem "$Path\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -First 1
+$Dll = Get-ChildItem "$Path\**\$Name\bin\$BuildConfiguration\**\**" -Filter "$Name.dll" | ForEach-Object { $_.FullName } | Select-Object -First 1
 if ([string]::IsNullOrEmpty($Dll)){
-    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\Debug\**\**" -Filter "$Name.dll" | % { $_.FullName } | Select -First 1
+    $Dll = Get-ChildItem "$Path\**\**\$Name\bin\$BuildConfiguration\**\**" -Filter "$Name.dll" | ForEach-Object { $_.FullName } | Select-Object -First 1
 
     if ([string]::IsNullOrEmpty($Dll)) {
         Write-Error ">> Local dll was not found. Try building your project or solution."
@@ -225,7 +236,7 @@ if (!$InstallResult) {
 # Get specific dll file from nuget package
 $PackageName = "$DllName.$Version"
 
-$ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select -First 1
+$ContractPath = Get-ChildItem "$ApiCompatPath\Contracts\$PackageName\lib\**\" | Select-Object -First 1
 
 # Download ApiCompat
 # Create a Mutex to prevent race conditions while downloading apiCompat.zip
@@ -257,7 +268,7 @@ try {
 }
 
 # Get ApiCompat executable from downloaded folder
-$ApiCompatExe = Get-ChildItem "$ApiCompatPath\tools\**\Microsoft.DotNet.ApiCompat.exe" | Select -Last 1
+$ApiCompatExe = Get-ChildItem "$ApiCompatPath\tools\**\Microsoft.DotNet.ApiCompat.exe" | Select-Object -Last 1
 
 # Run ApiCompat
 $ApiCompatCommand = "& `"$ApiCompatExe`" $ContractPath --impl-dirs $ImplementationPath --resolve-fx"
