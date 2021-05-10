@@ -197,9 +197,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         /// <returns>created type.</returns>
         public T LoadType<T>(Resource resource)
         {
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
             return LoadTypeAsync<T>(resource).GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
         }
 
         /// <summary>
