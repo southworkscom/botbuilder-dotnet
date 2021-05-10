@@ -19,11 +19,13 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
 
         private readonly SlackClientWrapper _slackClient;
         private readonly ILogger _logger;
+        private readonly SlackAdapter _slackAdapter;
         private readonly SlackAdapterOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SkillToSlackAdapter"/> class using configuration settings.
         /// </summary>
+        /// <param name="slackAdapter">asdasd.</param>
         /// <param name="configuration">An <see cref="IConfiguration"/> instance.</param>
         /// <remarks>
         /// The configuration keys are:
@@ -33,8 +35,8 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// </remarks>
         /// <param name="options">An instance of <see cref="SlackAdapterOptions"/>.</param>
         /// <param name="logger">The ILogger implementation this adapter should use.</param>
-        public SkillToSlackAdapter(IConfiguration configuration, SlackAdapterOptions options = null, ILogger logger = null)
-            : this(new SlackClientWrapper(new SlackClientWrapperOptions(configuration[SlackVerificationTokenKey], configuration[SlackBotTokenKey], configuration[SlackClientSigningSecretKey])), options, configuration, logger)
+        public SkillToSlackAdapter(SlackAdapter slackAdapter, IConfiguration configuration, SlackAdapterOptions options = null, ILogger logger = null)
+            : this(slackAdapter, new SlackClientWrapper(new SlackClientWrapperOptions(configuration[SlackVerificationTokenKey], configuration[SlackBotTokenKey], configuration[SlackClientSigningSecretKey])), options, configuration, logger)
         {
         }
 
@@ -42,16 +44,18 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
         /// Initializes a new instance of the <see cref="SkillToSlackAdapter"/> class.
         /// Creates a Slack adapter.
         /// </summary>
+        /// <param name="slackAdapter">asdasd.</param>
         /// <param name="adapterOptions">The adapter options to be used when connecting to the Slack API.</param>
         /// <param name="configuration">TODO.</param>
         /// <param name="logger">The ILogger implementation this adapter should use.</param>
         /// <param name="slackClient">The SlackClientWrapper used to connect to the Slack API.</param>
-        public SkillToSlackAdapter(SlackClientWrapper slackClient, SlackAdapterOptions adapterOptions, IConfiguration configuration, ILogger logger = null)
+        public SkillToSlackAdapter(SlackAdapter slackAdapter, SlackClientWrapper slackClient, SlackAdapterOptions adapterOptions, IConfiguration configuration, ILogger logger = null)
             : base(configuration)
         {
             _slackClient = slackClient ?? throw new ArgumentNullException(nameof(adapterOptions));
             _logger = logger ?? NullLogger.Instance;
             _options = adapterOptions ?? new SlackAdapterOptions();
+            _slackAdapter = slackAdapter;
         }
 
         /// <summary>
@@ -68,45 +72,7 @@ namespace Microsoft.Bot.Builder.Adapters.Slack
                 return await base.SendActivitiesAsync(turnContext, activities, cancellationToken).ConfigureAwait(false);
             }
 
-            if (turnContext == null)
-            {
-                throw new ArgumentNullException(nameof(turnContext));
-            }
-
-            if (activities == null)
-            {
-                throw new ArgumentNullException(nameof(activities));
-            }
-
-            var responses = new List<ResourceResponse>();
-
-            foreach (var activity in activities)
-            {
-                if (activity.Type != ActivityTypes.Message)
-                {
-                    _logger.LogTrace($"Unsupported Activity Type: '{activity.Type}'. Only Activities of type 'Message' are supported.");
-                }
-                else
-                {
-                    var message = SlackHelper.ActivityToSlack(activity);
-
-                    var slackResponse = await _slackClient.PostMessageAsync(message, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    if (slackResponse != null && slackResponse.Ok)
-                    {
-                        var resourceResponse = new ActivityResourceResponse()
-                        {
-                            Id = slackResponse.Ts,
-                            ActivityId = slackResponse.Ts,
-                            Conversation = new ConversationAccount() { Id = slackResponse.Channel, },
-                        };
-                        responses.Add(resourceResponse);
-                    }
-                }
-            }
-
-            return responses.ToArray();
+            return await _slackAdapter.SendActivitiesAsync(turnContext, activities, cancellationToken).ConfigureAwait(false);
         }
     }
 }
