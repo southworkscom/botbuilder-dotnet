@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Microsoft.Bot.Builder.Adapters.Slack
 {
