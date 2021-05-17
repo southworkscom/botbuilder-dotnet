@@ -199,9 +199,7 @@ namespace Microsoft.Bot.Builder.Azure
                     using (var streamWriter = new StreamWriter(memoryStream))
                     {
                         _jsonSerializer.Serialize(streamWriter, newValue);
-
-                        await streamWriter.FlushAsync().ConfigureAwait(false);
-
+                        streamWriter.Flush();
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         await blobReference.UploadFromStreamAsync(memoryStream, accessCondition, blobRequestOptions, operationContext, cancellationToken).ConfigureAwait(false);
                     }
