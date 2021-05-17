@@ -147,10 +147,8 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
             var encoding = new ASCIIEncoding();
             var bytes = encoding.GetBytes(parsedContent);
 
-            var newStream = await http.GetRequestStreamAsync().ConfigureAwait(false);
-
-            await newStream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
-
+            var newStream = http.GetRequestStream();
+            newStream.Write(bytes, 0, bytes.Length);
             newStream.Close();
 
             var response = await http.GetResponseAsync().ConfigureAwait(false);
